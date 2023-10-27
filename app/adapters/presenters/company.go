@@ -1,0 +1,503 @@
+package presenters
+
+import (
+	"github.com/gofiber/fiber/v2"
+
+	"github.com/SeyramWood/ent"
+)
+
+type (
+	CompanyUserResponseData struct {
+		ID         int    `json:"id"`
+		LastName   string `json:"lastName"`
+		OtherName  string `json:"otherName"`
+		Phone      string `json:"phone"`
+		OtherPhone string `json:"otherPhone"`
+		Role       string `json:"role,omitempty"`
+		CreatedAt  any    `json:"createdAt,omitempty"`
+		UpdatedAt  any    `json:"updatedAt,omitempty"`
+	}
+	CompanyResponseData struct {
+		ID        int    `json:"id"`
+		Name      string `json:"name"`
+		Phone     string `json:"phone"`
+		Email     string `json:"email"`
+		CreatedAt any    `json:"createdAt,omitempty"`
+		UpdatedAt any    `json:"updatedAt,omitempty"`
+	}
+	VehicleImageResponseData struct {
+		ID    int    `json:"id"`
+		Image string `json:"image"`
+	}
+	VehicleResponseData struct {
+		ID                 int                         `json:"id"`
+		RegistrationNumber string                      `json:"registrationNumber"`
+		Model              string                      `json:"model"`
+		Seat               int                         `json:"seat"`
+		Images             []*VehicleImageResponseData `json:"images"`
+		CreatedAt          any                         `json:"createdAt,omitempty"`
+		UpdatedAt          any                         `json:"updatedAt,omitempty"`
+	}
+	RouteStopResponseData struct {
+		ID        int     `json:"id"`
+		Latitude  float64 `json:"latitude"`
+		Longitude float64 `json:"longitude"`
+	}
+	RouteResponseData struct {
+		ID            int                      `json:"id,omitempty"`
+		From          string                   `json:"from"`
+		To            string                   `json:"to"`
+		FromLatitude  float64                  `json:"fromLatitude,omitempty"`
+		FromLongitude float64                  `json:"fromLongitude,omitempty"`
+		ToLatitude    float64                  `json:"toLatitude,omitempty"`
+		ToLongitude   float64                  `json:"toLongitude,omitempty"`
+		Rate          float64                  `json:"rate,omitempty"`
+		Discount      float32                  `json:"discount,omitempty"`
+		Stops         []*RouteStopResponseData `json:"stops,omitempty"`
+		CreatedAt     any                      `json:"createdAt,omitempty"`
+		UpdatedAt     any                      `json:"updatedAt,omitempty"`
+	}
+	TripInspectionStatus struct {
+		Exterior           bool `json:"exterior"`
+		Interior           bool `json:"interior"`
+		EngineCompartment  bool `json:"engineCompartment"`
+		BrakeAndSteering   bool `json:"brakeAndSteering"`
+		EmergencyEquipment bool `json:"emergencyEquipment"`
+		FuelAndFluid       bool `json:"fuelAndFluid"`
+	}
+	TripBoardingPoint struct {
+		ID       string `json:"id"`
+		Location string `json:"location"`
+	}
+	TripResponseData struct {
+		ID               int                      `json:"id"`
+		DepartureDate    any                      `json:"departureDate"`
+		ArrivalDate      any                      `json:"arrivalDate"`
+		ReturnDate       any                      `json:"returnDate"`
+		Type             string                   `json:"type"`
+		InspectionStatus *TripInspectionStatus    `json:"inspectionStatus"`
+		Status           string                   `json:"status"`
+		Scheduled        bool                     `json:"scheduled"`
+		SeatLeft         int                      `json:"seatLeft"`
+		BoardingPoint    any                      `json:"boardingPoint"`
+		Vehicle          *VehicleResponseData     `json:"vehicle"`
+		Route            *RouteResponseData       `json:"route"`
+		Driver           *CompanyUserResponseData `json:"driver"`
+		Company          *CompanyResponseData     `json:"company"`
+		CreatedAt        any                      `json:"createdAt,omitempty"`
+		UpdatedAt        any                      `json:"updatedAt,omitempty"`
+	}
+)
+
+func CompanyUserResponse(data *ent.CompanyUser) *fiber.Map {
+	return SuccessResponse(&CompanyUserResponseData{
+		ID:         data.ID,
+		LastName:   data.LastName,
+		OtherName:  data.OtherName,
+		Phone:      data.Phone,
+		OtherPhone: data.OtherPhone,
+		Role:       string(data.Role),
+		CreatedAt:  data.CreatedAt,
+		UpdatedAt:  data.UpdatedAt,
+	})
+}
+func CompanyUsersResponse(data *PaginationResponse) *fiber.Map {
+	var response []*CompanyUserResponseData
+	for _, u := range data.Data.([]*ent.CompanyUser) {
+		response = append(response, &CompanyUserResponseData{
+			ID:         u.ID,
+			LastName:   u.LastName,
+			OtherName:  u.OtherName,
+			Phone:      u.Phone,
+			OtherPhone: u.OtherPhone,
+			Role:       string(u.Role),
+			CreatedAt:  u.CreatedAt,
+			UpdatedAt:  u.UpdatedAt,
+		})
+	}
+	data.Data = response
+	return SuccessResponse(data)
+}
+func CompanyResponse(data *ent.Company) *fiber.Map {
+	return SuccessResponse(&CompanyResponseData{
+		ID:        data.ID,
+		Name:      data.Name,
+		Phone:     data.Phone,
+		Email:     data.Email,
+		CreatedAt: data.CreatedAt,
+		UpdatedAt: data.UpdatedAt,
+	})
+}
+func CompaniesResponse(data *PaginationResponse) *fiber.Map {
+	var response []*CompanyResponseData
+	for _, c := range data.Data.([]*ent.Company) {
+		response = append(response, &CompanyResponseData{
+			ID:        c.ID,
+			Name:      c.Name,
+			Phone:     c.Phone,
+			Email:     c.Email,
+			CreatedAt: c.CreatedAt,
+			UpdatedAt: c.UpdatedAt,
+		})
+	}
+	data.Data = response
+	return SuccessResponse(data)
+}
+
+func VehicleImageResponse(data *ent.VehicleImage) *fiber.Map {
+	return SuccessResponse(&VehicleImageResponseData{
+		ID:    data.ID,
+		Image: data.Image,
+	})
+}
+func VehicleResponse(data *ent.Vehicle) *fiber.Map {
+	return SuccessResponse(&VehicleResponseData{
+		ID:                 data.ID,
+		RegistrationNumber: data.RegistrationNumber,
+		Model:              data.Model,
+		Seat:               data.Seat,
+		Images: func() []*VehicleImageResponseData {
+			if images, err := data.Edges.ImagesOrErr(); err == nil {
+				response := make([]*VehicleImageResponseData, 0, len(images))
+				for _, image := range images {
+					response = append(response, &VehicleImageResponseData{
+						ID:    image.ID,
+						Image: image.Image,
+					})
+				}
+				return response
+			}
+			return nil
+		}(),
+		CreatedAt: data.CreatedAt,
+		UpdatedAt: data.UpdatedAt,
+	})
+}
+func VehiclesResponse(data *PaginationResponse) *fiber.Map {
+	var response []*VehicleResponseData
+	for _, v := range data.Data.([]*ent.Vehicle) {
+		response = append(response, &VehicleResponseData{
+			ID:                 v.ID,
+			RegistrationNumber: v.RegistrationNumber,
+			Model:              v.Model,
+			Seat:               v.Seat,
+			Images: func() []*VehicleImageResponseData {
+				if images, err := v.Edges.ImagesOrErr(); err == nil {
+					response := make([]*VehicleImageResponseData, 0, len(images))
+					for _, image := range images {
+						response = append(response, &VehicleImageResponseData{
+							ID:    image.ID,
+							Image: image.Image,
+						})
+					}
+					return response
+				}
+				return nil
+			}(),
+			CreatedAt: v.CreatedAt,
+			UpdatedAt: v.UpdatedAt,
+		})
+	}
+	data.Data = response
+	return SuccessResponse(data)
+}
+
+func RouteStopResponse(data *ent.RouteStop) *fiber.Map {
+	return SuccessResponse(&RouteStopResponseData{
+		ID:        data.ID,
+		Latitude:  data.Latitude,
+		Longitude: data.Longitude,
+	})
+}
+func RouteResponse(data *ent.Route) *fiber.Map {
+	return SuccessResponse(&RouteResponseData{
+		ID:            data.ID,
+		From:          data.FromLocation,
+		To:            data.ToLocation,
+		FromLatitude:  data.FromLatitude,
+		FromLongitude: data.FromLongitude,
+		ToLatitude:    data.ToLatitude,
+		ToLongitude:   data.ToLongitude,
+		Rate:          data.Rate,
+		Discount:      data.Discount,
+		Stops: func() []*RouteStopResponseData {
+			if stops, err := data.Edges.StopsOrErr(); err == nil {
+				response := make([]*RouteStopResponseData, 0, len(stops))
+				for _, s := range stops {
+					response = append(response, &RouteStopResponseData{
+						ID:        s.ID,
+						Latitude:  s.Latitude,
+						Longitude: s.Longitude,
+					})
+				}
+				return response
+			}
+			return nil
+		}(),
+		CreatedAt: data.CreatedAt,
+		UpdatedAt: data.UpdatedAt,
+	})
+}
+func RoutesResponse(data *PaginationResponse) *fiber.Map {
+	var response []*RouteResponseData
+	for _, r := range data.Data.([]*ent.Route) {
+		response = append(response, &RouteResponseData{
+			ID:            r.ID,
+			From:          r.FromLocation,
+			To:            r.ToLocation,
+			FromLatitude:  r.FromLatitude,
+			FromLongitude: r.FromLongitude,
+			ToLatitude:    r.ToLatitude,
+			ToLongitude:   r.ToLongitude,
+			Rate:          r.Rate,
+			Discount:      r.Discount,
+			Stops: func() []*RouteStopResponseData {
+				if stops, err := r.Edges.StopsOrErr(); err == nil {
+					response := make([]*RouteStopResponseData, 0, len(stops))
+					for _, r := range stops {
+						response = append(response, &RouteStopResponseData{
+							ID:        r.ID,
+							Latitude:  r.Latitude,
+							Longitude: r.Longitude,
+						})
+					}
+					return response
+				}
+				return nil
+			}(),
+			CreatedAt: r.CreatedAt,
+			UpdatedAt: r.UpdatedAt,
+		})
+	}
+	data.Data = response
+	return SuccessResponse(data)
+}
+func DistinctRoutesResponse(data *PaginationResponse) *fiber.Map {
+	var response []*RouteResponseData
+	for _, r := range data.Data.([]*ent.Route) {
+		response = append(response, &RouteResponseData{
+			From: r.FromLocation,
+			To:   r.ToLocation,
+		})
+	}
+	data.Data = response
+	return SuccessResponse(data)
+}
+
+func TripResponse(data *ent.Trip) *fiber.Map {
+	return SuccessResponse(&TripResponseData{
+		ID:            data.ID,
+		DepartureDate: data.DepartureDate,
+		ArrivalDate:   data.ArrivalDate,
+		ReturnDate:    parseNullDatetime(data.ReturnDate),
+		Type:          string(data.Type),
+		InspectionStatus: &TripInspectionStatus{
+			Exterior:           data.ExteriorInspected,
+			Interior:           data.InteriorInspected,
+			EngineCompartment:  data.EngineCompartmentInspected,
+			BrakeAndSteering:   data.BrakeAndSteeringInspected,
+			EmergencyEquipment: data.EmergencyEquipmentInspected,
+			FuelAndFluid:       data.FuelAndFluidsInspected,
+		},
+		Status:        string(data.Status),
+		Scheduled:     data.Scheduled,
+		SeatLeft:      data.SeatLeft,
+		BoardingPoint: data.BoardingPoints,
+		Vehicle: func() *VehicleResponseData {
+			if v, err := data.Edges.VehicleOrErr(); err == nil {
+				return &VehicleResponseData{
+					ID:                 v.ID,
+					RegistrationNumber: v.RegistrationNumber,
+					Model:              v.Model,
+					Seat:               v.Seat,
+					Images: func() []*VehicleImageResponseData {
+						if images, err := v.Edges.ImagesOrErr(); err == nil {
+							if len(images) == 0 {
+								return nil
+							}
+							response := make([]*VehicleImageResponseData, 0, len(images))
+							for _, image := range images {
+								response = append(response, &VehicleImageResponseData{
+									ID:    image.ID,
+									Image: image.Image,
+								})
+							}
+							return response
+						}
+						return nil
+					}(),
+				}
+			}
+			return nil
+		}(),
+		Route: func() *RouteResponseData {
+			if r, err := data.Edges.RouteOrErr(); err == nil {
+				return &RouteResponseData{
+					ID:            r.ID,
+					From:          r.FromLocation,
+					To:            r.ToLocation,
+					FromLatitude:  r.FromLatitude,
+					FromLongitude: r.FromLongitude,
+					ToLatitude:    r.ToLatitude,
+					ToLongitude:   r.ToLongitude,
+					Rate:          r.Rate,
+					Discount:      r.Discount,
+					Stops: func() []*RouteStopResponseData {
+						if stops, err := r.Edges.StopsOrErr(); err == nil {
+							if len(stops) == 0 {
+								return nil
+							}
+							response := make([]*RouteStopResponseData, 0, len(stops))
+							for _, s := range stops {
+								response = append(response, &RouteStopResponseData{
+									ID:        s.ID,
+									Latitude:  s.Latitude,
+									Longitude: s.Longitude,
+								})
+							}
+							return response
+						}
+						return nil
+					}(),
+				}
+			}
+			return nil
+		}(),
+		Driver: func() *CompanyUserResponseData {
+			if d, err := data.Edges.DriverOrErr(); err == nil {
+				return &CompanyUserResponseData{
+					ID:         d.ID,
+					LastName:   d.LastName,
+					OtherName:  d.OtherName,
+					Phone:      d.Phone,
+					OtherPhone: d.OtherPhone,
+				}
+			}
+			return nil
+		}(),
+		Company: func() *CompanyResponseData {
+			if c, err := data.Edges.CompanyOrErr(); err == nil {
+				return &CompanyResponseData{
+					ID:    c.ID,
+					Name:  c.Name,
+					Phone: c.Phone,
+					Email: c.Email,
+				}
+			}
+			return nil
+		}(),
+		CreatedAt: data.CreatedAt,
+		UpdatedAt: data.UpdatedAt,
+	})
+}
+func TripsResponse(data *PaginationResponse) *fiber.Map {
+	var response []*TripResponseData
+	for _, t := range data.Data.([]*ent.Trip) {
+		response = append(response, &TripResponseData{
+			ID:            t.ID,
+			DepartureDate: t.DepartureDate,
+			ArrivalDate:   t.ArrivalDate,
+			ReturnDate:    parseNullDatetime(t.ReturnDate),
+			Type:          string(t.Type),
+			InspectionStatus: &TripInspectionStatus{
+				Exterior:           t.ExteriorInspected,
+				Interior:           t.InteriorInspected,
+				EngineCompartment:  t.EngineCompartmentInspected,
+				BrakeAndSteering:   t.BrakeAndSteeringInspected,
+				EmergencyEquipment: t.EmergencyEquipmentInspected,
+				FuelAndFluid:       t.FuelAndFluidsInspected,
+			},
+			Status:        string(t.Status),
+			Scheduled:     t.Scheduled,
+			SeatLeft:      t.SeatLeft,
+			BoardingPoint: t.BoardingPoints,
+			Vehicle: func() *VehicleResponseData {
+				if v, err := t.Edges.VehicleOrErr(); err == nil {
+					return &VehicleResponseData{
+						ID:                 v.ID,
+						RegistrationNumber: v.RegistrationNumber,
+						Model:              v.Model,
+						Seat:               v.Seat,
+						Images: func() []*VehicleImageResponseData {
+							if images, err := v.Edges.ImagesOrErr(); err == nil {
+								if len(images) == 0 {
+									return nil
+								}
+								response := make([]*VehicleImageResponseData, 0, len(images))
+								for _, image := range images {
+									response = append(response, &VehicleImageResponseData{
+										ID:    image.ID,
+										Image: image.Image,
+									})
+								}
+								return response
+							}
+							return nil
+						}(),
+					}
+				}
+				return nil
+			}(),
+			Route: func() *RouteResponseData {
+				if r, err := t.Edges.RouteOrErr(); err == nil {
+					return &RouteResponseData{
+						ID:            r.ID,
+						From:          r.FromLocation,
+						To:            r.ToLocation,
+						FromLatitude:  r.FromLatitude,
+						FromLongitude: r.FromLongitude,
+						ToLatitude:    r.ToLatitude,
+						ToLongitude:   r.ToLongitude,
+						Rate:          r.Rate,
+						Discount:      r.Discount,
+						Stops: func() []*RouteStopResponseData {
+							if stops, err := r.Edges.StopsOrErr(); err == nil {
+								if len(stops) == 0 {
+									return nil
+								}
+								response := make([]*RouteStopResponseData, 0, len(stops))
+								for _, s := range stops {
+									response = append(response, &RouteStopResponseData{
+										ID:        s.ID,
+										Latitude:  s.Latitude,
+										Longitude: s.Longitude,
+									})
+								}
+								return response
+							}
+							return nil
+						}(),
+					}
+				}
+				return nil
+			}(),
+			Driver: func() *CompanyUserResponseData {
+				if d, err := t.Edges.DriverOrErr(); err == nil {
+					return &CompanyUserResponseData{
+						ID:         d.ID,
+						LastName:   d.LastName,
+						OtherName:  d.OtherName,
+						Phone:      d.Phone,
+						OtherPhone: d.OtherPhone,
+					}
+				}
+				return nil
+			}(),
+			Company: func() *CompanyResponseData {
+				if c, err := t.Edges.CompanyOrErr(); err == nil {
+					return &CompanyResponseData{
+						ID:    c.ID,
+						Name:  c.Name,
+						Phone: c.Phone,
+						Email: c.Email,
+					}
+				}
+				return nil
+			}(),
+			CreatedAt: t.CreatedAt,
+			UpdatedAt: t.UpdatedAt,
+		})
+	}
+	data.Data = response
+	return SuccessResponse(data)
+}

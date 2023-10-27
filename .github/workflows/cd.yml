@@ -1,0 +1,37 @@
+name: Build and Publish Docker Image
+on:
+  push:
+    branches:
+      - dev
+      - master
+
+jobs:
+  build-and-publish-development-image-to-dockerhub:
+    if: ${{github.ref == 'refs/heads/dev'}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: "Build docker image for development server - Branch: DEV and Publish to Dockerhub registry"
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        with:
+          name: seyramwood/bookihub
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          dockerfile: DockerfileProd
+          default_branch: dev
+          tags: "dev.api"
+
+  build-and-publish-production-image-to-dockerhub:
+    if: ${{github.ref == 'refs/heads/master'}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: "Build docker image for production server - Branch: Master and Publish to Dockerhub registry"
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        with:
+          name: seyramwood/bookihub
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          dockerfile: DockerfileProd
+          default_branch: master
+          tags: "latest.api"
