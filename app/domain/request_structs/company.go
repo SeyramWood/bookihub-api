@@ -90,7 +90,7 @@ type (
 		ArrivalDate   string   `json:"arrivalDate" validate:"required|ascii"`
 		ReturnDate    string   `json:"returnDate" validate:"ascii"`
 		TripType      string   `json:"tripType" validate:"required|string"`
-		Schedule      bool     `json:"scheduled"`
+		Schedule      bool     `json:"schedule"`
 		BoardingPoint []string `json:"boardingPoint" validate:"required"`
 	}
 	TripUpdateRequest struct {
@@ -101,6 +101,14 @@ type (
 		ReturnDate    string               `json:"returnDate" validate:"ascii"`
 		TripType      string               `json:"tripType" validate:"required|string"`
 		BoardingPoint []*TripBoardingPoint `json:"boardingPoint" validate:"required"`
+	}
+	TripInspectionStatusRequest struct {
+		Exterior           bool `json:"exterior"`
+		Interior           bool `json:"interior"`
+		EngineCompartment  bool `json:"engineCompartment"`
+		BrakeAndSteering   bool `json:"brakeAndSteering"`
+		EmergencyEquipment bool `json:"emergencyEquipment"`
+		FuelAndFluid       bool `json:"fuelAndFluid"`
 	}
 	TripBoardingPoint struct {
 		ID       string `json:"id"`

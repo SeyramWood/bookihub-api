@@ -342,58 +342,19 @@ func (r *repository) Update(id int, request *requeststructs.TripUpdateRequest) (
 }
 
 // UpdateInspection implements gateways.TripRepo.
-func (r *repository) UpdateInspection(id int, inspectionType string, status bool) (*ent.Trip, error) {
-	switch inspectionType {
-	case Exterior:
-		result, err := r.db.Trip.UpdateOneID(id).
-			SetExteriorInspected(status).
-			Save(r.ctx)
-		if err != nil {
-			return nil, err
-		}
-		return r.Read(result.ID)
-	case Interior:
-		result, err := r.db.Trip.UpdateOneID(id).
-			SetInteriorInspected(status).
-			Save(r.ctx)
-		if err != nil {
-			return nil, err
-		}
-		return r.Read(result.ID)
-	case EngineCompartment:
-		result, err := r.db.Trip.UpdateOneID(id).
-			SetEngineCompartmentInspected(status).
-			Save(r.ctx)
-		if err != nil {
-			return nil, err
-		}
-		return r.Read(result.ID)
-	case BrakeAndSteering:
-		result, err := r.db.Trip.UpdateOneID(id).
-			SetBrakeAndSteeringInspected(status).
-			Save(r.ctx)
-		if err != nil {
-			return nil, err
-		}
-		return r.Read(result.ID)
-	case EmergencyEquipment:
-		result, err := r.db.Trip.UpdateOneID(id).
-			SetEmergencyEquipmentInspected(status).
-			Save(r.ctx)
-		if err != nil {
-			return nil, err
-		}
-		return r.Read(result.ID)
-	case FuelAndFluid:
-		result, err := r.db.Trip.UpdateOneID(id).
-			SetFuelAndFluidsInspected(status).
-			Save(r.ctx)
-		if err != nil {
-			return nil, err
-		}
-		return r.Read(result.ID)
+func (r *repository) UpdateInspection(id int, request *requeststructs.TripInspectionStatusRequest) (*ent.Trip, error) {
+	result, err := r.db.Trip.UpdateOneID(id).
+		SetExteriorInspected(request.Exterior).
+		SetInteriorInspected(request.Interior).
+		SetEngineCompartmentInspected(request.EngineCompartment).
+		SetBrakeAndSteeringInspected(request.BrakeAndSteering).
+		SetEmergencyEquipmentInspected(request.EmergencyEquipment).
+		SetFuelAndFluidsInspected(request.FuelAndFluid).
+		Save(r.ctx)
+	if err != nil {
+		return nil, err
 	}
-	return new(ent.Trip), nil
+	return r.Read(result.ID)
 }
 
 // UpdateSchedule implements gateways.TripRepo.

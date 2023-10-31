@@ -64,7 +64,7 @@ func CompanyRoutes(r fiber.Router, router *apiRouter) {
 	tripGroup.Put("/:id", requests.ValidateTripUpdate(), tripHandler.Update())
 	tripGroup.Put("/:id/update-status", tripHandler.UpdateStatus())
 	tripGroup.Put("/:id/update-schedule", tripHandler.UpdateSchedule())
-	tripGroup.Put("/:id/:inspection/update-inspection", tripHandler.UpdateInspection())
+	tripGroup.Put("/:id/update-inspection", tripHandler.UpdateInspection())
 	tripGroup.Delete("/:id", tripHandler.Remove())
 
 }

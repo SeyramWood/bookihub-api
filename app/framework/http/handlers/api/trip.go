@@ -176,11 +176,12 @@ func (h *tripHandler) AddBoardingPoint() fiber.Handler {
 
 func (h *tripHandler) UpdateInspection() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		if c.Query("status") == "" {
+		request := new(requeststructs.TripInspectionStatusRequest)
+		if err := c.BodyParser(request); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
 		}
 		id, _ := c.ParamsInt("id")
-		result, err := h.service.UpdateInspection(id, c.Params("inspection"), c.QueryBool("status"))
+		result, err := h.service.UpdateInspection(id, request)
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("trip not found")))

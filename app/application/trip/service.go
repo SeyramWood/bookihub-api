@@ -68,8 +68,8 @@ func (s *service) Update(id int, request *requeststructs.TripUpdateRequest) (*en
 }
 
 // UpdateInspection implements gateways.TripService.
-func (s *service) UpdateInspection(id int, inspectionType string, status bool) (*ent.Trip, error) {
-	return s.repo.UpdateInspection(id, inspectionType, status)
+func (s *service) UpdateInspection(id int, request *requeststructs.TripInspectionStatusRequest) (*ent.Trip, error) {
+	return s.repo.UpdateInspection(id, request)
 }
 
 // UpdateSchedule implements gateways.TripService.
