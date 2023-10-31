@@ -13,6 +13,8 @@ import (
 	"github.com/SeyramWood/ent/booking"
 	"github.com/SeyramWood/ent/company"
 	"github.com/SeyramWood/ent/companyuser"
+	"github.com/SeyramWood/ent/incident"
+	"github.com/SeyramWood/ent/parcel"
 	"github.com/SeyramWood/ent/route"
 	"github.com/SeyramWood/ent/trip"
 	"github.com/SeyramWood/ent/vehicle"
@@ -335,6 +337,36 @@ func (tc *TripCreate) AddBookings(b ...*Booking) *TripCreate {
 	return tc.AddBookingIDs(ids...)
 }
 
+// AddIncidentIDs adds the "incidents" edge to the Incident entity by IDs.
+func (tc *TripCreate) AddIncidentIDs(ids ...int) *TripCreate {
+	tc.mutation.AddIncidentIDs(ids...)
+	return tc
+}
+
+// AddIncidents adds the "incidents" edges to the Incident entity.
+func (tc *TripCreate) AddIncidents(i ...*Incident) *TripCreate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return tc.AddIncidentIDs(ids...)
+}
+
+// AddParcelIDs adds the "parcels" edge to the Parcel entity by IDs.
+func (tc *TripCreate) AddParcelIDs(ids ...int) *TripCreate {
+	tc.mutation.AddParcelIDs(ids...)
+	return tc
+}
+
+// AddParcels adds the "parcels" edges to the Parcel entity.
+func (tc *TripCreate) AddParcels(p ...*Parcel) *TripCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tc.AddParcelIDs(ids...)
+}
+
 // Mutation returns the TripMutation object of the builder.
 func (tc *TripCreate) Mutation() *TripMutation {
 	return tc.mutation
@@ -628,6 +660,38 @@ func (tc *TripCreate) createSpec() (*Trip, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(booking.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tc.mutation.IncidentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.IncidentsTable,
+			Columns: []string{trip.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tc.mutation.ParcelsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.ParcelsTable,
+			Columns: []string{trip.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

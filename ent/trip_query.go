@@ -14,6 +14,8 @@ import (
 	"github.com/SeyramWood/ent/booking"
 	"github.com/SeyramWood/ent/company"
 	"github.com/SeyramWood/ent/companyuser"
+	"github.com/SeyramWood/ent/incident"
+	"github.com/SeyramWood/ent/parcel"
 	"github.com/SeyramWood/ent/predicate"
 	"github.com/SeyramWood/ent/route"
 	"github.com/SeyramWood/ent/trip"
@@ -23,17 +25,19 @@ import (
 // TripQuery is the builder for querying Trip entities.
 type TripQuery struct {
 	config
-	ctx          *QueryContext
-	order        []trip.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Trip
-	withCompany  *CompanyQuery
-	withDriver   *CompanyUserQuery
-	withVehicle  *VehicleQuery
-	withRoute    *RouteQuery
-	withBookings *BookingQuery
-	withFKs      bool
-	modifiers    []func(*sql.Selector)
+	ctx           *QueryContext
+	order         []trip.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.Trip
+	withCompany   *CompanyQuery
+	withDriver    *CompanyUserQuery
+	withVehicle   *VehicleQuery
+	withRoute     *RouteQuery
+	withBookings  *BookingQuery
+	withIncidents *IncidentQuery
+	withParcels   *ParcelQuery
+	withFKs       bool
+	modifiers     []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -173,6 +177,50 @@ func (tq *TripQuery) QueryBookings() *BookingQuery {
 			sqlgraph.From(trip.Table, trip.FieldID, selector),
 			sqlgraph.To(booking.Table, booking.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, trip.BookingsTable, trip.BookingsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryIncidents chains the current query on the "incidents" edge.
+func (tq *TripQuery) QueryIncidents() *IncidentQuery {
+	query := (&IncidentClient{config: tq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trip.Table, trip.FieldID, selector),
+			sqlgraph.To(incident.Table, incident.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, trip.IncidentsTable, trip.IncidentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryParcels chains the current query on the "parcels" edge.
+func (tq *TripQuery) QueryParcels() *ParcelQuery {
+	query := (&ParcelClient{config: tq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trip.Table, trip.FieldID, selector),
+			sqlgraph.To(parcel.Table, parcel.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, trip.ParcelsTable, trip.ParcelsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -367,16 +415,18 @@ func (tq *TripQuery) Clone() *TripQuery {
 		return nil
 	}
 	return &TripQuery{
-		config:       tq.config,
-		ctx:          tq.ctx.Clone(),
-		order:        append([]trip.OrderOption{}, tq.order...),
-		inters:       append([]Interceptor{}, tq.inters...),
-		predicates:   append([]predicate.Trip{}, tq.predicates...),
-		withCompany:  tq.withCompany.Clone(),
-		withDriver:   tq.withDriver.Clone(),
-		withVehicle:  tq.withVehicle.Clone(),
-		withRoute:    tq.withRoute.Clone(),
-		withBookings: tq.withBookings.Clone(),
+		config:        tq.config,
+		ctx:           tq.ctx.Clone(),
+		order:         append([]trip.OrderOption{}, tq.order...),
+		inters:        append([]Interceptor{}, tq.inters...),
+		predicates:    append([]predicate.Trip{}, tq.predicates...),
+		withCompany:   tq.withCompany.Clone(),
+		withDriver:    tq.withDriver.Clone(),
+		withVehicle:   tq.withVehicle.Clone(),
+		withRoute:     tq.withRoute.Clone(),
+		withBookings:  tq.withBookings.Clone(),
+		withIncidents: tq.withIncidents.Clone(),
+		withParcels:   tq.withParcels.Clone(),
 		// clone intermediate query.
 		sql:  tq.sql.Clone(),
 		path: tq.path,
@@ -435,6 +485,28 @@ func (tq *TripQuery) WithBookings(opts ...func(*BookingQuery)) *TripQuery {
 		opt(query)
 	}
 	tq.withBookings = query
+	return tq
+}
+
+// WithIncidents tells the query-builder to eager-load the nodes that are connected to
+// the "incidents" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TripQuery) WithIncidents(opts ...func(*IncidentQuery)) *TripQuery {
+	query := (&IncidentClient{config: tq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	tq.withIncidents = query
+	return tq
+}
+
+// WithParcels tells the query-builder to eager-load the nodes that are connected to
+// the "parcels" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TripQuery) WithParcels(opts ...func(*ParcelQuery)) *TripQuery {
+	query := (&ParcelClient{config: tq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	tq.withParcels = query
 	return tq
 }
 
@@ -517,12 +589,14 @@ func (tq *TripQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trip, e
 		nodes       = []*Trip{}
 		withFKs     = tq.withFKs
 		_spec       = tq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [7]bool{
 			tq.withCompany != nil,
 			tq.withDriver != nil,
 			tq.withVehicle != nil,
 			tq.withRoute != nil,
 			tq.withBookings != nil,
+			tq.withIncidents != nil,
+			tq.withParcels != nil,
 		}
 	)
 	if tq.withCompany != nil || tq.withDriver != nil || tq.withVehicle != nil || tq.withRoute != nil {
@@ -580,6 +654,20 @@ func (tq *TripQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trip, e
 		if err := tq.loadBookings(ctx, query, nodes,
 			func(n *Trip) { n.Edges.Bookings = []*Booking{} },
 			func(n *Trip, e *Booking) { n.Edges.Bookings = append(n.Edges.Bookings, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := tq.withIncidents; query != nil {
+		if err := tq.loadIncidents(ctx, query, nodes,
+			func(n *Trip) { n.Edges.Incidents = []*Incident{} },
+			func(n *Trip, e *Incident) { n.Edges.Incidents = append(n.Edges.Incidents, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := tq.withParcels; query != nil {
+		if err := tq.loadParcels(ctx, query, nodes,
+			func(n *Trip) { n.Edges.Parcels = []*Parcel{} },
+			func(n *Trip, e *Parcel) { n.Edges.Parcels = append(n.Edges.Parcels, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -740,6 +828,68 @@ func (tq *TripQuery) loadBookings(ctx context.Context, query *BookingQuery, node
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "trip_bookings" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (tq *TripQuery) loadIncidents(ctx context.Context, query *IncidentQuery, nodes []*Trip, init func(*Trip), assign func(*Trip, *Incident)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Trip)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Incident(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(trip.IncidentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.trip_incidents
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "trip_incidents" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "trip_incidents" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (tq *TripQuery) loadParcels(ctx context.Context, query *ParcelQuery, nodes []*Trip, init func(*Trip), assign func(*Trip, *Parcel)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Trip)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Parcel(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(trip.ParcelsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.trip_parcels
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "trip_parcels" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "trip_parcels" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

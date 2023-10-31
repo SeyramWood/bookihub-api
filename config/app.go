@@ -46,6 +46,16 @@ type (
 		FromAddress string
 		FromName    string
 	}
+	payment struct {
+		Gateway string
+	}
+	paystack struct {
+		URL    string
+		PubKey string
+		SecKey string
+		Email  string
+		Domain string
+	}
 
 	arkesel struct {
 		APIKey string
@@ -146,4 +156,33 @@ func Arkesel() *arkesel {
 		APIKey: env.Get("ARKESEL_API_KEY", ""),
 		URL:    env.Get("ARKESEL_URL", ""),
 	}
+}
+func Payment() *payment {
+	if os.Getenv("APP_ENV") == "production" {
+		return &payment{
+			Gateway: os.Getenv("PAYMENT_GATEWAY"),
+		}
+	}
+	return &payment{
+		Gateway: env.Get("PAYMENT_GATEWAY", "paystack"),
+	}
+}
+func Paystack() *paystack {
+	if os.Getenv("APP_ENV") == "production" {
+		return &paystack{
+			URL:    os.Getenv("PAYSTACK_URL"),
+			PubKey: os.Getenv("PAYSTACK_PUB_KEY"),
+			SecKey: os.Getenv("PAYSTACK_SEC_KEY"),
+			Email:  os.Getenv("PAYSTACK_EMAIL"),
+			Domain: os.Getenv("PAYSTACK_DOMAIN"),
+		}
+	}
+	return &paystack{
+		URL:    env.Get("PAYSTACK_URL", ""),
+		PubKey: env.Get("PAYSTACK_PUB_KEY", ""),
+		SecKey: env.Get("PAYSTACK_SEC_KEY", ""),
+		Email:  env.Get("PAYSTACK_EMAIL", ""),
+		Domain: env.Get("PAYSTACK_DOMAIN", ""),
+	}
+
 }

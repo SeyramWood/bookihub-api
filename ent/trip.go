@@ -79,9 +79,13 @@ type TripEdges struct {
 	Route *Route `json:"route,omitempty"`
 	// Bookings holds the value of the bookings edge.
 	Bookings []*Booking `json:"bookings,omitempty"`
+	// Incidents holds the value of the incidents edge.
+	Incidents []*Incident `json:"incidents,omitempty"`
+	// Parcels holds the value of the parcels edge.
+	Parcels []*Parcel `json:"parcels,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [7]bool
 }
 
 // CompanyOrErr returns the Company value or an error if the edge
@@ -143,6 +147,24 @@ func (e TripEdges) BookingsOrErr() ([]*Booking, error) {
 		return e.Bookings, nil
 	}
 	return nil, &NotLoadedError{edge: "bookings"}
+}
+
+// IncidentsOrErr returns the Incidents value or an error if the edge
+// was not loaded in eager-loading.
+func (e TripEdges) IncidentsOrErr() ([]*Incident, error) {
+	if e.loadedTypes[5] {
+		return e.Incidents, nil
+	}
+	return nil, &NotLoadedError{edge: "incidents"}
+}
+
+// ParcelsOrErr returns the Parcels value or an error if the edge
+// was not loaded in eager-loading.
+func (e TripEdges) ParcelsOrErr() ([]*Parcel, error) {
+	if e.loadedTypes[6] {
+		return e.Parcels, nil
+	}
+	return nil, &NotLoadedError{edge: "parcels"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -351,6 +373,16 @@ func (t *Trip) QueryRoute() *RouteQuery {
 // QueryBookings queries the "bookings" edge of the Trip entity.
 func (t *Trip) QueryBookings() *BookingQuery {
 	return NewTripClient(t.config).QueryBookings(t)
+}
+
+// QueryIncidents queries the "incidents" edge of the Trip entity.
+func (t *Trip) QueryIncidents() *IncidentQuery {
+	return NewTripClient(t.config).QueryIncidents(t)
+}
+
+// QueryParcels queries the "parcels" edge of the Trip entity.
+func (t *Trip) QueryParcels() *ParcelQuery {
+	return NewTripClient(t.config).QueryParcels(t)
 }
 
 // Update returns a builder for updating this Trip.

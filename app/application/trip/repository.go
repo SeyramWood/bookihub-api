@@ -118,6 +118,26 @@ func (r *repository) Read(id int) (*ent.Trip, error) {
 		}).
 		WithDriver().
 		WithCompany().
+		WithBookings(func(bq *ent.BookingQuery) {
+			bq.WithPassengers()
+			bq.WithLuggages()
+			bq.WithContact()
+			bq.WithCustomer(func(cq *ent.CustomerQuery) {
+				cq.WithProfile()
+			})
+			bq.WithTrip(func(tq *ent.TripQuery) {
+				tq.WithVehicle(func(vq *ent.VehicleQuery) {
+					vq.WithImages()
+				})
+				tq.WithRoute(func(rq *ent.RouteQuery) {
+					rq.WithStops()
+				})
+				tq.WithDriver()
+				tq.WithCompany()
+			})
+		}).
+		WithParcels().
+		WithIncidents().
 		Only(r.ctx)
 	if err != nil {
 		return nil, err
@@ -458,6 +478,20 @@ func (r *repository) filterTrip(query *ent.TripQuery, limit, offset int) (*prese
 		}).
 		WithDriver().
 		WithCompany().
+		WithBookings(func(bq *ent.BookingQuery) {
+			bq.WithPassengers()
+			bq.WithLuggages()
+			bq.WithContact()
+			bq.WithCustomer(func(cq *ent.CustomerQuery) {
+				cq.WithProfile()
+			})
+		}).
+		WithParcels(func(pq *ent.ParcelQuery) {
+			pq.WithImages()
+		}).
+		WithIncidents(func(iq *ent.IncidentQuery) {
+			iq.WithImages()
+		}).
 		All(r.ctx)
 	if err != nil {
 		return nil, err
@@ -483,6 +517,20 @@ func (r *repository) filterTripByPopularity(query *ent.TripQuery, limit, offset 
 		}).
 		WithDriver().
 		WithCompany().
+		WithBookings(func(bq *ent.BookingQuery) {
+			bq.WithPassengers()
+			bq.WithLuggages()
+			bq.WithContact()
+			bq.WithCustomer(func(cq *ent.CustomerQuery) {
+				cq.WithProfile()
+			})
+		}).
+		WithParcels(func(pq *ent.ParcelQuery) {
+			pq.WithImages()
+		}).
+		WithIncidents(func(iq *ent.IncidentQuery) {
+			iq.WithImages()
+		}).
 		All(r.ctx)
 	if err != nil {
 		return nil, err

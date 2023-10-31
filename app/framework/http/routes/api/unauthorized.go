@@ -13,7 +13,7 @@ func UnauthorizedRoutes(r fiber.Router, router *apiRouter) {
 	companyHandler := api.NewCompanyHandler(router.Adapter, router.EventProducer)
 	tripHandler := api.NewTripHandler(router.Adapter)
 	customerHandler := api.NewCustomerHandler(router.Adapter)
-	bookingHandler := api.NewBookingHandler(router.Adapter, router.EventProducer, router.CacheSrv)
+	bookingHandler := api.NewBookingHandler(router.Adapter, router.EventProducer, router.CacheSrv, router.Payment)
 
 	authGroup := r.Group("/auth")
 	authGroup.Post("/login", authHandler.Login())

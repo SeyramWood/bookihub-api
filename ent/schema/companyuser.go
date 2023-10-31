@@ -37,6 +37,10 @@ func (CompanyUser) Edges() []ent.Edge {
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.To("trips", Trip.Type).
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
+		edge.To("incidents", Incident.Type).
+			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
+		edge.To("parcels", Parcel.Type).
+			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.To("notifications", Notification.Type).Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.From("company", Company.Type).
 			Ref("profile").

@@ -41,6 +41,26 @@ func (bu *BookingUpdate) SetUpdatedAt(t time.Time) *BookingUpdate {
 	return bu
 }
 
+// SetReference sets the "reference" field.
+func (bu *BookingUpdate) SetReference(s string) *BookingUpdate {
+	bu.mutation.SetReference(s)
+	return bu
+}
+
+// SetNillableReference sets the "reference" field if the given value is not nil.
+func (bu *BookingUpdate) SetNillableReference(s *string) *BookingUpdate {
+	if s != nil {
+		bu.SetReference(*s)
+	}
+	return bu
+}
+
+// ClearReference clears the value of the "reference" field.
+func (bu *BookingUpdate) ClearReference() *BookingUpdate {
+	bu.mutation.ClearReference()
+	return bu
+}
+
 // SetBookingNumber sets the "booking_number" field.
 func (bu *BookingUpdate) SetBookingNumber(s string) *BookingUpdate {
 	bu.mutation.SetBookingNumber(s)
@@ -143,6 +163,26 @@ func (bu *BookingUpdate) ClearRefundAmount() *BookingUpdate {
 	return bu
 }
 
+// SetPaidAt sets the "paid_at" field.
+func (bu *BookingUpdate) SetPaidAt(t time.Time) *BookingUpdate {
+	bu.mutation.SetPaidAt(t)
+	return bu
+}
+
+// SetNillablePaidAt sets the "paid_at" field if the given value is not nil.
+func (bu *BookingUpdate) SetNillablePaidAt(t *time.Time) *BookingUpdate {
+	if t != nil {
+		bu.SetPaidAt(*t)
+	}
+	return bu
+}
+
+// ClearPaidAt clears the value of the "paid_at" field.
+func (bu *BookingUpdate) ClearPaidAt() *BookingUpdate {
+	bu.mutation.ClearPaidAt()
+	return bu
+}
+
 // SetRefundAt sets the "refund_at" field.
 func (bu *BookingUpdate) SetRefundAt(t time.Time) *BookingUpdate {
 	bu.mutation.SetRefundAt(t)
@@ -174,12 +214,6 @@ func (bu *BookingUpdate) SetNillableTansType(bt *booking.TansType) *BookingUpdat
 	if bt != nil {
 		bu.SetTansType(*bt)
 	}
-	return bu
-}
-
-// ClearTansType clears the value of the "tans_type" field.
-func (bu *BookingUpdate) ClearTansType() *BookingUpdate {
-	bu.mutation.ClearTansType()
 	return bu
 }
 
@@ -470,6 +504,12 @@ func (bu *BookingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := bu.mutation.UpdatedAt(); ok {
 		_spec.SetField(booking.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := bu.mutation.Reference(); ok {
+		_spec.SetField(booking.FieldReference, field.TypeString, value)
+	}
+	if bu.mutation.ReferenceCleared() {
+		_spec.ClearField(booking.FieldReference, field.TypeString)
+	}
 	if value, ok := bu.mutation.BookingNumber(); ok {
 		_spec.SetField(booking.FieldBookingNumber, field.TypeString, value)
 	}
@@ -503,6 +543,12 @@ func (bu *BookingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if bu.mutation.RefundAmountCleared() {
 		_spec.ClearField(booking.FieldRefundAmount, field.TypeFloat64)
 	}
+	if value, ok := bu.mutation.PaidAt(); ok {
+		_spec.SetField(booking.FieldPaidAt, field.TypeTime, value)
+	}
+	if bu.mutation.PaidAtCleared() {
+		_spec.ClearField(booking.FieldPaidAt, field.TypeTime)
+	}
 	if value, ok := bu.mutation.RefundAt(); ok {
 		_spec.SetField(booking.FieldRefundAt, field.TypeTime, value)
 	}
@@ -511,9 +557,6 @@ func (bu *BookingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := bu.mutation.TansType(); ok {
 		_spec.SetField(booking.FieldTansType, field.TypeEnum, value)
-	}
-	if bu.mutation.TansTypeCleared() {
-		_spec.ClearField(booking.FieldTansType, field.TypeEnum)
 	}
 	if value, ok := bu.mutation.SmsNotification(); ok {
 		_spec.SetField(booking.FieldSmsNotification, field.TypeBool, value)
@@ -755,6 +798,26 @@ func (buo *BookingUpdateOne) SetUpdatedAt(t time.Time) *BookingUpdateOne {
 	return buo
 }
 
+// SetReference sets the "reference" field.
+func (buo *BookingUpdateOne) SetReference(s string) *BookingUpdateOne {
+	buo.mutation.SetReference(s)
+	return buo
+}
+
+// SetNillableReference sets the "reference" field if the given value is not nil.
+func (buo *BookingUpdateOne) SetNillableReference(s *string) *BookingUpdateOne {
+	if s != nil {
+		buo.SetReference(*s)
+	}
+	return buo
+}
+
+// ClearReference clears the value of the "reference" field.
+func (buo *BookingUpdateOne) ClearReference() *BookingUpdateOne {
+	buo.mutation.ClearReference()
+	return buo
+}
+
 // SetBookingNumber sets the "booking_number" field.
 func (buo *BookingUpdateOne) SetBookingNumber(s string) *BookingUpdateOne {
 	buo.mutation.SetBookingNumber(s)
@@ -857,6 +920,26 @@ func (buo *BookingUpdateOne) ClearRefundAmount() *BookingUpdateOne {
 	return buo
 }
 
+// SetPaidAt sets the "paid_at" field.
+func (buo *BookingUpdateOne) SetPaidAt(t time.Time) *BookingUpdateOne {
+	buo.mutation.SetPaidAt(t)
+	return buo
+}
+
+// SetNillablePaidAt sets the "paid_at" field if the given value is not nil.
+func (buo *BookingUpdateOne) SetNillablePaidAt(t *time.Time) *BookingUpdateOne {
+	if t != nil {
+		buo.SetPaidAt(*t)
+	}
+	return buo
+}
+
+// ClearPaidAt clears the value of the "paid_at" field.
+func (buo *BookingUpdateOne) ClearPaidAt() *BookingUpdateOne {
+	buo.mutation.ClearPaidAt()
+	return buo
+}
+
 // SetRefundAt sets the "refund_at" field.
 func (buo *BookingUpdateOne) SetRefundAt(t time.Time) *BookingUpdateOne {
 	buo.mutation.SetRefundAt(t)
@@ -888,12 +971,6 @@ func (buo *BookingUpdateOne) SetNillableTansType(bt *booking.TansType) *BookingU
 	if bt != nil {
 		buo.SetTansType(*bt)
 	}
-	return buo
-}
-
-// ClearTansType clears the value of the "tans_type" field.
-func (buo *BookingUpdateOne) ClearTansType() *BookingUpdateOne {
-	buo.mutation.ClearTansType()
 	return buo
 }
 
@@ -1214,6 +1291,12 @@ func (buo *BookingUpdateOne) sqlSave(ctx context.Context) (_node *Booking, err e
 	if value, ok := buo.mutation.UpdatedAt(); ok {
 		_spec.SetField(booking.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := buo.mutation.Reference(); ok {
+		_spec.SetField(booking.FieldReference, field.TypeString, value)
+	}
+	if buo.mutation.ReferenceCleared() {
+		_spec.ClearField(booking.FieldReference, field.TypeString)
+	}
 	if value, ok := buo.mutation.BookingNumber(); ok {
 		_spec.SetField(booking.FieldBookingNumber, field.TypeString, value)
 	}
@@ -1247,6 +1330,12 @@ func (buo *BookingUpdateOne) sqlSave(ctx context.Context) (_node *Booking, err e
 	if buo.mutation.RefundAmountCleared() {
 		_spec.ClearField(booking.FieldRefundAmount, field.TypeFloat64)
 	}
+	if value, ok := buo.mutation.PaidAt(); ok {
+		_spec.SetField(booking.FieldPaidAt, field.TypeTime, value)
+	}
+	if buo.mutation.PaidAtCleared() {
+		_spec.ClearField(booking.FieldPaidAt, field.TypeTime)
+	}
 	if value, ok := buo.mutation.RefundAt(); ok {
 		_spec.SetField(booking.FieldRefundAt, field.TypeTime, value)
 	}
@@ -1255,9 +1344,6 @@ func (buo *BookingUpdateOne) sqlSave(ctx context.Context) (_node *Booking, err e
 	}
 	if value, ok := buo.mutation.TansType(); ok {
 		_spec.SetField(booking.FieldTansType, field.TypeEnum, value)
-	}
-	if buo.mutation.TansTypeCleared() {
-		_spec.ClearField(booking.FieldTansType, field.TypeEnum)
 	}
 	if value, ok := buo.mutation.SmsNotification(); ok {
 		_spec.SetField(booking.FieldSmsNotification, field.TypeBool, value)

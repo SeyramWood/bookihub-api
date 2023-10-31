@@ -13,7 +13,9 @@ import (
 	"github.com/SeyramWood/ent/booking"
 	"github.com/SeyramWood/ent/company"
 	"github.com/SeyramWood/ent/companyuser"
+	"github.com/SeyramWood/ent/incident"
 	"github.com/SeyramWood/ent/notification"
+	"github.com/SeyramWood/ent/parcel"
 	"github.com/SeyramWood/ent/route"
 	"github.com/SeyramWood/ent/trip"
 	"github.com/SeyramWood/ent/vehicle"
@@ -159,6 +161,36 @@ func (cc *CompanyCreate) AddBookings(b ...*Booking) *CompanyCreate {
 		ids[i] = b[i].ID
 	}
 	return cc.AddBookingIDs(ids...)
+}
+
+// AddIncidentIDs adds the "incidents" edge to the Incident entity by IDs.
+func (cc *CompanyCreate) AddIncidentIDs(ids ...int) *CompanyCreate {
+	cc.mutation.AddIncidentIDs(ids...)
+	return cc
+}
+
+// AddIncidents adds the "incidents" edges to the Incident entity.
+func (cc *CompanyCreate) AddIncidents(i ...*Incident) *CompanyCreate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return cc.AddIncidentIDs(ids...)
+}
+
+// AddParcelIDs adds the "parcels" edge to the Parcel entity by IDs.
+func (cc *CompanyCreate) AddParcelIDs(ids ...int) *CompanyCreate {
+	cc.mutation.AddParcelIDs(ids...)
+	return cc
+}
+
+// AddParcels adds the "parcels" edges to the Parcel entity.
+func (cc *CompanyCreate) AddParcels(p ...*Parcel) *CompanyCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return cc.AddParcelIDs(ids...)
 }
 
 // AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
@@ -376,6 +408,38 @@ func (cc *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(booking.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.IncidentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.IncidentsTable,
+			Columns: []string{company.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.ParcelsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.ParcelsTable,
+			Columns: []string{company.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

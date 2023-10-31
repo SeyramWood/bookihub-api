@@ -1,11 +1,17 @@
 package booking
 
 import (
+	"errors"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/SeyramWood/app/adapters/gateways"
 	"github.com/SeyramWood/app/adapters/presenters"
+	"github.com/SeyramWood/app/application/payment"
+	"github.com/SeyramWood/app/domain"
 	requeststructs "github.com/SeyramWood/app/domain/request_structs"
+	"github.com/SeyramWood/config"
 	"github.com/SeyramWood/ent"
 )
 
@@ -13,13 +19,15 @@ type service struct {
 	repo     gateways.BookingRepo
 	producer gateways.EventProducer
 	cache    gateways.CacheService
+	payment  gateways.PaymentService
 }
 
-func NewService(repo gateways.BookingRepo, producer gateways.EventProducer, cache gateways.CacheService) gateways.BookingService {
+func NewService(repo gateways.BookingRepo, producer gateways.EventProducer, cache gateways.CacheService, payment gateways.PaymentService) gateways.BookingService {
 	return &service{
 		repo:     repo,
 		producer: producer,
 		cache:    cache,
+		payment:  payment,
 	}
 }
 
@@ -36,8 +44,64 @@ func (s *service) CancelBooking(id int, request *requeststructs.BookingCancelReq
 }
 
 // Create implements gateways.BookingService.
-func (s *service) Create(request *requeststructs.BookingRequest) (*ent.Booking, error) {
-	return s.repo.Insert(request)
+func (s *service) Create(request *requeststructs.BookingRequest, transType string) (*ent.Booking, error) {
+	if transType == "cash" {
+		result, err := s.repo.Insert(request, &requeststructs.PaymentReferenceResponse{
+			PaidAt:    time.Now().Format(time.RFC3339),
+			TransType: strings.ToLower(transType),
+		})
+		if err != nil {
+			return nil, err
+		}
+		// TODO process new booking notification: sms or email and db
+		if result.SmsNotification {
+			s.producer.Queue("notification:sms", domain.SMSPayload{
+				Message:    fmt.Sprintf("Your booking was successful, use the details below to manage your trip.\nTrip ID: %s\nName: %s", result.BookingNumber, result.Edges.Contact.FullName),
+				Recipients: []string{result.Edges.Contact.Phone},
+			})
+		} else {
+			s.producer.Queue("notification:email", domain.MailerMessage{
+				To:      result.Edges.Contact.Email,
+				Subject: "New Booking - Bookibus",
+				Data: map[string]string{
+					"tripId": result.BookingNumber,
+					"name":   result.Edges.Contact.FullName,
+					"url":    config.App().AppBookiBusURL,
+				},
+				Template: "newbooking",
+			})
+		}
+		return result, nil
+	}
+
+	resp, err := s.payment.Verify(request.Reference)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status && resp.Message == payment.VerificationSuccessful {
+		result, err := s.repo.Insert(request, resp)
+		if err != nil {
+			return nil, err
+		}
+		// TODO process new booking notification: sms or email and db
+		if result.SmsNotification {
+			s.producer.Queue("notification:sms", domain.SMSPayload{
+				Message:    fmt.Sprintf("Your booking was successful, use the details below to manage your trip.\nTrip ID: %s\nName: %s", result.BookingNumber, result.Edges.Contact.FullName),
+				Recipients: []string{result.Edges.Contact.Phone},
+			})
+		} else {
+			s.producer.Queue("notification:email", domain.MailerMessage{
+				To:      result.Edges.Contact.Email,
+				Subject: "New Booking - Bookibus",
+				Data: map[string]string{
+					"url": config.App().AppBookiBusURL,
+				},
+				Template: "newbooking",
+			})
+		}
+		return result, nil
+	}
+	return nil, errors.New(strings.ToLower(resp.Message))
 }
 
 // Fetch implements gateways.BookingService.

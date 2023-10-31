@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/ent/parcelimage"
 )
 
 type (
@@ -84,6 +85,9 @@ type (
 		Route            *RouteResponseData       `json:"route"`
 		Driver           *CompanyUserResponseData `json:"driver"`
 		Company          *CompanyResponseData     `json:"company"`
+		Bookings         []*BookingResponseData   `json:"bookings,omitempty"`
+		Delivery         []*ParcelResponseData    `json:"delivery,omitempty"`
+		Incident         []*IncidentResponseData  `json:"incident,omitempty"`
 		CreatedAt        any                      `json:"createdAt,omitempty"`
 		UpdatedAt        any                      `json:"updatedAt,omitempty"`
 	}
@@ -286,102 +290,190 @@ func DistinctRoutesResponse(data *PaginationResponse) *fiber.Map {
 
 func TripResponse(data *ent.Trip) *fiber.Map {
 	return SuccessResponse(&TripResponseData{
-		ID:            data.ID,
-		DepartureDate: data.DepartureDate,
-		ArrivalDate:   data.ArrivalDate,
-		ReturnDate:    parseNullDatetime(data.ReturnDate),
-		Type:          string(data.Type),
-		InspectionStatus: &TripInspectionStatus{
-			Exterior:           data.ExteriorInspected,
-			Interior:           data.InteriorInspected,
-			EngineCompartment:  data.EngineCompartmentInspected,
-			BrakeAndSteering:   data.BrakeAndSteeringInspected,
-			EmergencyEquipment: data.EmergencyEquipmentInspected,
-			FuelAndFluid:       data.FuelAndFluidsInspected,
-		},
-		Status:        string(data.Status),
-		Scheduled:     data.Scheduled,
-		SeatLeft:      data.SeatLeft,
-		BoardingPoint: data.BoardingPoints,
+		ID:               data.ID,
+		DepartureDate:    data.DepartureDate,
+		ArrivalDate:      data.ArrivalDate,
+		ReturnDate:       parseNullDatetime(data.ReturnDate),
+		Type:             string(data.Type),
+		InspectionStatus: &TripInspectionStatus{Exterior: data.ExteriorInspected, Interior: data.InteriorInspected, EngineCompartment: data.EngineCompartmentInspected, BrakeAndSteering: data.BrakeAndSteeringInspected, EmergencyEquipment: data.EmergencyEquipmentInspected, FuelAndFluid: data.FuelAndFluidsInspected},
+		Status:           string(data.Status),
+		Scheduled:        data.Scheduled,
+		SeatLeft:         data.SeatLeft,
+		BoardingPoint:    data.BoardingPoints,
 		Vehicle: func() *VehicleResponseData {
 			if v, err := data.Edges.VehicleOrErr(); err == nil {
-				return &VehicleResponseData{
-					ID:                 v.ID,
-					RegistrationNumber: v.RegistrationNumber,
-					Model:              v.Model,
-					Seat:               v.Seat,
-					Images: func() []*VehicleImageResponseData {
-						if images, err := v.Edges.ImagesOrErr(); err == nil {
-							if len(images) == 0 {
-								return nil
-							}
-							response := make([]*VehicleImageResponseData, 0, len(images))
-							for _, image := range images {
-								response = append(response, &VehicleImageResponseData{
-									ID:    image.ID,
-									Image: image.Image,
-								})
-							}
-							return response
+				return &VehicleResponseData{ID: v.ID, RegistrationNumber: v.RegistrationNumber, Model: v.Model, Seat: v.Seat, Images: func() []*VehicleImageResponseData {
+					if images, err := v.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
+						response := make([]*VehicleImageResponseData, 0, len(images))
+						for _, image := range images {
+							response = append(response, &VehicleImageResponseData{ID: image.ID, Image: image.Image})
 						}
-						return nil
-					}(),
-				}
+						return response
+					}
+					return nil
+				}()}
 			}
 			return nil
 		}(),
 		Route: func() *RouteResponseData {
 			if r, err := data.Edges.RouteOrErr(); err == nil {
-				return &RouteResponseData{
-					ID:            r.ID,
-					From:          r.FromLocation,
-					To:            r.ToLocation,
-					FromLatitude:  r.FromLatitude,
-					FromLongitude: r.FromLongitude,
-					ToLatitude:    r.ToLatitude,
-					ToLongitude:   r.ToLongitude,
-					Rate:          r.Rate,
-					Discount:      r.Discount,
-					Stops: func() []*RouteStopResponseData {
-						if stops, err := r.Edges.StopsOrErr(); err == nil {
-							if len(stops) == 0 {
-								return nil
-							}
-							response := make([]*RouteStopResponseData, 0, len(stops))
-							for _, s := range stops {
-								response = append(response, &RouteStopResponseData{
-									ID:        s.ID,
-									Latitude:  s.Latitude,
-									Longitude: s.Longitude,
-								})
-							}
-							return response
+				return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Rate: r.Rate, Discount: r.Discount, Stops: func() []*RouteStopResponseData {
+					if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
+						response := make([]*RouteStopResponseData, 0, len(stops))
+						for _, s := range stops {
+							response = append(response, &RouteStopResponseData{ID: s.ID, Latitude: s.Latitude, Longitude: s.Longitude})
 						}
-						return nil
-					}(),
-				}
+						return response
+					}
+					return nil
+				}()}
 			}
 			return nil
 		}(),
 		Driver: func() *CompanyUserResponseData {
 			if d, err := data.Edges.DriverOrErr(); err == nil {
-				return &CompanyUserResponseData{
-					ID:         d.ID,
-					LastName:   d.LastName,
-					OtherName:  d.OtherName,
-					Phone:      d.Phone,
-					OtherPhone: d.OtherPhone,
-				}
+				return &CompanyUserResponseData{ID: d.ID, LastName: d.LastName, OtherName: d.OtherName, Phone: d.Phone, OtherPhone: d.OtherPhone}
 			}
 			return nil
 		}(),
 		Company: func() *CompanyResponseData {
 			if c, err := data.Edges.CompanyOrErr(); err == nil {
-				return &CompanyResponseData{
-					ID:    c.ID,
-					Name:  c.Name,
-					Phone: c.Phone,
-					Email: c.Email,
+				return &CompanyResponseData{ID: c.ID, Name: c.Name, Phone: c.Phone, Email: c.Email}
+			}
+			return nil
+		}(),
+		Bookings: func() []*BookingResponseData {
+			if bookings, err := data.Edges.BookingsOrErr(); err == nil && len(bookings) > 0 {
+				response := make([]*BookingResponseData, 0, len(bookings))
+				for _, b := range bookings {
+					response = append(response, &BookingResponseData{
+						ID:     b.ID,
+						TripID: b.BookingNumber,
+						BoardingPoint: func() string {
+							if t, err := b.Edges.TripOrErr(); err == nil {
+								for _, bp := range t.BoardingPoints {
+									if bp.ID == b.BoardingPoint {
+										return bp.Location
+									}
+								}
+							}
+							return ""
+						}(),
+						VAT:             b.Vat,
+						SMSFee:          b.SmsFee,
+						Amount:          b.Amount,
+						RefundAmount:    b.RefundAmount,
+						TransactionType: string(b.TansType),
+						SMSNotification: b.SmsNotification,
+						Status:          string(b.Status),
+						Reference:       b.Reference,
+						PaidAt:          parseNullDatetime(b.PaidAt),
+						RefundedAt:      parseNullDatetime(b.RefundAt),
+						Passengers: func() []*BookingPassengerResponseData {
+							if passengers, err := b.Edges.PassengersOrErr(); err == nil && len(passengers) > 0 {
+								response := make([]*BookingPassengerResponseData, 0, len(passengers))
+								for _, passenger := range passengers {
+									response = append(response, &BookingPassengerResponseData{
+										ID:       passenger.ID,
+										FullName: passenger.FullName,
+										Amount:   passenger.Amount,
+										Maturity: string(passenger.Maturity),
+										Gender:   string(passenger.Gender),
+									})
+								}
+								return response
+							}
+							return nil
+						}(),
+						Luggages: func() []*BookingLuggagesResponseData {
+							if luggages, err := b.Edges.LuggagesOrErr(); err == nil && len(luggages) > 0 {
+								response := make([]*BookingLuggagesResponseData, 0, len(luggages))
+								for _, luggage := range luggages {
+									response = append(response, &BookingLuggagesResponseData{
+										ID:       luggage.ID,
+										Baggage:  string(luggage.Baggage),
+										Quantity: luggage.Quantity,
+										Amount:   luggage.Amount,
+									})
+								}
+								return response
+							}
+							return nil
+						}(),
+						Contact: func() *BookingContactResponseData {
+							if c, err := b.Edges.ContactOrErr(); err == nil {
+								return &BookingContactResponseData{
+									ID:       c.ID,
+									FullName: c.FullName,
+									Email:    c.Email,
+									Phone:    c.Phone,
+								}
+							}
+							if c, err := b.Edges.CustomerOrErr(); err == nil {
+								return &BookingContactResponseData{
+									ID:       c.ID,
+									FullName: c.OtherName + " " + c.LastName,
+									Email:    c.Edges.Profile.Username,
+									Phone:    c.Phone,
+								}
+							}
+							return nil
+						}(),
+					})
+				}
+				return response
+			}
+			return nil
+		}(),
+		Delivery: func() []*ParcelResponseData {
+			if parcels, err := data.Edges.ParcelsOrErr(); err == nil && len(parcels) > 0 {
+				response := make([]*ParcelResponseData, 0, len(parcels))
+				for _, parcel := range parcels {
+					response = append(response, &ParcelResponseData{ID: parcel.ID, ParcelCode: parcel.ParcelCode, SenderName: parcel.SenderName, SenderPhone: parcel.SenderPhone, RecipientName: parcel.RecipientName, RecipientPhone: parcel.RecipientPhone, RecipientLocation: parcel.RecipientLocation, Amount: parcel.Amount, TransType: string(parcel.TansType), Status: string(parcel.Status), ParcelImages: func() []*ParcelImageResponseData {
+						if images, err := parcel.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
+							response := make([]*ParcelImageResponseData, 0, len(images))
+							for _, image := range images {
+								if image.Kind != parcelimage.KindParcel {
+									continue
+								}
+								response = append(response, &ParcelImageResponseData{ID: image.ID, Image: image.Image})
+							}
+							return response
+						}
+						return nil
+					}(), RecipientImages: func() []*ParcelImageResponseData {
+						if images, err := parcel.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
+							response := make([]*ParcelImageResponseData, 0, len(images))
+							for _, image := range images {
+								if image.Kind != parcelimage.KindRecipient {
+									continue
+								}
+								response = append(response, &ParcelImageResponseData{ID: image.ID, Image: image.Image})
+							}
+							return response
+						}
+						return nil
+					}()})
+				}
+				return response
+			}
+			return nil
+		}(),
+		Incident: func() []*IncidentResponseData {
+			if incidents, err := data.Edges.IncidentsOrErr(); err != nil && len(incidents) > 0 {
+				response := make([]*IncidentResponseData, 0, len(incidents))
+				for _, incident := range incidents {
+					response = append(response, &IncidentResponseData{ID: incident.ID, Time: parseNullDatetime(incident.Time), Location: incident.Location, Description: incident.Description, Audio: incident.Audio, Images: func() []*IncidentImageResponseData {
+						if images, err := incident.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
+							response := make([]*IncidentImageResponseData, 0, len(images))
+							for _, image := range images {
+								response = append(response, &IncidentImageResponseData{ID: image.ID, Image: image.Image})
+							}
+							return response
+						}
+						return nil
+					}()})
+					return response
 				}
 			}
 			return nil
@@ -419,10 +511,7 @@ func TripsResponse(data *PaginationResponse) *fiber.Map {
 						Model:              v.Model,
 						Seat:               v.Seat,
 						Images: func() []*VehicleImageResponseData {
-							if images, err := v.Edges.ImagesOrErr(); err == nil {
-								if len(images) == 0 {
-									return nil
-								}
+							if images, err := v.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
 								response := make([]*VehicleImageResponseData, 0, len(images))
 								for _, image := range images {
 									response = append(response, &VehicleImageResponseData{
@@ -451,10 +540,7 @@ func TripsResponse(data *PaginationResponse) *fiber.Map {
 						Rate:          r.Rate,
 						Discount:      r.Discount,
 						Stops: func() []*RouteStopResponseData {
-							if stops, err := r.Edges.StopsOrErr(); err == nil {
-								if len(stops) == 0 {
-									return nil
-								}
+							if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
 								response := make([]*RouteStopResponseData, 0, len(stops))
 								for _, s := range stops {
 									response = append(response, &RouteStopResponseData{
@@ -490,6 +576,171 @@ func TripsResponse(data *PaginationResponse) *fiber.Map {
 						Name:  c.Name,
 						Phone: c.Phone,
 						Email: c.Email,
+					}
+				}
+				return nil
+			}(),
+			Bookings: func() []*BookingResponseData {
+				if bookings, err := t.Edges.BookingsOrErr(); err == nil && len(bookings) > 0 {
+					response := make([]*BookingResponseData, 0, len(bookings))
+					for _, b := range bookings {
+						response = append(response, &BookingResponseData{
+							ID:     b.ID,
+							TripID: b.BookingNumber,
+							BoardingPoint: func() string {
+								if t, err := b.Edges.TripOrErr(); err == nil {
+									for _, bp := range t.BoardingPoints {
+										if bp.ID == b.BoardingPoint {
+											return bp.Location
+										}
+									}
+								}
+								return ""
+							}(),
+							VAT:             b.Vat,
+							SMSFee:          b.SmsFee,
+							Amount:          b.Amount,
+							RefundAmount:    b.RefundAmount,
+							TransactionType: string(b.TansType),
+							SMSNotification: b.SmsNotification,
+							Status:          string(b.Status),
+							Reference:       b.Reference,
+							PaidAt:          parseNullDatetime(b.PaidAt),
+							RefundedAt:      parseNullDatetime(b.RefundAt),
+							Passengers: func() []*BookingPassengerResponseData {
+								if passengers, err := b.Edges.PassengersOrErr(); err == nil && len(passengers) > 0 {
+									response := make([]*BookingPassengerResponseData, 0, len(passengers))
+									for _, passenger := range passengers {
+										response = append(response, &BookingPassengerResponseData{
+											ID:       passenger.ID,
+											FullName: passenger.FullName,
+											Amount:   passenger.Amount,
+											Maturity: string(passenger.Maturity),
+											Gender:   string(passenger.Gender),
+										})
+									}
+									return response
+								}
+								return nil
+							}(),
+							Luggages: func() []*BookingLuggagesResponseData {
+								if luggages, err := b.Edges.LuggagesOrErr(); err == nil && len(luggages) > 0 {
+									response := make([]*BookingLuggagesResponseData, 0, len(luggages))
+									for _, luggage := range luggages {
+										response = append(response, &BookingLuggagesResponseData{
+											ID:       luggage.ID,
+											Baggage:  string(luggage.Baggage),
+											Quantity: luggage.Quantity,
+											Amount:   luggage.Amount,
+										})
+									}
+									return response
+								}
+								return nil
+							}(),
+							Contact: func() *BookingContactResponseData {
+								if c, err := b.Edges.ContactOrErr(); err == nil {
+									return &BookingContactResponseData{
+										ID:       c.ID,
+										FullName: c.FullName,
+										Email:    c.Email,
+										Phone:    c.Phone,
+									}
+								}
+								if c, err := b.Edges.CustomerOrErr(); err == nil {
+									return &BookingContactResponseData{
+										ID:       c.ID,
+										FullName: c.OtherName + " " + c.LastName,
+										Email:    c.Edges.Profile.Username,
+										Phone:    c.Phone,
+									}
+								}
+								return nil
+							}(),
+						})
+					}
+					return response
+				}
+				return nil
+			}(),
+			Delivery: func() []*ParcelResponseData {
+				if parcels, err := t.Edges.ParcelsOrErr(); err == nil && len(parcels) > 0 {
+					response := make([]*ParcelResponseData, 0, len(parcels))
+					for _, parcel := range parcels {
+						response = append(response, &ParcelResponseData{
+							ID:                parcel.ID,
+							ParcelCode:        parcel.ParcelCode,
+							SenderName:        parcel.SenderName,
+							SenderPhone:       parcel.SenderPhone,
+							RecipientName:     parcel.RecipientName,
+							RecipientPhone:    parcel.RecipientPhone,
+							RecipientLocation: parcel.RecipientLocation,
+							Amount:            parcel.Amount,
+							TransType:         string(parcel.TansType),
+							Status:            string(parcel.Status),
+							ParcelImages: func() []*ParcelImageResponseData {
+								if images, err := parcel.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
+									response := make([]*ParcelImageResponseData, 0, len(images))
+									for _, image := range images {
+										if image.Kind != parcelimage.KindParcel {
+											continue
+										}
+										response = append(response, &ParcelImageResponseData{
+											ID:    image.ID,
+											Image: image.Image,
+										})
+									}
+									return response
+								}
+								return nil
+							}(),
+							RecipientImages: func() []*ParcelImageResponseData {
+								if images, err := parcel.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
+									response := make([]*ParcelImageResponseData, 0, len(images))
+									for _, image := range images {
+										if image.Kind != parcelimage.KindRecipient {
+											continue
+										}
+										response = append(response, &ParcelImageResponseData{
+											ID:    image.ID,
+											Image: image.Image,
+										})
+									}
+									return response
+								}
+								return nil
+							}(),
+						})
+					}
+					return response
+				}
+				return nil
+			}(),
+			Incident: func() []*IncidentResponseData {
+				if incidents, err := t.Edges.IncidentsOrErr(); err != nil && len(incidents) > 0 {
+					response := make([]*IncidentResponseData, 0, len(incidents))
+					for _, incident := range incidents {
+						response = append(response, &IncidentResponseData{
+							ID:          incident.ID,
+							Time:        parseNullDatetime(incident.Time),
+							Location:    incident.Location,
+							Description: incident.Description,
+							Audio:       incident.Audio,
+							Images: func() []*IncidentImageResponseData {
+								if images, err := incident.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
+									response := make([]*IncidentImageResponseData, 0, len(images))
+									for _, image := range images {
+										response = append(response, &IncidentImageResponseData{
+											ID:    image.ID,
+											Image: image.Image,
+										})
+									}
+									return response
+								}
+								return nil
+							}(),
+						})
+						return response
 					}
 				}
 				return nil

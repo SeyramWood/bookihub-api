@@ -37,6 +37,8 @@ type (
 		TransactionType string                          `json:"transType"`
 		SMSNotification bool                            `json:"smsNotification"`
 		Status          string                          `json:"status"`
+		Reference       string                          `json:"reference"`
+		PaidAt          any                             `json:"paidAt"`
 		RefundedAt      any                             `json:"refundedAt"`
 		Passengers      []*BookingPassengerResponseData `json:"passengers"`
 		Luggages        []*BookingLuggagesResponseData  `json:"luggages"`
@@ -68,12 +70,11 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 		TransactionType: string(data.TansType),
 		SMSNotification: data.SmsNotification,
 		Status:          string(data.Status),
+		Reference:       data.Reference,
+		PaidAt:          parseNullDatetime(data.PaidAt),
 		RefundedAt:      parseNullDatetime(data.RefundAt),
 		Passengers: func() []*BookingPassengerResponseData {
-			if passengers, err := data.Edges.PassengersOrErr(); err == nil {
-				if len(passengers) == 0 {
-					return nil
-				}
+			if passengers, err := data.Edges.PassengersOrErr(); err == nil && len(passengers) > 0 {
 				response := make([]*BookingPassengerResponseData, 0, len(passengers))
 				for _, passenger := range passengers {
 					response = append(response, &BookingPassengerResponseData{
@@ -89,10 +90,7 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 			return nil
 		}(),
 		Luggages: func() []*BookingLuggagesResponseData {
-			if luggages, err := data.Edges.LuggagesOrErr(); err == nil {
-				if len(luggages) == 0 {
-					return nil
-				}
+			if luggages, err := data.Edges.LuggagesOrErr(); err == nil && len(luggages) > 0 {
 				response := make([]*BookingLuggagesResponseData, 0, len(luggages))
 				for _, luggage := range luggages {
 					response = append(response, &BookingLuggagesResponseData{
@@ -153,7 +151,7 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 								Model:              v.Model,
 								Seat:               v.Seat,
 								Images: func() []*VehicleImageResponseData {
-									if images, err := v.Edges.ImagesOrErr(); err == nil {
+									if images, err := v.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
 										response := make([]*VehicleImageResponseData, 0, len(images))
 										for _, image := range images {
 											response = append(response, &VehicleImageResponseData{
@@ -182,7 +180,7 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 								Rate:          r.Rate,
 								Discount:      r.Discount,
 								Stops: func() []*RouteStopResponseData {
-									if stops, err := r.Edges.StopsOrErr(); err == nil {
+									if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
 										response := make([]*RouteStopResponseData, 0, len(stops))
 										for _, s := range stops {
 											response = append(response, &RouteStopResponseData{
@@ -253,12 +251,11 @@ func BookingsResponse(data *PaginationResponse) *fiber.Map {
 			TransactionType: string(b.TansType),
 			SMSNotification: b.SmsNotification,
 			Status:          string(b.Status),
+			Reference:       b.Reference,
+			PaidAt:          parseNullDatetime(b.PaidAt),
 			RefundedAt:      parseNullDatetime(b.RefundAt),
 			Passengers: func() []*BookingPassengerResponseData {
-				if passengers, err := b.Edges.PassengersOrErr(); err == nil {
-					if len(passengers) == 0 {
-						return nil
-					}
+				if passengers, err := b.Edges.PassengersOrErr(); err == nil && len(passengers) > 0 {
 					response := make([]*BookingPassengerResponseData, 0, len(passengers))
 					for _, passenger := range passengers {
 						response = append(response, &BookingPassengerResponseData{
@@ -274,10 +271,7 @@ func BookingsResponse(data *PaginationResponse) *fiber.Map {
 				return nil
 			}(),
 			Luggages: func() []*BookingLuggagesResponseData {
-				if luggages, err := b.Edges.LuggagesOrErr(); err == nil {
-					if len(luggages) == 0 {
-						return nil
-					}
+				if luggages, err := b.Edges.LuggagesOrErr(); err == nil && len(luggages) > 0 {
 					response := make([]*BookingLuggagesResponseData, 0, len(luggages))
 					for _, luggage := range luggages {
 						response = append(response, &BookingLuggagesResponseData{
@@ -338,7 +332,7 @@ func BookingsResponse(data *PaginationResponse) *fiber.Map {
 									Model:              v.Model,
 									Seat:               v.Seat,
 									Images: func() []*VehicleImageResponseData {
-										if images, err := v.Edges.ImagesOrErr(); err == nil {
+										if images, err := v.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
 											response := make([]*VehicleImageResponseData, 0, len(images))
 											for _, image := range images {
 												response = append(response, &VehicleImageResponseData{
@@ -367,7 +361,7 @@ func BookingsResponse(data *PaginationResponse) *fiber.Map {
 									Rate:          r.Rate,
 									Discount:      r.Discount,
 									Stops: func() []*RouteStopResponseData {
-										if stops, err := r.Edges.StopsOrErr(); err == nil {
+										if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
 											response := make([]*RouteStopResponseData, 0, len(stops))
 											for _, s := range stops {
 												response = append(response, &RouteStopResponseData{

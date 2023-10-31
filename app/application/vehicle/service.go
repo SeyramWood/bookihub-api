@@ -82,7 +82,22 @@ func (s *service) FetchAllByCompany(companyId int, limit int, offset int) (*pres
 
 // Remove implements gateways.VehicleService.
 func (s *service) Remove(id int) error {
-	return s.repo.Delete(id)
+	result, err := s.repo.Read(id)
+	if err != nil {
+		return err
+	}
+	err = s.repo.Delete(id)
+	if err != nil {
+		return err
+	}
+	if images, err := result.Edges.ImagesOrErr(); err != nil && len(images) > 0 {
+		go func(images []*ent.VehicleImage) {
+			for _, image := range images {
+				s.storage.ExecuteTask(strings.Replace(image.Image, config.App().AppURL, "public", 1), "delete_file")
+			}
+		}(images)
+	}
+	return nil
 }
 
 // RemoveImage implements gateways.VehicleService.

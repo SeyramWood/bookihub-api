@@ -531,6 +531,52 @@ func HasTripsWith(preds ...predicate.Trip) predicate.CompanyUser {
 	})
 }
 
+// HasIncidents applies the HasEdge predicate on the "incidents" edge.
+func HasIncidents() predicate.CompanyUser {
+	return predicate.CompanyUser(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, IncidentsTable, IncidentsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasIncidentsWith applies the HasEdge predicate on the "incidents" edge with a given conditions (other predicates).
+func HasIncidentsWith(preds ...predicate.Incident) predicate.CompanyUser {
+	return predicate.CompanyUser(func(s *sql.Selector) {
+		step := newIncidentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasParcels applies the HasEdge predicate on the "parcels" edge.
+func HasParcels() predicate.CompanyUser {
+	return predicate.CompanyUser(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ParcelsTable, ParcelsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasParcelsWith applies the HasEdge predicate on the "parcels" edge with a given conditions (other predicates).
+func HasParcelsWith(preds ...predicate.Parcel) predicate.CompanyUser {
+	return predicate.CompanyUser(func(s *sql.Selector) {
+		step := newParcelsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasNotifications applies the HasEdge predicate on the "notifications" edge.
 func HasNotifications() predicate.CompanyUser {
 	return predicate.CompanyUser(func(s *sql.Selector) {

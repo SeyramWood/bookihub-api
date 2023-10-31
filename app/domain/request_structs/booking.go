@@ -2,12 +2,12 @@ package requeststructs
 
 type (
 	BookingRequest struct {
+		Reference       string                     `json:"reference" validate:"required"`
 		BoardingPointID string                     `json:"boardingPointId" validate:"required"`
 		Passenger       []*BookingPassengerRequest `json:"passenger" validate:"required"`
 		Luggage         []*BookingLuggagesRequest  `json:"luggage"`
 		Contact         *BookingContactRequest     `json:"contact" validate:"required"`
 		SMSNotification bool                       `json:"smsNotification"`
-		TransactionType string                     `json:"transactionType" validate:"string"`
 		VAT             float64                    `json:"vat"`
 		SMSFee          float64                    `json:"smsFee"`
 		Amount          float64                    `json:"amount" validate:"required"`

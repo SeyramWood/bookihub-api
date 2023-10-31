@@ -86,9 +86,39 @@ type (
 		ReadAllByCompany(companyId, limit, offset int, filter *requeststructs.BookingFilterRequest) (*presenters.PaginationResponse, error)
 		ReadAllCustomer(limit, offset int, filter *requeststructs.BookingFilterRequest, customerId ...int) (*presenters.PaginationResponse, error)
 		Read(id int) (*ent.Booking, error)
-		Insert(request *requeststructs.BookingRequest) (*ent.Booking, error)
+		Insert(request *requeststructs.BookingRequest, refResponse *requeststructs.PaymentReferenceResponse) (*ent.Booking, error)
 		Update(id int, request *requeststructs.BookingUpdateRequest) (*ent.Booking, error)
 		CancelBooking(id int, request *requeststructs.BookingCancelRequest) (*ent.Booking, error)
 		Delete(id int) error
+	}
+
+	ParcelRepo interface {
+		ReadAll(limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
+		ReadAllByCompany(companyId, limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
+		ReadAllByDriver(driverId, limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
+		Read(id int) (*ent.Parcel, error)
+		ReadImage(id int) (*ent.ParcelImage, error)
+		Insert(companyId int, request *requeststructs.ParcelRequest, refResponse *requeststructs.PaymentReferenceResponse, images []string) (*ent.Parcel, error)
+		InsertImage(id int, request []string) (*ent.Parcel, error)
+		Update(id int, request *requeststructs.ParcelUpdateRequest) (*ent.Parcel, error)
+		UpdateStatus(id int, images []string) (*ent.Parcel, error)
+		UpdateImage(id int, request string) (*ent.ParcelImage, error)
+		Delete(id int) error
+		DeleteImage(id int) error
+	}
+	IncidentRepo interface {
+		ReadAll(limit, offset int, filter *requeststructs.IncidentFilterRequest) (*presenters.PaginationResponse, error)
+		ReadAllByCompany(companyId, limit, offset int, filter *requeststructs.IncidentFilterRequest) (*presenters.PaginationResponse, error)
+		ReadAllByDriver(driverId, limit, offset int, filter *requeststructs.IncidentFilterRequest) (*presenters.PaginationResponse, error)
+		Read(id int) (*ent.Incident, error)
+		ReadImage(id int) (*ent.IncidentImage, error)
+		Insert(companyId int, request *requeststructs.IncidentRequest, images []string, audio ...string) (*ent.Incident, error)
+		InsertImage(id int, request []string) (*ent.Incident, error)
+		Update(id int, request *requeststructs.IncidentUpdateRequest) (*ent.Incident, error)
+		UpdateAudio(id int, request string) (*ent.Incident, error)
+		UpdateImage(id int, request string) (*ent.IncidentImage, error)
+		Delete(id int) error
+		DeleteImage(id int) error
+		DeleteAudio(id int) error
 	}
 )

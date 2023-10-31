@@ -47,11 +47,15 @@ type CompanyEdges struct {
 	Trips []*Trip `json:"trips,omitempty"`
 	// Bookings holds the value of the bookings edge.
 	Bookings []*Booking `json:"bookings,omitempty"`
+	// Incidents holds the value of the incidents edge.
+	Incidents []*Incident `json:"incidents,omitempty"`
+	// Parcels holds the value of the parcels edge.
+	Parcels []*Parcel `json:"parcels,omitempty"`
 	// Notifications holds the value of the notifications edge.
 	Notifications []*Notification `json:"notifications,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [8]bool
 }
 
 // ProfileOrErr returns the Profile value or an error if the edge
@@ -99,10 +103,28 @@ func (e CompanyEdges) BookingsOrErr() ([]*Booking, error) {
 	return nil, &NotLoadedError{edge: "bookings"}
 }
 
+// IncidentsOrErr returns the Incidents value or an error if the edge
+// was not loaded in eager-loading.
+func (e CompanyEdges) IncidentsOrErr() ([]*Incident, error) {
+	if e.loadedTypes[5] {
+		return e.Incidents, nil
+	}
+	return nil, &NotLoadedError{edge: "incidents"}
+}
+
+// ParcelsOrErr returns the Parcels value or an error if the edge
+// was not loaded in eager-loading.
+func (e CompanyEdges) ParcelsOrErr() ([]*Parcel, error) {
+	if e.loadedTypes[6] {
+		return e.Parcels, nil
+	}
+	return nil, &NotLoadedError{edge: "parcels"}
+}
+
 // NotificationsOrErr returns the Notifications value or an error if the edge
 // was not loaded in eager-loading.
 func (e CompanyEdges) NotificationsOrErr() ([]*Notification, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[7] {
 		return e.Notifications, nil
 	}
 	return nil, &NotLoadedError{edge: "notifications"}
@@ -212,6 +234,16 @@ func (c *Company) QueryTrips() *TripQuery {
 // QueryBookings queries the "bookings" edge of the Company entity.
 func (c *Company) QueryBookings() *BookingQuery {
 	return NewCompanyClient(c.config).QueryBookings(c)
+}
+
+// QueryIncidents queries the "incidents" edge of the Company entity.
+func (c *Company) QueryIncidents() *IncidentQuery {
+	return NewCompanyClient(c.config).QueryIncidents(c)
+}
+
+// QueryParcels queries the "parcels" edge of the Company entity.
+func (c *Company) QueryParcels() *ParcelQuery {
+	return NewCompanyClient(c.config).QueryParcels(c)
 }
 
 // QueryNotifications queries the "notifications" edge of the Company entity.

@@ -19,7 +19,11 @@ import (
 	"github.com/SeyramWood/ent/customer"
 	"github.com/SeyramWood/ent/customercontact"
 	"github.com/SeyramWood/ent/customerluggage"
+	"github.com/SeyramWood/ent/incident"
+	"github.com/SeyramWood/ent/incidentimage"
 	"github.com/SeyramWood/ent/notification"
+	"github.com/SeyramWood/ent/parcel"
+	"github.com/SeyramWood/ent/parcelimage"
 	"github.com/SeyramWood/ent/passenger"
 	"github.com/SeyramWood/ent/route"
 	"github.com/SeyramWood/ent/routestop"
@@ -94,7 +98,11 @@ func checkColumn(table, column string) error {
 			customer.Table:        customer.ValidColumn,
 			customercontact.Table: customercontact.ValidColumn,
 			customerluggage.Table: customerluggage.ValidColumn,
+			incident.Table:        incident.ValidColumn,
+			incidentimage.Table:   incidentimage.ValidColumn,
 			notification.Table:    notification.ValidColumn,
+			parcel.Table:          parcel.ValidColumn,
+			parcelimage.Table:     parcelimage.ValidColumn,
 			passenger.Table:       passenger.ValidColumn,
 			route.Table:           route.ValidColumn,
 			routestop.Table:       routestop.ValidColumn,

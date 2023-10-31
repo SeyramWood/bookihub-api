@@ -15,6 +15,8 @@ import (
 	"github.com/SeyramWood/ent/booking"
 	"github.com/SeyramWood/ent/company"
 	"github.com/SeyramWood/ent/companyuser"
+	"github.com/SeyramWood/ent/incident"
+	"github.com/SeyramWood/ent/parcel"
 	"github.com/SeyramWood/ent/predicate"
 	"github.com/SeyramWood/ent/route"
 	"github.com/SeyramWood/ent/trip"
@@ -369,6 +371,36 @@ func (tu *TripUpdate) AddBookings(b ...*Booking) *TripUpdate {
 	return tu.AddBookingIDs(ids...)
 }
 
+// AddIncidentIDs adds the "incidents" edge to the Incident entity by IDs.
+func (tu *TripUpdate) AddIncidentIDs(ids ...int) *TripUpdate {
+	tu.mutation.AddIncidentIDs(ids...)
+	return tu
+}
+
+// AddIncidents adds the "incidents" edges to the Incident entity.
+func (tu *TripUpdate) AddIncidents(i ...*Incident) *TripUpdate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return tu.AddIncidentIDs(ids...)
+}
+
+// AddParcelIDs adds the "parcels" edge to the Parcel entity by IDs.
+func (tu *TripUpdate) AddParcelIDs(ids ...int) *TripUpdate {
+	tu.mutation.AddParcelIDs(ids...)
+	return tu
+}
+
+// AddParcels adds the "parcels" edges to the Parcel entity.
+func (tu *TripUpdate) AddParcels(p ...*Parcel) *TripUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tu.AddParcelIDs(ids...)
+}
+
 // Mutation returns the TripMutation object of the builder.
 func (tu *TripUpdate) Mutation() *TripMutation {
 	return tu.mutation
@@ -417,6 +449,48 @@ func (tu *TripUpdate) RemoveBookings(b ...*Booking) *TripUpdate {
 		ids[i] = b[i].ID
 	}
 	return tu.RemoveBookingIDs(ids...)
+}
+
+// ClearIncidents clears all "incidents" edges to the Incident entity.
+func (tu *TripUpdate) ClearIncidents() *TripUpdate {
+	tu.mutation.ClearIncidents()
+	return tu
+}
+
+// RemoveIncidentIDs removes the "incidents" edge to Incident entities by IDs.
+func (tu *TripUpdate) RemoveIncidentIDs(ids ...int) *TripUpdate {
+	tu.mutation.RemoveIncidentIDs(ids...)
+	return tu
+}
+
+// RemoveIncidents removes "incidents" edges to Incident entities.
+func (tu *TripUpdate) RemoveIncidents(i ...*Incident) *TripUpdate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return tu.RemoveIncidentIDs(ids...)
+}
+
+// ClearParcels clears all "parcels" edges to the Parcel entity.
+func (tu *TripUpdate) ClearParcels() *TripUpdate {
+	tu.mutation.ClearParcels()
+	return tu
+}
+
+// RemoveParcelIDs removes the "parcels" edge to Parcel entities by IDs.
+func (tu *TripUpdate) RemoveParcelIDs(ids ...int) *TripUpdate {
+	tu.mutation.RemoveParcelIDs(ids...)
+	return tu
+}
+
+// RemoveParcels removes "parcels" edges to Parcel entities.
+func (tu *TripUpdate) RemoveParcels(p ...*Parcel) *TripUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tu.RemoveParcelIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -710,6 +784,96 @@ func (tu *TripUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(booking.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tu.mutation.IncidentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.IncidentsTable,
+			Columns: []string{trip.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedIncidentsIDs(); len(nodes) > 0 && !tu.mutation.IncidentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.IncidentsTable,
+			Columns: []string{trip.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.IncidentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.IncidentsTable,
+			Columns: []string{trip.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tu.mutation.ParcelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.ParcelsTable,
+			Columns: []string{trip.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedParcelsIDs(); len(nodes) > 0 && !tu.mutation.ParcelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.ParcelsTable,
+			Columns: []string{trip.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.ParcelsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.ParcelsTable,
+			Columns: []string{trip.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1073,6 +1237,36 @@ func (tuo *TripUpdateOne) AddBookings(b ...*Booking) *TripUpdateOne {
 	return tuo.AddBookingIDs(ids...)
 }
 
+// AddIncidentIDs adds the "incidents" edge to the Incident entity by IDs.
+func (tuo *TripUpdateOne) AddIncidentIDs(ids ...int) *TripUpdateOne {
+	tuo.mutation.AddIncidentIDs(ids...)
+	return tuo
+}
+
+// AddIncidents adds the "incidents" edges to the Incident entity.
+func (tuo *TripUpdateOne) AddIncidents(i ...*Incident) *TripUpdateOne {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return tuo.AddIncidentIDs(ids...)
+}
+
+// AddParcelIDs adds the "parcels" edge to the Parcel entity by IDs.
+func (tuo *TripUpdateOne) AddParcelIDs(ids ...int) *TripUpdateOne {
+	tuo.mutation.AddParcelIDs(ids...)
+	return tuo
+}
+
+// AddParcels adds the "parcels" edges to the Parcel entity.
+func (tuo *TripUpdateOne) AddParcels(p ...*Parcel) *TripUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tuo.AddParcelIDs(ids...)
+}
+
 // Mutation returns the TripMutation object of the builder.
 func (tuo *TripUpdateOne) Mutation() *TripMutation {
 	return tuo.mutation
@@ -1121,6 +1315,48 @@ func (tuo *TripUpdateOne) RemoveBookings(b ...*Booking) *TripUpdateOne {
 		ids[i] = b[i].ID
 	}
 	return tuo.RemoveBookingIDs(ids...)
+}
+
+// ClearIncidents clears all "incidents" edges to the Incident entity.
+func (tuo *TripUpdateOne) ClearIncidents() *TripUpdateOne {
+	tuo.mutation.ClearIncidents()
+	return tuo
+}
+
+// RemoveIncidentIDs removes the "incidents" edge to Incident entities by IDs.
+func (tuo *TripUpdateOne) RemoveIncidentIDs(ids ...int) *TripUpdateOne {
+	tuo.mutation.RemoveIncidentIDs(ids...)
+	return tuo
+}
+
+// RemoveIncidents removes "incidents" edges to Incident entities.
+func (tuo *TripUpdateOne) RemoveIncidents(i ...*Incident) *TripUpdateOne {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return tuo.RemoveIncidentIDs(ids...)
+}
+
+// ClearParcels clears all "parcels" edges to the Parcel entity.
+func (tuo *TripUpdateOne) ClearParcels() *TripUpdateOne {
+	tuo.mutation.ClearParcels()
+	return tuo
+}
+
+// RemoveParcelIDs removes the "parcels" edge to Parcel entities by IDs.
+func (tuo *TripUpdateOne) RemoveParcelIDs(ids ...int) *TripUpdateOne {
+	tuo.mutation.RemoveParcelIDs(ids...)
+	return tuo
+}
+
+// RemoveParcels removes "parcels" edges to Parcel entities.
+func (tuo *TripUpdateOne) RemoveParcels(p ...*Parcel) *TripUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tuo.RemoveParcelIDs(ids...)
 }
 
 // Where appends a list predicates to the TripUpdate builder.
@@ -1444,6 +1680,96 @@ func (tuo *TripUpdateOne) sqlSave(ctx context.Context) (_node *Trip, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(booking.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.IncidentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.IncidentsTable,
+			Columns: []string{trip.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedIncidentsIDs(); len(nodes) > 0 && !tuo.mutation.IncidentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.IncidentsTable,
+			Columns: []string{trip.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.IncidentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.IncidentsTable,
+			Columns: []string{trip.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.ParcelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.ParcelsTable,
+			Columns: []string{trip.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedParcelsIDs(); len(nodes) > 0 && !tuo.mutation.ParcelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.ParcelsTable,
+			Columns: []string{trip.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.ParcelsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   trip.ParcelsTable,
+			Columns: []string{trip.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

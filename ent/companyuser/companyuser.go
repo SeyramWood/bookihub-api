@@ -33,6 +33,10 @@ const (
 	EdgeProfile = "profile"
 	// EdgeTrips holds the string denoting the trips edge name in mutations.
 	EdgeTrips = "trips"
+	// EdgeIncidents holds the string denoting the incidents edge name in mutations.
+	EdgeIncidents = "incidents"
+	// EdgeParcels holds the string denoting the parcels edge name in mutations.
+	EdgeParcels = "parcels"
 	// EdgeNotifications holds the string denoting the notifications edge name in mutations.
 	EdgeNotifications = "notifications"
 	// EdgeCompany holds the string denoting the company edge name in mutations.
@@ -53,6 +57,20 @@ const (
 	TripsInverseTable = "trips"
 	// TripsColumn is the table column denoting the trips relation/edge.
 	TripsColumn = "company_user_trips"
+	// IncidentsTable is the table that holds the incidents relation/edge.
+	IncidentsTable = "incidents"
+	// IncidentsInverseTable is the table name for the Incident entity.
+	// It exists in this package in order to avoid circular dependency with the "incident" package.
+	IncidentsInverseTable = "incidents"
+	// IncidentsColumn is the table column denoting the incidents relation/edge.
+	IncidentsColumn = "company_user_incidents"
+	// ParcelsTable is the table that holds the parcels relation/edge.
+	ParcelsTable = "parcels"
+	// ParcelsInverseTable is the table name for the Parcel entity.
+	// It exists in this package in order to avoid circular dependency with the "parcel" package.
+	ParcelsInverseTable = "parcels"
+	// ParcelsColumn is the table column denoting the parcels relation/edge.
+	ParcelsColumn = "company_user_parcels"
 	// NotificationsTable is the table that holds the notifications relation/edge. The primary key declared below.
 	NotificationsTable = "company_user_notifications"
 	// NotificationsInverseTable is the table name for the Notification entity.
@@ -207,6 +225,34 @@ func ByTrips(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByIncidentsCount orders the results by incidents count.
+func ByIncidentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newIncidentsStep(), opts...)
+	}
+}
+
+// ByIncidents orders the results by incidents terms.
+func ByIncidents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newIncidentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByParcelsCount orders the results by parcels count.
+func ByParcelsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newParcelsStep(), opts...)
+	}
+}
+
+// ByParcels orders the results by parcels terms.
+func ByParcels(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newParcelsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByNotificationsCount orders the results by notifications count.
 func ByNotificationsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -239,6 +285,20 @@ func newTripsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TripsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, TripsTable, TripsColumn),
+	)
+}
+func newIncidentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(IncidentsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, IncidentsTable, IncidentsColumn),
+	)
+}
+func newParcelsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ParcelsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ParcelsTable, ParcelsColumn),
 	)
 }
 func newNotificationsStep() *sqlgraph.Step {

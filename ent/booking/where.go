@@ -65,6 +65,11 @@ func UpdatedAt(v time.Time) predicate.Booking {
 	return predicate.Booking(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// Reference applies equality check predicate on the "reference" field. It's identical to ReferenceEQ.
+func Reference(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldEQ(FieldReference, v))
+}
+
 // BookingNumber applies equality check predicate on the "booking_number" field. It's identical to BookingNumberEQ.
 func BookingNumber(v string) predicate.Booking {
 	return predicate.Booking(sql.FieldEQ(FieldBookingNumber, v))
@@ -93,6 +98,11 @@ func Amount(v float64) predicate.Booking {
 // RefundAmount applies equality check predicate on the "refund_amount" field. It's identical to RefundAmountEQ.
 func RefundAmount(v float64) predicate.Booking {
 	return predicate.Booking(sql.FieldEQ(FieldRefundAmount, v))
+}
+
+// PaidAt applies equality check predicate on the "paid_at" field. It's identical to PaidAtEQ.
+func PaidAt(v time.Time) predicate.Booking {
+	return predicate.Booking(sql.FieldEQ(FieldPaidAt, v))
 }
 
 // RefundAt applies equality check predicate on the "refund_at" field. It's identical to RefundAtEQ.
@@ -183,6 +193,81 @@ func UpdatedAtLT(v time.Time) predicate.Booking {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Booking {
 	return predicate.Booking(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// ReferenceEQ applies the EQ predicate on the "reference" field.
+func ReferenceEQ(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldEQ(FieldReference, v))
+}
+
+// ReferenceNEQ applies the NEQ predicate on the "reference" field.
+func ReferenceNEQ(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldNEQ(FieldReference, v))
+}
+
+// ReferenceIn applies the In predicate on the "reference" field.
+func ReferenceIn(vs ...string) predicate.Booking {
+	return predicate.Booking(sql.FieldIn(FieldReference, vs...))
+}
+
+// ReferenceNotIn applies the NotIn predicate on the "reference" field.
+func ReferenceNotIn(vs ...string) predicate.Booking {
+	return predicate.Booking(sql.FieldNotIn(FieldReference, vs...))
+}
+
+// ReferenceGT applies the GT predicate on the "reference" field.
+func ReferenceGT(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldGT(FieldReference, v))
+}
+
+// ReferenceGTE applies the GTE predicate on the "reference" field.
+func ReferenceGTE(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldGTE(FieldReference, v))
+}
+
+// ReferenceLT applies the LT predicate on the "reference" field.
+func ReferenceLT(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldLT(FieldReference, v))
+}
+
+// ReferenceLTE applies the LTE predicate on the "reference" field.
+func ReferenceLTE(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldLTE(FieldReference, v))
+}
+
+// ReferenceContains applies the Contains predicate on the "reference" field.
+func ReferenceContains(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldContains(FieldReference, v))
+}
+
+// ReferenceHasPrefix applies the HasPrefix predicate on the "reference" field.
+func ReferenceHasPrefix(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldHasPrefix(FieldReference, v))
+}
+
+// ReferenceHasSuffix applies the HasSuffix predicate on the "reference" field.
+func ReferenceHasSuffix(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldHasSuffix(FieldReference, v))
+}
+
+// ReferenceIsNil applies the IsNil predicate on the "reference" field.
+func ReferenceIsNil() predicate.Booking {
+	return predicate.Booking(sql.FieldIsNull(FieldReference))
+}
+
+// ReferenceNotNil applies the NotNil predicate on the "reference" field.
+func ReferenceNotNil() predicate.Booking {
+	return predicate.Booking(sql.FieldNotNull(FieldReference))
+}
+
+// ReferenceEqualFold applies the EqualFold predicate on the "reference" field.
+func ReferenceEqualFold(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldEqualFold(FieldReference, v))
+}
+
+// ReferenceContainsFold applies the ContainsFold predicate on the "reference" field.
+func ReferenceContainsFold(v string) predicate.Booking {
+	return predicate.Booking(sql.FieldContainsFold(FieldReference, v))
 }
 
 // BookingNumberEQ applies the EQ predicate on the "booking_number" field.
@@ -485,6 +570,56 @@ func RefundAmountNotNil() predicate.Booking {
 	return predicate.Booking(sql.FieldNotNull(FieldRefundAmount))
 }
 
+// PaidAtEQ applies the EQ predicate on the "paid_at" field.
+func PaidAtEQ(v time.Time) predicate.Booking {
+	return predicate.Booking(sql.FieldEQ(FieldPaidAt, v))
+}
+
+// PaidAtNEQ applies the NEQ predicate on the "paid_at" field.
+func PaidAtNEQ(v time.Time) predicate.Booking {
+	return predicate.Booking(sql.FieldNEQ(FieldPaidAt, v))
+}
+
+// PaidAtIn applies the In predicate on the "paid_at" field.
+func PaidAtIn(vs ...time.Time) predicate.Booking {
+	return predicate.Booking(sql.FieldIn(FieldPaidAt, vs...))
+}
+
+// PaidAtNotIn applies the NotIn predicate on the "paid_at" field.
+func PaidAtNotIn(vs ...time.Time) predicate.Booking {
+	return predicate.Booking(sql.FieldNotIn(FieldPaidAt, vs...))
+}
+
+// PaidAtGT applies the GT predicate on the "paid_at" field.
+func PaidAtGT(v time.Time) predicate.Booking {
+	return predicate.Booking(sql.FieldGT(FieldPaidAt, v))
+}
+
+// PaidAtGTE applies the GTE predicate on the "paid_at" field.
+func PaidAtGTE(v time.Time) predicate.Booking {
+	return predicate.Booking(sql.FieldGTE(FieldPaidAt, v))
+}
+
+// PaidAtLT applies the LT predicate on the "paid_at" field.
+func PaidAtLT(v time.Time) predicate.Booking {
+	return predicate.Booking(sql.FieldLT(FieldPaidAt, v))
+}
+
+// PaidAtLTE applies the LTE predicate on the "paid_at" field.
+func PaidAtLTE(v time.Time) predicate.Booking {
+	return predicate.Booking(sql.FieldLTE(FieldPaidAt, v))
+}
+
+// PaidAtIsNil applies the IsNil predicate on the "paid_at" field.
+func PaidAtIsNil() predicate.Booking {
+	return predicate.Booking(sql.FieldIsNull(FieldPaidAt))
+}
+
+// PaidAtNotNil applies the NotNil predicate on the "paid_at" field.
+func PaidAtNotNil() predicate.Booking {
+	return predicate.Booking(sql.FieldNotNull(FieldPaidAt))
+}
+
 // RefundAtEQ applies the EQ predicate on the "refund_at" field.
 func RefundAtEQ(v time.Time) predicate.Booking {
 	return predicate.Booking(sql.FieldEQ(FieldRefundAt, v))
@@ -553,16 +688,6 @@ func TansTypeIn(vs ...TansType) predicate.Booking {
 // TansTypeNotIn applies the NotIn predicate on the "tans_type" field.
 func TansTypeNotIn(vs ...TansType) predicate.Booking {
 	return predicate.Booking(sql.FieldNotIn(FieldTansType, vs...))
-}
-
-// TansTypeIsNil applies the IsNil predicate on the "tans_type" field.
-func TansTypeIsNil() predicate.Booking {
-	return predicate.Booking(sql.FieldIsNull(FieldTansType))
-}
-
-// TansTypeNotNil applies the NotNil predicate on the "tans_type" field.
-func TansTypeNotNil() predicate.Booking {
-	return predicate.Booking(sql.FieldNotNull(FieldTansType))
 }
 
 // SmsNotificationEQ applies the EQ predicate on the "sms_notification" field.

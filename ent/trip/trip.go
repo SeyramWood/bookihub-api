@@ -57,6 +57,10 @@ const (
 	EdgeRoute = "route"
 	// EdgeBookings holds the string denoting the bookings edge name in mutations.
 	EdgeBookings = "bookings"
+	// EdgeIncidents holds the string denoting the incidents edge name in mutations.
+	EdgeIncidents = "incidents"
+	// EdgeParcels holds the string denoting the parcels edge name in mutations.
+	EdgeParcels = "parcels"
 	// Table holds the table name of the trip in the database.
 	Table = "trips"
 	// CompanyTable is the table that holds the company relation/edge.
@@ -94,6 +98,20 @@ const (
 	BookingsInverseTable = "bookings"
 	// BookingsColumn is the table column denoting the bookings relation/edge.
 	BookingsColumn = "trip_bookings"
+	// IncidentsTable is the table that holds the incidents relation/edge.
+	IncidentsTable = "incidents"
+	// IncidentsInverseTable is the table name for the Incident entity.
+	// It exists in this package in order to avoid circular dependency with the "incident" package.
+	IncidentsInverseTable = "incidents"
+	// IncidentsColumn is the table column denoting the incidents relation/edge.
+	IncidentsColumn = "trip_incidents"
+	// ParcelsTable is the table that holds the parcels relation/edge.
+	ParcelsTable = "parcels"
+	// ParcelsInverseTable is the table name for the Parcel entity.
+	// It exists in this package in order to avoid circular dependency with the "parcel" package.
+	ParcelsInverseTable = "parcels"
+	// ParcelsColumn is the table column denoting the parcels relation/edge.
+	ParcelsColumn = "trip_parcels"
 )
 
 // Columns holds all SQL columns for trip fields.
@@ -339,6 +357,34 @@ func ByBookings(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newBookingsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByIncidentsCount orders the results by incidents count.
+func ByIncidentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newIncidentsStep(), opts...)
+	}
+}
+
+// ByIncidents orders the results by incidents terms.
+func ByIncidents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newIncidentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByParcelsCount orders the results by parcels count.
+func ByParcelsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newParcelsStep(), opts...)
+	}
+}
+
+// ByParcels orders the results by parcels terms.
+func ByParcels(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newParcelsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCompanyStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -372,5 +418,19 @@ func newBookingsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BookingsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, BookingsTable, BookingsColumn),
+	)
+}
+func newIncidentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(IncidentsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, IncidentsTable, IncidentsColumn),
+	)
+}
+func newParcelsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ParcelsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ParcelsTable, ParcelsColumn),
 	)
 }

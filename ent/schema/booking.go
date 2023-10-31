@@ -22,14 +22,16 @@ func (Booking) Mixin() []ent.Mixin {
 // Fields of the Booking.
 func (Booking) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("reference").Optional(),
 		field.String("booking_number").NotEmpty(),
 		field.String("boarding_point").NotEmpty(),
 		field.Float("vat").Default(0.00),
 		field.Float("sms_fee").Default(0.00),
 		field.Float("amount").Default(0.00),
 		field.Float("refund_amount").Optional(),
+		field.Time("paid_at").Optional(),
 		field.Time("refund_at").Optional(),
-		field.Enum("tans_type").Values("momo", "card", "cash").Optional(),
+		field.Enum("tans_type").Values("momo", "card", "cash").Default("cash"),
 		field.Bool("sms_notification").Default(false),
 		field.Enum("status").Values("successful", "canceled").Default("successful"),
 	}

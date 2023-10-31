@@ -18,9 +18,9 @@ type bookingHandler struct {
 	service gateways.BookingService
 }
 
-func NewBookingHandler(db *database.Adapter, producer gateways.EventProducer, cache gateways.CacheService) *bookingHandler {
+func NewBookingHandler(db *database.Adapter, producer gateways.EventProducer, cache gateways.CacheService, payment gateways.PaymentService) *bookingHandler {
 	return &bookingHandler{
-		service: booking.NewService(booking.NewRepository(db), producer, cache),
+		service: booking.NewService(booking.NewRepository(db), producer, cache, payment),
 	}
 }
 
@@ -30,7 +30,7 @@ func (h *bookingHandler) Create() fiber.Handler {
 		if err := c.BodyParser(request); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
 		}
-		result, err := h.service.Create(request)
+		result, err := h.service.Create(request, c.Query("trans-type"))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}

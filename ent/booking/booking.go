@@ -19,6 +19,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldReference holds the string denoting the reference field in the database.
+	FieldReference = "reference"
 	// FieldBookingNumber holds the string denoting the booking_number field in the database.
 	FieldBookingNumber = "booking_number"
 	// FieldBoardingPoint holds the string denoting the boarding_point field in the database.
@@ -31,6 +33,8 @@ const (
 	FieldAmount = "amount"
 	// FieldRefundAmount holds the string denoting the refund_amount field in the database.
 	FieldRefundAmount = "refund_amount"
+	// FieldPaidAt holds the string denoting the paid_at field in the database.
+	FieldPaidAt = "paid_at"
 	// FieldRefundAt holds the string denoting the refund_at field in the database.
 	FieldRefundAt = "refund_at"
 	// FieldTansType holds the string denoting the tans_type field in the database.
@@ -102,12 +106,14 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldReference,
 	FieldBookingNumber,
 	FieldBoardingPoint,
 	FieldVat,
 	FieldSmsFee,
 	FieldAmount,
 	FieldRefundAmount,
+	FieldPaidAt,
 	FieldRefundAt,
 	FieldTansType,
 	FieldSmsNotification,
@@ -160,6 +166,9 @@ var (
 
 // TansType defines the type for the "tans_type" enum field.
 type TansType string
+
+// TansTypeCash is the default value of the TansType enum.
+const DefaultTansType = TansTypeCash
 
 // TansType values.
 const (
@@ -226,6 +235,11 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
+// ByReference orders the results by the reference field.
+func ByReference(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReference, opts...).ToFunc()
+}
+
 // ByBookingNumber orders the results by the booking_number field.
 func ByBookingNumber(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBookingNumber, opts...).ToFunc()
@@ -254,6 +268,11 @@ func ByAmount(opts ...sql.OrderTermOption) OrderOption {
 // ByRefundAmount orders the results by the refund_amount field.
 func ByRefundAmount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRefundAmount, opts...).ToFunc()
+}
+
+// ByPaidAt orders the results by the paid_at field.
+func ByPaidAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPaidAt, opts...).ToFunc()
 }
 
 // ByRefundAt orders the results by the refund_at field.

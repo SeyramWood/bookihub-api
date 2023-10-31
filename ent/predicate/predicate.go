@@ -27,8 +27,20 @@ type CustomerContact func(*sql.Selector)
 // CustomerLuggage is the predicate function for customerluggage builders.
 type CustomerLuggage func(*sql.Selector)
 
+// Incident is the predicate function for incident builders.
+type Incident func(*sql.Selector)
+
+// IncidentImage is the predicate function for incidentimage builders.
+type IncidentImage func(*sql.Selector)
+
 // Notification is the predicate function for notification builders.
 type Notification func(*sql.Selector)
+
+// Parcel is the predicate function for parcel builders.
+type Parcel func(*sql.Selector)
+
+// ParcelImage is the predicate function for parcelimage builders.
+type ParcelImage func(*sql.Selector)
 
 // Passenger is the predicate function for passenger builders.
 type Passenger func(*sql.Selector)

@@ -26,8 +26,16 @@ type Tx struct {
 	CustomerContact *CustomerContactClient
 	// CustomerLuggage is the client for interacting with the CustomerLuggage builders.
 	CustomerLuggage *CustomerLuggageClient
+	// Incident is the client for interacting with the Incident builders.
+	Incident *IncidentClient
+	// IncidentImage is the client for interacting with the IncidentImage builders.
+	IncidentImage *IncidentImageClient
 	// Notification is the client for interacting with the Notification builders.
 	Notification *NotificationClient
+	// Parcel is the client for interacting with the Parcel builders.
+	Parcel *ParcelClient
+	// ParcelImage is the client for interacting with the ParcelImage builders.
+	ParcelImage *ParcelImageClient
 	// Passenger is the client for interacting with the Passenger builders.
 	Passenger *PassengerClient
 	// Route is the client for interacting with the Route builders.
@@ -180,7 +188,11 @@ func (tx *Tx) init() {
 	tx.Customer = NewCustomerClient(tx.config)
 	tx.CustomerContact = NewCustomerContactClient(tx.config)
 	tx.CustomerLuggage = NewCustomerLuggageClient(tx.config)
+	tx.Incident = NewIncidentClient(tx.config)
+	tx.IncidentImage = NewIncidentImageClient(tx.config)
 	tx.Notification = NewNotificationClient(tx.config)
+	tx.Parcel = NewParcelClient(tx.config)
+	tx.ParcelImage = NewParcelImageClient(tx.config)
 	tx.Passenger = NewPassengerClient(tx.config)
 	tx.Route = NewRouteClient(tx.config)
 	tx.RouteStop = NewRouteStopClient(tx.config)

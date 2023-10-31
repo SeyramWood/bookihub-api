@@ -22,7 +22,11 @@ import (
 	"github.com/SeyramWood/ent/customer"
 	"github.com/SeyramWood/ent/customercontact"
 	"github.com/SeyramWood/ent/customerluggage"
+	"github.com/SeyramWood/ent/incident"
+	"github.com/SeyramWood/ent/incidentimage"
 	"github.com/SeyramWood/ent/notification"
+	"github.com/SeyramWood/ent/parcel"
+	"github.com/SeyramWood/ent/parcelimage"
 	"github.com/SeyramWood/ent/passenger"
 	"github.com/SeyramWood/ent/route"
 	"github.com/SeyramWood/ent/routestop"
@@ -51,8 +55,16 @@ type Client struct {
 	CustomerContact *CustomerContactClient
 	// CustomerLuggage is the client for interacting with the CustomerLuggage builders.
 	CustomerLuggage *CustomerLuggageClient
+	// Incident is the client for interacting with the Incident builders.
+	Incident *IncidentClient
+	// IncidentImage is the client for interacting with the IncidentImage builders.
+	IncidentImage *IncidentImageClient
 	// Notification is the client for interacting with the Notification builders.
 	Notification *NotificationClient
+	// Parcel is the client for interacting with the Parcel builders.
+	Parcel *ParcelClient
+	// ParcelImage is the client for interacting with the ParcelImage builders.
+	ParcelImage *ParcelImageClient
 	// Passenger is the client for interacting with the Passenger builders.
 	Passenger *PassengerClient
 	// Route is the client for interacting with the Route builders.
@@ -87,7 +99,11 @@ func (c *Client) init() {
 	c.Customer = NewCustomerClient(c.config)
 	c.CustomerContact = NewCustomerContactClient(c.config)
 	c.CustomerLuggage = NewCustomerLuggageClient(c.config)
+	c.Incident = NewIncidentClient(c.config)
+	c.IncidentImage = NewIncidentImageClient(c.config)
 	c.Notification = NewNotificationClient(c.config)
+	c.Parcel = NewParcelClient(c.config)
+	c.ParcelImage = NewParcelImageClient(c.config)
 	c.Passenger = NewPassengerClient(c.config)
 	c.Route = NewRouteClient(c.config)
 	c.RouteStop = NewRouteStopClient(c.config)
@@ -187,7 +203,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Customer:        NewCustomerClient(cfg),
 		CustomerContact: NewCustomerContactClient(cfg),
 		CustomerLuggage: NewCustomerLuggageClient(cfg),
+		Incident:        NewIncidentClient(cfg),
+		IncidentImage:   NewIncidentImageClient(cfg),
 		Notification:    NewNotificationClient(cfg),
+		Parcel:          NewParcelClient(cfg),
+		ParcelImage:     NewParcelImageClient(cfg),
 		Passenger:       NewPassengerClient(cfg),
 		Route:           NewRouteClient(cfg),
 		RouteStop:       NewRouteStopClient(cfg),
@@ -221,7 +241,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Customer:        NewCustomerClient(cfg),
 		CustomerContact: NewCustomerContactClient(cfg),
 		CustomerLuggage: NewCustomerLuggageClient(cfg),
+		Incident:        NewIncidentClient(cfg),
+		IncidentImage:   NewIncidentImageClient(cfg),
 		Notification:    NewNotificationClient(cfg),
+		Parcel:          NewParcelClient(cfg),
+		ParcelImage:     NewParcelImageClient(cfg),
 		Passenger:       NewPassengerClient(cfg),
 		Route:           NewRouteClient(cfg),
 		RouteStop:       NewRouteStopClient(cfg),
@@ -259,8 +283,9 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.BookibusUser, c.Booking, c.Company, c.CompanyUser, c.Customer,
-		c.CustomerContact, c.CustomerLuggage, c.Notification, c.Passenger, c.Route,
-		c.RouteStop, c.Trip, c.User, c.Vehicle, c.VehicleImage,
+		c.CustomerContact, c.CustomerLuggage, c.Incident, c.IncidentImage,
+		c.Notification, c.Parcel, c.ParcelImage, c.Passenger, c.Route, c.RouteStop,
+		c.Trip, c.User, c.Vehicle, c.VehicleImage,
 	} {
 		n.Use(hooks...)
 	}
@@ -271,8 +296,9 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.BookibusUser, c.Booking, c.Company, c.CompanyUser, c.Customer,
-		c.CustomerContact, c.CustomerLuggage, c.Notification, c.Passenger, c.Route,
-		c.RouteStop, c.Trip, c.User, c.Vehicle, c.VehicleImage,
+		c.CustomerContact, c.CustomerLuggage, c.Incident, c.IncidentImage,
+		c.Notification, c.Parcel, c.ParcelImage, c.Passenger, c.Route, c.RouteStop,
+		c.Trip, c.User, c.Vehicle, c.VehicleImage,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -295,8 +321,16 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.CustomerContact.mutate(ctx, m)
 	case *CustomerLuggageMutation:
 		return c.CustomerLuggage.mutate(ctx, m)
+	case *IncidentMutation:
+		return c.Incident.mutate(ctx, m)
+	case *IncidentImageMutation:
+		return c.IncidentImage.mutate(ctx, m)
 	case *NotificationMutation:
 		return c.Notification.mutate(ctx, m)
+	case *ParcelMutation:
+		return c.Parcel.mutate(ctx, m)
+	case *ParcelImageMutation:
+		return c.ParcelImage.mutate(ctx, m)
 	case *PassengerMutation:
 		return c.Passenger.mutate(ctx, m)
 	case *RouteMutation:
@@ -898,6 +932,38 @@ func (c *CompanyClient) QueryBookings(co *Company) *BookingQuery {
 	return query
 }
 
+// QueryIncidents queries the incidents edge of a Company.
+func (c *CompanyClient) QueryIncidents(co *Company) *IncidentQuery {
+	query := (&IncidentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, id),
+			sqlgraph.To(incident.Table, incident.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, company.IncidentsTable, company.IncidentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryParcels queries the parcels edge of a Company.
+func (c *CompanyClient) QueryParcels(co *Company) *ParcelQuery {
+	query := (&ParcelClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, id),
+			sqlgraph.To(parcel.Table, parcel.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, company.ParcelsTable, company.ParcelsColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryNotifications queries the notifications edge of a Company.
 func (c *CompanyClient) QueryNotifications(co *Company) *NotificationQuery {
 	query := (&NotificationClient{config: c.config}).Query()
@@ -1072,6 +1138,38 @@ func (c *CompanyUserClient) QueryTrips(cu *CompanyUser) *TripQuery {
 			sqlgraph.From(companyuser.Table, companyuser.FieldID, id),
 			sqlgraph.To(trip.Table, trip.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, companyuser.TripsTable, companyuser.TripsColumn),
+		)
+		fromV = sqlgraph.Neighbors(cu.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryIncidents queries the incidents edge of a CompanyUser.
+func (c *CompanyUserClient) QueryIncidents(cu *CompanyUser) *IncidentQuery {
+	query := (&IncidentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cu.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(companyuser.Table, companyuser.FieldID, id),
+			sqlgraph.To(incident.Table, incident.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, companyuser.IncidentsTable, companyuser.IncidentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(cu.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryParcels queries the parcels edge of a CompanyUser.
+func (c *CompanyUserClient) QueryParcels(cu *CompanyUser) *ParcelQuery {
+	query := (&ParcelClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cu.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(companyuser.Table, companyuser.FieldID, id),
+			sqlgraph.To(parcel.Table, parcel.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, companyuser.ParcelsTable, companyuser.ParcelsColumn),
 		)
 		fromV = sqlgraph.Neighbors(cu.driver.Dialect(), step)
 		return fromV, nil
@@ -1615,6 +1713,352 @@ func (c *CustomerLuggageClient) mutate(ctx context.Context, m *CustomerLuggageMu
 	}
 }
 
+// IncidentClient is a client for the Incident schema.
+type IncidentClient struct {
+	config
+}
+
+// NewIncidentClient returns a client for the Incident from the given config.
+func NewIncidentClient(c config) *IncidentClient {
+	return &IncidentClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `incident.Hooks(f(g(h())))`.
+func (c *IncidentClient) Use(hooks ...Hook) {
+	c.hooks.Incident = append(c.hooks.Incident, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `incident.Intercept(f(g(h())))`.
+func (c *IncidentClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Incident = append(c.inters.Incident, interceptors...)
+}
+
+// Create returns a builder for creating a Incident entity.
+func (c *IncidentClient) Create() *IncidentCreate {
+	mutation := newIncidentMutation(c.config, OpCreate)
+	return &IncidentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Incident entities.
+func (c *IncidentClient) CreateBulk(builders ...*IncidentCreate) *IncidentCreateBulk {
+	return &IncidentCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *IncidentClient) MapCreateBulk(slice any, setFunc func(*IncidentCreate, int)) *IncidentCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &IncidentCreateBulk{err: fmt.Errorf("calling to IncidentClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*IncidentCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &IncidentCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Incident.
+func (c *IncidentClient) Update() *IncidentUpdate {
+	mutation := newIncidentMutation(c.config, OpUpdate)
+	return &IncidentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *IncidentClient) UpdateOne(i *Incident) *IncidentUpdateOne {
+	mutation := newIncidentMutation(c.config, OpUpdateOne, withIncident(i))
+	return &IncidentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *IncidentClient) UpdateOneID(id int) *IncidentUpdateOne {
+	mutation := newIncidentMutation(c.config, OpUpdateOne, withIncidentID(id))
+	return &IncidentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Incident.
+func (c *IncidentClient) Delete() *IncidentDelete {
+	mutation := newIncidentMutation(c.config, OpDelete)
+	return &IncidentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *IncidentClient) DeleteOne(i *Incident) *IncidentDeleteOne {
+	return c.DeleteOneID(i.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *IncidentClient) DeleteOneID(id int) *IncidentDeleteOne {
+	builder := c.Delete().Where(incident.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &IncidentDeleteOne{builder}
+}
+
+// Query returns a query builder for Incident.
+func (c *IncidentClient) Query() *IncidentQuery {
+	return &IncidentQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeIncident},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Incident entity by its id.
+func (c *IncidentClient) Get(ctx context.Context, id int) (*Incident, error) {
+	return c.Query().Where(incident.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *IncidentClient) GetX(ctx context.Context, id int) *Incident {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryImages queries the images edge of a Incident.
+func (c *IncidentClient) QueryImages(i *Incident) *IncidentImageQuery {
+	query := (&IncidentImageClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := i.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(incident.Table, incident.FieldID, id),
+			sqlgraph.To(incidentimage.Table, incidentimage.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, incident.ImagesTable, incident.ImagesColumn),
+		)
+		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTrip queries the trip edge of a Incident.
+func (c *IncidentClient) QueryTrip(i *Incident) *TripQuery {
+	query := (&TripClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := i.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(incident.Table, incident.FieldID, id),
+			sqlgraph.To(trip.Table, trip.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, incident.TripTable, incident.TripColumn),
+		)
+		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCompany queries the company edge of a Incident.
+func (c *IncidentClient) QueryCompany(i *Incident) *CompanyQuery {
+	query := (&CompanyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := i.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(incident.Table, incident.FieldID, id),
+			sqlgraph.To(company.Table, company.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, incident.CompanyTable, incident.CompanyColumn),
+		)
+		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDriver queries the driver edge of a Incident.
+func (c *IncidentClient) QueryDriver(i *Incident) *CompanyUserQuery {
+	query := (&CompanyUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := i.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(incident.Table, incident.FieldID, id),
+			sqlgraph.To(companyuser.Table, companyuser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, incident.DriverTable, incident.DriverColumn),
+		)
+		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *IncidentClient) Hooks() []Hook {
+	return c.hooks.Incident
+}
+
+// Interceptors returns the client interceptors.
+func (c *IncidentClient) Interceptors() []Interceptor {
+	return c.inters.Incident
+}
+
+func (c *IncidentClient) mutate(ctx context.Context, m *IncidentMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&IncidentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&IncidentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&IncidentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&IncidentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Incident mutation op: %q", m.Op())
+	}
+}
+
+// IncidentImageClient is a client for the IncidentImage schema.
+type IncidentImageClient struct {
+	config
+}
+
+// NewIncidentImageClient returns a client for the IncidentImage from the given config.
+func NewIncidentImageClient(c config) *IncidentImageClient {
+	return &IncidentImageClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `incidentimage.Hooks(f(g(h())))`.
+func (c *IncidentImageClient) Use(hooks ...Hook) {
+	c.hooks.IncidentImage = append(c.hooks.IncidentImage, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `incidentimage.Intercept(f(g(h())))`.
+func (c *IncidentImageClient) Intercept(interceptors ...Interceptor) {
+	c.inters.IncidentImage = append(c.inters.IncidentImage, interceptors...)
+}
+
+// Create returns a builder for creating a IncidentImage entity.
+func (c *IncidentImageClient) Create() *IncidentImageCreate {
+	mutation := newIncidentImageMutation(c.config, OpCreate)
+	return &IncidentImageCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of IncidentImage entities.
+func (c *IncidentImageClient) CreateBulk(builders ...*IncidentImageCreate) *IncidentImageCreateBulk {
+	return &IncidentImageCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *IncidentImageClient) MapCreateBulk(slice any, setFunc func(*IncidentImageCreate, int)) *IncidentImageCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &IncidentImageCreateBulk{err: fmt.Errorf("calling to IncidentImageClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*IncidentImageCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &IncidentImageCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for IncidentImage.
+func (c *IncidentImageClient) Update() *IncidentImageUpdate {
+	mutation := newIncidentImageMutation(c.config, OpUpdate)
+	return &IncidentImageUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *IncidentImageClient) UpdateOne(ii *IncidentImage) *IncidentImageUpdateOne {
+	mutation := newIncidentImageMutation(c.config, OpUpdateOne, withIncidentImage(ii))
+	return &IncidentImageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *IncidentImageClient) UpdateOneID(id int) *IncidentImageUpdateOne {
+	mutation := newIncidentImageMutation(c.config, OpUpdateOne, withIncidentImageID(id))
+	return &IncidentImageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for IncidentImage.
+func (c *IncidentImageClient) Delete() *IncidentImageDelete {
+	mutation := newIncidentImageMutation(c.config, OpDelete)
+	return &IncidentImageDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *IncidentImageClient) DeleteOne(ii *IncidentImage) *IncidentImageDeleteOne {
+	return c.DeleteOneID(ii.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *IncidentImageClient) DeleteOneID(id int) *IncidentImageDeleteOne {
+	builder := c.Delete().Where(incidentimage.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &IncidentImageDeleteOne{builder}
+}
+
+// Query returns a query builder for IncidentImage.
+func (c *IncidentImageClient) Query() *IncidentImageQuery {
+	return &IncidentImageQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeIncidentImage},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a IncidentImage entity by its id.
+func (c *IncidentImageClient) Get(ctx context.Context, id int) (*IncidentImage, error) {
+	return c.Query().Where(incidentimage.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *IncidentImageClient) GetX(ctx context.Context, id int) *IncidentImage {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryIncident queries the incident edge of a IncidentImage.
+func (c *IncidentImageClient) QueryIncident(ii *IncidentImage) *IncidentQuery {
+	query := (&IncidentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ii.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(incidentimage.Table, incidentimage.FieldID, id),
+			sqlgraph.To(incident.Table, incident.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, incidentimage.IncidentTable, incidentimage.IncidentColumn),
+		)
+		fromV = sqlgraph.Neighbors(ii.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *IncidentImageClient) Hooks() []Hook {
+	return c.hooks.IncidentImage
+}
+
+// Interceptors returns the client interceptors.
+func (c *IncidentImageClient) Interceptors() []Interceptor {
+	return c.inters.IncidentImage
+}
+
+func (c *IncidentImageClient) mutate(ctx context.Context, m *IncidentImageMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&IncidentImageCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&IncidentImageUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&IncidentImageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&IncidentImageDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown IncidentImage mutation op: %q", m.Op())
+	}
+}
+
 // NotificationClient is a client for the Notification schema.
 type NotificationClient struct {
 	config
@@ -1809,6 +2253,352 @@ func (c *NotificationClient) mutate(ctx context.Context, m *NotificationMutation
 		return (&NotificationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Notification mutation op: %q", m.Op())
+	}
+}
+
+// ParcelClient is a client for the Parcel schema.
+type ParcelClient struct {
+	config
+}
+
+// NewParcelClient returns a client for the Parcel from the given config.
+func NewParcelClient(c config) *ParcelClient {
+	return &ParcelClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `parcel.Hooks(f(g(h())))`.
+func (c *ParcelClient) Use(hooks ...Hook) {
+	c.hooks.Parcel = append(c.hooks.Parcel, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `parcel.Intercept(f(g(h())))`.
+func (c *ParcelClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Parcel = append(c.inters.Parcel, interceptors...)
+}
+
+// Create returns a builder for creating a Parcel entity.
+func (c *ParcelClient) Create() *ParcelCreate {
+	mutation := newParcelMutation(c.config, OpCreate)
+	return &ParcelCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Parcel entities.
+func (c *ParcelClient) CreateBulk(builders ...*ParcelCreate) *ParcelCreateBulk {
+	return &ParcelCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ParcelClient) MapCreateBulk(slice any, setFunc func(*ParcelCreate, int)) *ParcelCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ParcelCreateBulk{err: fmt.Errorf("calling to ParcelClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ParcelCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ParcelCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Parcel.
+func (c *ParcelClient) Update() *ParcelUpdate {
+	mutation := newParcelMutation(c.config, OpUpdate)
+	return &ParcelUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ParcelClient) UpdateOne(pa *Parcel) *ParcelUpdateOne {
+	mutation := newParcelMutation(c.config, OpUpdateOne, withParcel(pa))
+	return &ParcelUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ParcelClient) UpdateOneID(id int) *ParcelUpdateOne {
+	mutation := newParcelMutation(c.config, OpUpdateOne, withParcelID(id))
+	return &ParcelUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Parcel.
+func (c *ParcelClient) Delete() *ParcelDelete {
+	mutation := newParcelMutation(c.config, OpDelete)
+	return &ParcelDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ParcelClient) DeleteOne(pa *Parcel) *ParcelDeleteOne {
+	return c.DeleteOneID(pa.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ParcelClient) DeleteOneID(id int) *ParcelDeleteOne {
+	builder := c.Delete().Where(parcel.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ParcelDeleteOne{builder}
+}
+
+// Query returns a query builder for Parcel.
+func (c *ParcelClient) Query() *ParcelQuery {
+	return &ParcelQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeParcel},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Parcel entity by its id.
+func (c *ParcelClient) Get(ctx context.Context, id int) (*Parcel, error) {
+	return c.Query().Where(parcel.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ParcelClient) GetX(ctx context.Context, id int) *Parcel {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryImages queries the images edge of a Parcel.
+func (c *ParcelClient) QueryImages(pa *Parcel) *ParcelImageQuery {
+	query := (&ParcelImageClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(parcel.Table, parcel.FieldID, id),
+			sqlgraph.To(parcelimage.Table, parcelimage.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, parcel.ImagesTable, parcel.ImagesColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTrip queries the trip edge of a Parcel.
+func (c *ParcelClient) QueryTrip(pa *Parcel) *TripQuery {
+	query := (&TripClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(parcel.Table, parcel.FieldID, id),
+			sqlgraph.To(trip.Table, trip.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, parcel.TripTable, parcel.TripColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCompany queries the company edge of a Parcel.
+func (c *ParcelClient) QueryCompany(pa *Parcel) *CompanyQuery {
+	query := (&CompanyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(parcel.Table, parcel.FieldID, id),
+			sqlgraph.To(company.Table, company.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, parcel.CompanyTable, parcel.CompanyColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDriver queries the driver edge of a Parcel.
+func (c *ParcelClient) QueryDriver(pa *Parcel) *CompanyUserQuery {
+	query := (&CompanyUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(parcel.Table, parcel.FieldID, id),
+			sqlgraph.To(companyuser.Table, companyuser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, parcel.DriverTable, parcel.DriverColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ParcelClient) Hooks() []Hook {
+	return c.hooks.Parcel
+}
+
+// Interceptors returns the client interceptors.
+func (c *ParcelClient) Interceptors() []Interceptor {
+	return c.inters.Parcel
+}
+
+func (c *ParcelClient) mutate(ctx context.Context, m *ParcelMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ParcelCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ParcelUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ParcelUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ParcelDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Parcel mutation op: %q", m.Op())
+	}
+}
+
+// ParcelImageClient is a client for the ParcelImage schema.
+type ParcelImageClient struct {
+	config
+}
+
+// NewParcelImageClient returns a client for the ParcelImage from the given config.
+func NewParcelImageClient(c config) *ParcelImageClient {
+	return &ParcelImageClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `parcelimage.Hooks(f(g(h())))`.
+func (c *ParcelImageClient) Use(hooks ...Hook) {
+	c.hooks.ParcelImage = append(c.hooks.ParcelImage, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `parcelimage.Intercept(f(g(h())))`.
+func (c *ParcelImageClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ParcelImage = append(c.inters.ParcelImage, interceptors...)
+}
+
+// Create returns a builder for creating a ParcelImage entity.
+func (c *ParcelImageClient) Create() *ParcelImageCreate {
+	mutation := newParcelImageMutation(c.config, OpCreate)
+	return &ParcelImageCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ParcelImage entities.
+func (c *ParcelImageClient) CreateBulk(builders ...*ParcelImageCreate) *ParcelImageCreateBulk {
+	return &ParcelImageCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ParcelImageClient) MapCreateBulk(slice any, setFunc func(*ParcelImageCreate, int)) *ParcelImageCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ParcelImageCreateBulk{err: fmt.Errorf("calling to ParcelImageClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ParcelImageCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ParcelImageCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ParcelImage.
+func (c *ParcelImageClient) Update() *ParcelImageUpdate {
+	mutation := newParcelImageMutation(c.config, OpUpdate)
+	return &ParcelImageUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ParcelImageClient) UpdateOne(pi *ParcelImage) *ParcelImageUpdateOne {
+	mutation := newParcelImageMutation(c.config, OpUpdateOne, withParcelImage(pi))
+	return &ParcelImageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ParcelImageClient) UpdateOneID(id int) *ParcelImageUpdateOne {
+	mutation := newParcelImageMutation(c.config, OpUpdateOne, withParcelImageID(id))
+	return &ParcelImageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ParcelImage.
+func (c *ParcelImageClient) Delete() *ParcelImageDelete {
+	mutation := newParcelImageMutation(c.config, OpDelete)
+	return &ParcelImageDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ParcelImageClient) DeleteOne(pi *ParcelImage) *ParcelImageDeleteOne {
+	return c.DeleteOneID(pi.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ParcelImageClient) DeleteOneID(id int) *ParcelImageDeleteOne {
+	builder := c.Delete().Where(parcelimage.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ParcelImageDeleteOne{builder}
+}
+
+// Query returns a query builder for ParcelImage.
+func (c *ParcelImageClient) Query() *ParcelImageQuery {
+	return &ParcelImageQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeParcelImage},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ParcelImage entity by its id.
+func (c *ParcelImageClient) Get(ctx context.Context, id int) (*ParcelImage, error) {
+	return c.Query().Where(parcelimage.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ParcelImageClient) GetX(ctx context.Context, id int) *ParcelImage {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryParcel queries the parcel edge of a ParcelImage.
+func (c *ParcelImageClient) QueryParcel(pi *ParcelImage) *ParcelQuery {
+	query := (&ParcelClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pi.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(parcelimage.Table, parcelimage.FieldID, id),
+			sqlgraph.To(parcel.Table, parcel.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, parcelimage.ParcelTable, parcelimage.ParcelColumn),
+		)
+		fromV = sqlgraph.Neighbors(pi.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ParcelImageClient) Hooks() []Hook {
+	return c.hooks.ParcelImage
+}
+
+// Interceptors returns the client interceptors.
+func (c *ParcelImageClient) Interceptors() []Interceptor {
+	return c.inters.ParcelImage
+}
+
+func (c *ParcelImageClient) mutate(ctx context.Context, m *ParcelImageMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ParcelImageCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ParcelImageUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ParcelImageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ParcelImageDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ParcelImage mutation op: %q", m.Op())
 	}
 }
 
@@ -2479,6 +3269,38 @@ func (c *TripClient) QueryBookings(t *Trip) *BookingQuery {
 	return query
 }
 
+// QueryIncidents queries the incidents edge of a Trip.
+func (c *TripClient) QueryIncidents(t *Trip) *IncidentQuery {
+	query := (&IncidentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trip.Table, trip.FieldID, id),
+			sqlgraph.To(incident.Table, incident.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, trip.IncidentsTable, trip.IncidentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryParcels queries the parcels edge of a Trip.
+func (c *TripClient) QueryParcels(t *Trip) *ParcelQuery {
+	query := (&ParcelClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trip.Table, trip.FieldID, id),
+			sqlgraph.To(parcel.Table, parcel.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, trip.ParcelsTable, trip.ParcelsColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *TripClient) Hooks() []Hook {
 	return c.hooks.Trip
@@ -3019,12 +3841,13 @@ func (c *VehicleImageClient) mutate(ctx context.Context, m *VehicleImageMutation
 type (
 	hooks struct {
 		BookibusUser, Booking, Company, CompanyUser, Customer, CustomerContact,
-		CustomerLuggage, Notification, Passenger, Route, RouteStop, Trip, User,
-		Vehicle, VehicleImage []ent.Hook
+		CustomerLuggage, Incident, IncidentImage, Notification, Parcel, ParcelImage,
+		Passenger, Route, RouteStop, Trip, User, Vehicle, VehicleImage []ent.Hook
 	}
 	inters struct {
 		BookibusUser, Booking, Company, CompanyUser, Customer, CustomerContact,
-		CustomerLuggage, Notification, Passenger, Route, RouteStop, Trip, User,
-		Vehicle, VehicleImage []ent.Interceptor
+		CustomerLuggage, Incident, IncidentImage, Notification, Parcel, ParcelImage,
+		Passenger, Route, RouteStop, Trip, User, Vehicle,
+		VehicleImage []ent.Interceptor
 	}
 )

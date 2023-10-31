@@ -8,7 +8,7 @@ import (
 )
 
 func BookingRoutes(r fiber.Router, router *apiRouter) {
-	handler := api.NewBookingHandler(router.Adapter, router.EventProducer, router.CacheSrv)
+	handler := api.NewBookingHandler(router.Adapter, router.EventProducer, router.CacheSrv, router.Payment)
 
 	bookingGroup := r.Group("/bookings")
 	bookingGroup.Get("", handler.FetchAll())

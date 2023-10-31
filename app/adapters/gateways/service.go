@@ -32,6 +32,10 @@ type (
 	OTPVerifier interface {
 		VerifyOTP(otp string) bool
 	}
+	PaymentService interface {
+		Pay(request any) (any, error)
+		Verify(reference string) (*requeststructs.PaymentReferenceResponse, error)
+	}
 	AuthService interface {
 		OTPVerifier
 		Login(request *requeststructs.UserLoginRequest) (*presenters.AuthTokenData, error)
@@ -113,10 +117,37 @@ type (
 		FetchAllByCompany(companyId, limit, offset int, filter *requeststructs.BookingFilterRequest) (*presenters.PaginationResponse, error)
 		FetchAllCustomer(limit, offset int, filter *requeststructs.BookingFilterRequest, customerId ...int) (*presenters.PaginationResponse, error)
 		Fetch(id int) (*ent.Booking, error)
-		Create(request *requeststructs.BookingRequest) (*ent.Booking, error)
+		Create(request *requeststructs.BookingRequest, transType string) (*ent.Booking, error)
 		SaveToCache(reference string, request *requeststructs.BookingRequest) error
 		Update(id int, request *requeststructs.BookingUpdateRequest) (*ent.Booking, error)
 		CancelBooking(id int, request *requeststructs.BookingCancelRequest) (*ent.Booking, error)
 		Remove(id int) error
+	}
+	ParcelService interface {
+		FetchAll(limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
+		FetchAllByCompany(companyId, limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
+		FetchAllByDriver(driverId, limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
+		Fetch(id int) (*ent.Parcel, error)
+		Create(companyId int, request *requeststructs.ParcelRequest, transType string) (*ent.Parcel, error)
+		AddImage(id int, request *requeststructs.ParcelImageRequest) (*ent.Parcel, error)
+		Update(id int, request *requeststructs.ParcelUpdateRequest) (*ent.Parcel, error)
+		UpdateStatus(id int, request *requeststructs.ParcelDeliveredRequest) (*ent.Parcel, error)
+		UpdateImage(id int, request *requeststructs.ParcelImageUpdateRequest) (*ent.ParcelImage, error)
+		Remove(id int) error
+		RemoveImage(id int) error
+	}
+	IncidentService interface {
+		FetchAll(limit, offset int, filter *requeststructs.IncidentFilterRequest) (*presenters.PaginationResponse, error)
+		FetchAllByCompany(companyId, limit, offset int, filter *requeststructs.IncidentFilterRequest) (*presenters.PaginationResponse, error)
+		FetchAllByDriver(driverId, limit, offset int, filter *requeststructs.IncidentFilterRequest) (*presenters.PaginationResponse, error)
+		Fetch(id int) (*ent.Incident, error)
+		Create(companyId int, request *requeststructs.IncidentRequest) (*ent.Incident, error)
+		AddImage(id int, request *requeststructs.IncidentImageRequest) (*ent.Incident, error)
+		Update(id int, request *requeststructs.IncidentUpdateRequest) (*ent.Incident, error)
+		UpdateAudio(id int, request *requeststructs.IncidentAudioUpdateRequest) (string, error)
+		UpdateImage(id int, request *requeststructs.IncidentImageUpdateRequest) (*ent.IncidentImage, error)
+		Remove(id int) error
+		RemoveImage(id int) error
+		RemoveAudio(id int) error
 	}
 )

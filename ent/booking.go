@@ -25,6 +25,8 @@ type Booking struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Reference holds the value of the "reference" field.
+	Reference string `json:"reference,omitempty"`
 	// BookingNumber holds the value of the "booking_number" field.
 	BookingNumber string `json:"booking_number,omitempty"`
 	// BoardingPoint holds the value of the "boarding_point" field.
@@ -37,6 +39,8 @@ type Booking struct {
 	Amount float64 `json:"amount,omitempty"`
 	// RefundAmount holds the value of the "refund_amount" field.
 	RefundAmount float64 `json:"refund_amount,omitempty"`
+	// PaidAt holds the value of the "paid_at" field.
+	PaidAt time.Time `json:"paid_at,omitempty"`
 	// RefundAt holds the value of the "refund_at" field.
 	RefundAt time.Time `json:"refund_at,omitempty"`
 	// TansType holds the value of the "tans_type" field.
@@ -154,9 +158,9 @@ func (*Booking) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case booking.FieldID:
 			values[i] = new(sql.NullInt64)
-		case booking.FieldBookingNumber, booking.FieldBoardingPoint, booking.FieldTansType, booking.FieldStatus:
+		case booking.FieldReference, booking.FieldBookingNumber, booking.FieldBoardingPoint, booking.FieldTansType, booking.FieldStatus:
 			values[i] = new(sql.NullString)
-		case booking.FieldCreatedAt, booking.FieldUpdatedAt, booking.FieldRefundAt:
+		case booking.FieldCreatedAt, booking.FieldUpdatedAt, booking.FieldPaidAt, booking.FieldRefundAt:
 			values[i] = new(sql.NullTime)
 		case booking.ForeignKeys[0]: // company_bookings
 			values[i] = new(sql.NullInt64)
@@ -197,6 +201,12 @@ func (b *Booking) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				b.UpdatedAt = value.Time
 			}
+		case booking.FieldReference:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field reference", values[i])
+			} else if value.Valid {
+				b.Reference = value.String
+			}
 		case booking.FieldBookingNumber:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field booking_number", values[i])
@@ -232,6 +242,12 @@ func (b *Booking) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field refund_amount", values[i])
 			} else if value.Valid {
 				b.RefundAmount = value.Float64
+			}
+		case booking.FieldPaidAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field paid_at", values[i])
+			} else if value.Valid {
+				b.PaidAt = value.Time
 			}
 		case booking.FieldRefundAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -350,6 +366,9 @@ func (b *Booking) String() string {
 	builder.WriteString("updated_at=")
 	builder.WriteString(b.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
+	builder.WriteString("reference=")
+	builder.WriteString(b.Reference)
+	builder.WriteString(", ")
 	builder.WriteString("booking_number=")
 	builder.WriteString(b.BookingNumber)
 	builder.WriteString(", ")
@@ -367,6 +386,9 @@ func (b *Booking) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("refund_amount=")
 	builder.WriteString(fmt.Sprintf("%v", b.RefundAmount))
+	builder.WriteString(", ")
+	builder.WriteString("paid_at=")
+	builder.WriteString(b.PaidAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("refund_at=")
 	builder.WriteString(b.RefundAt.Format(time.ANSIC))

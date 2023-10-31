@@ -46,13 +46,17 @@ type CompanyUserEdges struct {
 	Profile *User `json:"profile,omitempty"`
 	// Trips holds the value of the trips edge.
 	Trips []*Trip `json:"trips,omitempty"`
+	// Incidents holds the value of the incidents edge.
+	Incidents []*Incident `json:"incidents,omitempty"`
+	// Parcels holds the value of the parcels edge.
+	Parcels []*Parcel `json:"parcels,omitempty"`
 	// Notifications holds the value of the notifications edge.
 	Notifications []*Notification `json:"notifications,omitempty"`
 	// Company holds the value of the company edge.
 	Company *Company `json:"company,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [6]bool
 }
 
 // ProfileOrErr returns the Profile value or an error if the edge
@@ -77,10 +81,28 @@ func (e CompanyUserEdges) TripsOrErr() ([]*Trip, error) {
 	return nil, &NotLoadedError{edge: "trips"}
 }
 
+// IncidentsOrErr returns the Incidents value or an error if the edge
+// was not loaded in eager-loading.
+func (e CompanyUserEdges) IncidentsOrErr() ([]*Incident, error) {
+	if e.loadedTypes[2] {
+		return e.Incidents, nil
+	}
+	return nil, &NotLoadedError{edge: "incidents"}
+}
+
+// ParcelsOrErr returns the Parcels value or an error if the edge
+// was not loaded in eager-loading.
+func (e CompanyUserEdges) ParcelsOrErr() ([]*Parcel, error) {
+	if e.loadedTypes[3] {
+		return e.Parcels, nil
+	}
+	return nil, &NotLoadedError{edge: "parcels"}
+}
+
 // NotificationsOrErr returns the Notifications value or an error if the edge
 // was not loaded in eager-loading.
 func (e CompanyUserEdges) NotificationsOrErr() ([]*Notification, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[4] {
 		return e.Notifications, nil
 	}
 	return nil, &NotLoadedError{edge: "notifications"}
@@ -89,7 +111,7 @@ func (e CompanyUserEdges) NotificationsOrErr() ([]*Notification, error) {
 // CompanyOrErr returns the Company value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e CompanyUserEdges) CompanyOrErr() (*Company, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[5] {
 		if e.Company == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: company.Label}
@@ -203,6 +225,16 @@ func (cu *CompanyUser) QueryProfile() *UserQuery {
 // QueryTrips queries the "trips" edge of the CompanyUser entity.
 func (cu *CompanyUser) QueryTrips() *TripQuery {
 	return NewCompanyUserClient(cu.config).QueryTrips(cu)
+}
+
+// QueryIncidents queries the "incidents" edge of the CompanyUser entity.
+func (cu *CompanyUser) QueryIncidents() *IncidentQuery {
+	return NewCompanyUserClient(cu.config).QueryIncidents(cu)
+}
+
+// QueryParcels queries the "parcels" edge of the CompanyUser entity.
+func (cu *CompanyUser) QueryParcels() *ParcelQuery {
+	return NewCompanyUserClient(cu.config).QueryParcels(cu)
 }
 
 // QueryNotifications queries the "notifications" edge of the CompanyUser entity.

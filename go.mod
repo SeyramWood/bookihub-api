@@ -8,6 +8,7 @@ require (
 	ariga.io/atlas v0.14.1-0.20230918065911-83ad451a4935 // indirect
 	cloud.google.com/go/compute/metadata v0.2.0 // indirect
 	entgo.io/ent v0.12.4 // indirect
+	github.com/Jeffail/gabs v1.4.0 // indirect
 	github.com/MicahParks/keyfunc/v2 v2.1.0 // indirect
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect

@@ -635,6 +635,52 @@ func HasBookingsWith(preds ...predicate.Booking) predicate.Trip {
 	})
 }
 
+// HasIncidents applies the HasEdge predicate on the "incidents" edge.
+func HasIncidents() predicate.Trip {
+	return predicate.Trip(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, IncidentsTable, IncidentsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasIncidentsWith applies the HasEdge predicate on the "incidents" edge with a given conditions (other predicates).
+func HasIncidentsWith(preds ...predicate.Incident) predicate.Trip {
+	return predicate.Trip(func(s *sql.Selector) {
+		step := newIncidentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasParcels applies the HasEdge predicate on the "parcels" edge.
+func HasParcels() predicate.Trip {
+	return predicate.Trip(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ParcelsTable, ParcelsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasParcelsWith applies the HasEdge predicate on the "parcels" edge with a given conditions (other predicates).
+func HasParcelsWith(preds ...predicate.Parcel) predicate.Trip {
+	return predicate.Trip(func(s *sql.Selector) {
+		step := newParcelsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Trip) predicate.Trip {
 	return predicate.Trip(sql.AndPredicates(predicates...))

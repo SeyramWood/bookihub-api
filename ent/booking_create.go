@@ -54,6 +54,20 @@ func (bc *BookingCreate) SetNillableUpdatedAt(t *time.Time) *BookingCreate {
 	return bc
 }
 
+// SetReference sets the "reference" field.
+func (bc *BookingCreate) SetReference(s string) *BookingCreate {
+	bc.mutation.SetReference(s)
+	return bc
+}
+
+// SetNillableReference sets the "reference" field if the given value is not nil.
+func (bc *BookingCreate) SetNillableReference(s *string) *BookingCreate {
+	if s != nil {
+		bc.SetReference(*s)
+	}
+	return bc
+}
+
 // SetBookingNumber sets the "booking_number" field.
 func (bc *BookingCreate) SetBookingNumber(s string) *BookingCreate {
 	bc.mutation.SetBookingNumber(s)
@@ -118,6 +132,20 @@ func (bc *BookingCreate) SetRefundAmount(f float64) *BookingCreate {
 func (bc *BookingCreate) SetNillableRefundAmount(f *float64) *BookingCreate {
 	if f != nil {
 		bc.SetRefundAmount(*f)
+	}
+	return bc
+}
+
+// SetPaidAt sets the "paid_at" field.
+func (bc *BookingCreate) SetPaidAt(t time.Time) *BookingCreate {
+	bc.mutation.SetPaidAt(t)
+	return bc
+}
+
+// SetNillablePaidAt sets the "paid_at" field if the given value is not nil.
+func (bc *BookingCreate) SetNillablePaidAt(t *time.Time) *BookingCreate {
+	if t != nil {
+		bc.SetPaidAt(*t)
 	}
 	return bc
 }
@@ -339,6 +367,10 @@ func (bc *BookingCreate) defaults() {
 		v := booking.DefaultAmount
 		bc.mutation.SetAmount(v)
 	}
+	if _, ok := bc.mutation.TansType(); !ok {
+		v := booking.DefaultTansType
+		bc.mutation.SetTansType(v)
+	}
 	if _, ok := bc.mutation.SmsNotification(); !ok {
 		v := booking.DefaultSmsNotification
 		bc.mutation.SetSmsNotification(v)
@@ -381,6 +413,9 @@ func (bc *BookingCreate) check() error {
 	}
 	if _, ok := bc.mutation.Amount(); !ok {
 		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Booking.amount"`)}
+	}
+	if _, ok := bc.mutation.TansType(); !ok {
+		return &ValidationError{Name: "tans_type", err: errors.New(`ent: missing required field "Booking.tans_type"`)}
 	}
 	if v, ok := bc.mutation.TansType(); ok {
 		if err := booking.TansTypeValidator(v); err != nil {
@@ -432,6 +467,10 @@ func (bc *BookingCreate) createSpec() (*Booking, *sqlgraph.CreateSpec) {
 		_spec.SetField(booking.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
+	if value, ok := bc.mutation.Reference(); ok {
+		_spec.SetField(booking.FieldReference, field.TypeString, value)
+		_node.Reference = value
+	}
 	if value, ok := bc.mutation.BookingNumber(); ok {
 		_spec.SetField(booking.FieldBookingNumber, field.TypeString, value)
 		_node.BookingNumber = value
@@ -455,6 +494,10 @@ func (bc *BookingCreate) createSpec() (*Booking, *sqlgraph.CreateSpec) {
 	if value, ok := bc.mutation.RefundAmount(); ok {
 		_spec.SetField(booking.FieldRefundAmount, field.TypeFloat64, value)
 		_node.RefundAmount = value
+	}
+	if value, ok := bc.mutation.PaidAt(); ok {
+		_spec.SetField(booking.FieldPaidAt, field.TypeTime, value)
+		_node.PaidAt = value
 	}
 	if value, ok := bc.mutation.RefundAt(); ok {
 		_spec.SetField(booking.FieldRefundAt, field.TypeTime, value)

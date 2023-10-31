@@ -122,15 +122,29 @@ func FilterCombinations(input []string) [][]string {
 	}
 }
 
-func ParseRFC3339Datetime(rfc3339Datetime string) time.Time {
-	if rfc3339Datetime == "" {
+func ParseRFC3339Datetime(rfc3339Datetime ...string) time.Time {
+	if rfc3339Datetime == nil || rfc3339Datetime[0] == "" {
 		return time.Now()
+	}
+	rfc3339Time, err := time.Parse(time.RFC3339, rfc3339Datetime[0])
+	if err != nil {
+		log.Panicln("Error parsing RFC3339 datetime:", err)
+	}
+	return rfc3339Time
+}
+func ParseRFC3339MYSQLDatetime(rfc3339Datetime string, format ...string) string {
+	if format != nil {
+		rfc3339Time, err := time.Parse(time.RFC3339, rfc3339Datetime)
+		if err != nil {
+			log.Panicln("Error parsing RFC3339 datetime:", err)
+		}
+		return rfc3339Time.Format(format[0])
 	}
 	rfc3339Time, err := time.Parse(time.RFC3339, rfc3339Datetime)
 	if err != nil {
 		log.Panicln("Error parsing RFC3339 datetime:", err)
 	}
-	return rfc3339Time
+	return rfc3339Time.Format("2006-01-02")
 }
 
 func CompareFilter(value any) bool {

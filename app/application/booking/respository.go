@@ -48,7 +48,7 @@ func (r *repository) Delete(id int) error {
 }
 
 // Insert implements gateways.BookingRepo.
-func (r *repository) Insert(request *requeststructs.BookingRequest) (*ent.Booking, error) {
+func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse *requeststructs.PaymentReferenceResponse) (*ent.Booking, error) {
 	seatLeft := r.db.Trip.GetX(r.ctx, request.TripID).SeatLeft
 	if seatLeft == 0 {
 		return nil, fmt.Errorf("no available seats")
@@ -63,14 +63,16 @@ func (r *repository) Insert(request *requeststructs.BookingRequest) (*ent.Bookin
 	var result *ent.Booking
 	if request.CustomerID != 0 {
 		res, err := tx.Booking.Create().
-			SetBookingNumber(application.OTP(8)).
+			SetReference(request.Reference).
+			SetBookingNumber(application.OTP(12)).
 			SetBoardingPoint(request.BoardingPointID).
 			SetVat(request.VAT).
 			SetSmsFee(request.SMSFee).
 			SetAmount(request.Amount).
-			SetTansType(booking.TansType(request.TransactionType)).
+			SetTansType(booking.TansType(refResponse.TransType)).
 			SetSmsNotification(request.SMSNotification).
 			SetStatus(booking.StatusSuccessful).
+			SetPaidAt(application.ParseRFC3339Datetime(refResponse.PaidAt)).
 			SetTripID(request.TripID).
 			SetCompanyID(request.CompanyID).
 			SetCustomerID(r.db.User.Query().Where(user.ID(request.CustomerID)).QueryCustomer().OnlyIDX(r.ctx)).
@@ -81,14 +83,16 @@ func (r *repository) Insert(request *requeststructs.BookingRequest) (*ent.Bookin
 		result = res
 	} else {
 		res, err := tx.Booking.Create().
-			SetBookingNumber(application.OTP(8)).
+			SetReference(request.Reference).
+			SetBookingNumber(application.OTP(12)).
 			SetBoardingPoint(request.BoardingPointID).
 			SetVat(request.VAT).
 			SetSmsFee(request.SMSFee).
 			SetAmount(request.Amount).
-			SetTansType(booking.TansType(request.TransactionType)).
+			SetTansType(booking.TansType(refResponse.TransType)).
 			SetSmsNotification(request.SMSNotification).
 			SetStatus(booking.StatusSuccessful).
+			SetPaidAt(application.ParseRFC3339Datetime(refResponse.PaidAt)).
 			SetTripID(request.TripID).
 			SetCompanyID(request.CompanyID).
 			Save(r.ctx)
@@ -456,8 +460,6 @@ func (r *repository) filterKeys() []string {
 }
 func (r *repository) filterPredicate(data map[string]any, combinations []string) []predicate.Booking {
 	results := make([]predicate.Booking, 0, len(combinations))
-	// log.Println(data)
-	// log.Println(len(combinations))
 	for _, combination := range combinations {
 		for k, v := range data {
 			if combination == k && combination == "BookingNumber" {

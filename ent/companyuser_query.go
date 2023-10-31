@@ -13,7 +13,9 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/SeyramWood/ent/company"
 	"github.com/SeyramWood/ent/companyuser"
+	"github.com/SeyramWood/ent/incident"
 	"github.com/SeyramWood/ent/notification"
+	"github.com/SeyramWood/ent/parcel"
 	"github.com/SeyramWood/ent/predicate"
 	"github.com/SeyramWood/ent/trip"
 	"github.com/SeyramWood/ent/user"
@@ -28,6 +30,8 @@ type CompanyUserQuery struct {
 	predicates        []predicate.CompanyUser
 	withProfile       *UserQuery
 	withTrips         *TripQuery
+	withIncidents     *IncidentQuery
+	withParcels       *ParcelQuery
 	withNotifications *NotificationQuery
 	withCompany       *CompanyQuery
 	withFKs           bool
@@ -105,6 +109,50 @@ func (cuq *CompanyUserQuery) QueryTrips() *TripQuery {
 			sqlgraph.From(companyuser.Table, companyuser.FieldID, selector),
 			sqlgraph.To(trip.Table, trip.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, companyuser.TripsTable, companyuser.TripsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cuq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryIncidents chains the current query on the "incidents" edge.
+func (cuq *CompanyUserQuery) QueryIncidents() *IncidentQuery {
+	query := (&IncidentClient{config: cuq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cuq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cuq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(companyuser.Table, companyuser.FieldID, selector),
+			sqlgraph.To(incident.Table, incident.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, companyuser.IncidentsTable, companyuser.IncidentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cuq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryParcels chains the current query on the "parcels" edge.
+func (cuq *CompanyUserQuery) QueryParcels() *ParcelQuery {
+	query := (&ParcelClient{config: cuq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cuq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cuq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(companyuser.Table, companyuser.FieldID, selector),
+			sqlgraph.To(parcel.Table, parcel.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, companyuser.ParcelsTable, companyuser.ParcelsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cuq.driver.Dialect(), step)
 		return fromU, nil
@@ -350,6 +398,8 @@ func (cuq *CompanyUserQuery) Clone() *CompanyUserQuery {
 		predicates:        append([]predicate.CompanyUser{}, cuq.predicates...),
 		withProfile:       cuq.withProfile.Clone(),
 		withTrips:         cuq.withTrips.Clone(),
+		withIncidents:     cuq.withIncidents.Clone(),
+		withParcels:       cuq.withParcels.Clone(),
 		withNotifications: cuq.withNotifications.Clone(),
 		withCompany:       cuq.withCompany.Clone(),
 		// clone intermediate query.
@@ -377,6 +427,28 @@ func (cuq *CompanyUserQuery) WithTrips(opts ...func(*TripQuery)) *CompanyUserQue
 		opt(query)
 	}
 	cuq.withTrips = query
+	return cuq
+}
+
+// WithIncidents tells the query-builder to eager-load the nodes that are connected to
+// the "incidents" edge. The optional arguments are used to configure the query builder of the edge.
+func (cuq *CompanyUserQuery) WithIncidents(opts ...func(*IncidentQuery)) *CompanyUserQuery {
+	query := (&IncidentClient{config: cuq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cuq.withIncidents = query
+	return cuq
+}
+
+// WithParcels tells the query-builder to eager-load the nodes that are connected to
+// the "parcels" edge. The optional arguments are used to configure the query builder of the edge.
+func (cuq *CompanyUserQuery) WithParcels(opts ...func(*ParcelQuery)) *CompanyUserQuery {
+	query := (&ParcelClient{config: cuq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cuq.withParcels = query
 	return cuq
 }
 
@@ -481,9 +553,11 @@ func (cuq *CompanyUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		nodes       = []*CompanyUser{}
 		withFKs     = cuq.withFKs
 		_spec       = cuq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [6]bool{
 			cuq.withProfile != nil,
 			cuq.withTrips != nil,
+			cuq.withIncidents != nil,
+			cuq.withParcels != nil,
 			cuq.withNotifications != nil,
 			cuq.withCompany != nil,
 		}
@@ -525,6 +599,20 @@ func (cuq *CompanyUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		if err := cuq.loadTrips(ctx, query, nodes,
 			func(n *CompanyUser) { n.Edges.Trips = []*Trip{} },
 			func(n *CompanyUser, e *Trip) { n.Edges.Trips = append(n.Edges.Trips, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cuq.withIncidents; query != nil {
+		if err := cuq.loadIncidents(ctx, query, nodes,
+			func(n *CompanyUser) { n.Edges.Incidents = []*Incident{} },
+			func(n *CompanyUser, e *Incident) { n.Edges.Incidents = append(n.Edges.Incidents, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cuq.withParcels; query != nil {
+		if err := cuq.loadParcels(ctx, query, nodes,
+			func(n *CompanyUser) { n.Edges.Parcels = []*Parcel{} },
+			func(n *CompanyUser, e *Parcel) { n.Edges.Parcels = append(n.Edges.Parcels, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -598,6 +686,68 @@ func (cuq *CompanyUserQuery) loadTrips(ctx context.Context, query *TripQuery, no
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "company_user_trips" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (cuq *CompanyUserQuery) loadIncidents(ctx context.Context, query *IncidentQuery, nodes []*CompanyUser, init func(*CompanyUser), assign func(*CompanyUser, *Incident)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*CompanyUser)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Incident(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(companyuser.IncidentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.company_user_incidents
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "company_user_incidents" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "company_user_incidents" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (cuq *CompanyUserQuery) loadParcels(ctx context.Context, query *ParcelQuery, nodes []*CompanyUser, init func(*CompanyUser), assign func(*CompanyUser, *Parcel)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*CompanyUser)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Parcel(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(companyuser.ParcelsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.company_user_parcels
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "company_user_parcels" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "company_user_parcels" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

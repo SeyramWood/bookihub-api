@@ -93,6 +93,30 @@ func (f CustomerLuggageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Va
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CustomerLuggageMutation", m)
 }
 
+// The IncidentFunc type is an adapter to allow the use of ordinary
+// function as Incident mutator.
+type IncidentFunc func(context.Context, *ent.IncidentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f IncidentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.IncidentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.IncidentMutation", m)
+}
+
+// The IncidentImageFunc type is an adapter to allow the use of ordinary
+// function as IncidentImage mutator.
+type IncidentImageFunc func(context.Context, *ent.IncidentImageMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f IncidentImageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.IncidentImageMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.IncidentImageMutation", m)
+}
+
 // The NotificationFunc type is an adapter to allow the use of ordinary
 // function as Notification mutator.
 type NotificationFunc func(context.Context, *ent.NotificationMutation) (ent.Value, error)
@@ -103,6 +127,30 @@ func (f NotificationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.NotificationMutation", m)
+}
+
+// The ParcelFunc type is an adapter to allow the use of ordinary
+// function as Parcel mutator.
+type ParcelFunc func(context.Context, *ent.ParcelMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ParcelFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ParcelMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ParcelMutation", m)
+}
+
+// The ParcelImageFunc type is an adapter to allow the use of ordinary
+// function as ParcelImage mutator.
+type ParcelImageFunc func(context.Context, *ent.ParcelImageMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ParcelImageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ParcelImageMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ParcelImageMutation", m)
 }
 
 // The PassengerFunc type is an adapter to allow the use of ordinary

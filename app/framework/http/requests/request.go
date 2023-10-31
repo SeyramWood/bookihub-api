@@ -1,6 +1,8 @@
 package requests
 
 import (
+	"errors"
+
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/SeyramWood/app/adapters/presenters"
@@ -294,6 +296,178 @@ func ValidateBookingCancel() fiber.Handler {
 		if err := c.BodyParser(request); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
 		}
+		if er := validator.Validate(request); er != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
+		}
+		return c.Next()
+	}
+}
+
+func ValidateParcel() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.ParcelRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		form, err := c.MultipartForm()
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		request.Image = form.File["image"]
+		if er := validator.Validate(request); er != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
+		}
+		return c.Next()
+	}
+}
+func ValidateParcelImage() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.ParcelImageRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		form, err := c.MultipartForm()
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		request.Image = form.File["image"]
+		if er := validator.Validate(request); er != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
+		}
+		return c.Next()
+	}
+}
+func ValidateParcelUpdate() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.ParcelUpdateRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		if er := validator.Validate(request); er != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
+		}
+		return c.Next()
+	}
+}
+func ValidateParcelImageUpdate() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.ParcelImageUpdateRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		file, err := c.FormFile("image")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		request.Image = file
+		if er := validator.Validate(request); er != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
+		}
+		return c.Next()
+	}
+}
+func ValidateParcelDeliveredUpdate() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.ParcelDeliveredRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		form, err := c.MultipartForm()
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		request.Image = form.File["image"]
+		if er := validator.Validate(request); er != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
+		}
+		return c.Next()
+	}
+}
+
+func ValidateIncident() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.IncidentRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		errOptional := errors.New("there is no uploaded file associated with the given key")
+		form, err := c.MultipartForm()
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		audio, err := c.FormFile("voiceNote")
+		if err != nil && err.Error() != errOptional.Error() {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		request.Image = form.File["image"]
+		request.Audio = audio
+		if er := validator.Validate(request); er != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
+		}
+		return c.Next()
+	}
+}
+
+func ValidateIncidentUpdate() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.IncidentUpdateRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		if er := validator.Validate(request); er != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
+		}
+		return c.Next()
+	}
+}
+
+func ValidateIncidentImage() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.IncidentImageRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		form, err := c.MultipartForm()
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		request.Image = form.File["image"]
+		if er := validator.Validate(request); er != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
+		}
+		return c.Next()
+	}
+}
+
+func ValidateIncidentImageUpdate() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.IncidentImageUpdateRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		image, err := c.FormFile("image")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		request.Image = image
+		if er := validator.Validate(request); er != nil {
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
+		}
+		return c.Next()
+	}
+}
+
+func ValidateIncidentAudioUpdate() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.IncidentAudioUpdateRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		audio, err := c.FormFile("voiceNote")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		request.Audio = audio
 		if er := validator.Validate(request); er != nil {
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
 		}

@@ -13,7 +13,9 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/SeyramWood/ent/company"
 	"github.com/SeyramWood/ent/companyuser"
+	"github.com/SeyramWood/ent/incident"
 	"github.com/SeyramWood/ent/notification"
+	"github.com/SeyramWood/ent/parcel"
 	"github.com/SeyramWood/ent/predicate"
 	"github.com/SeyramWood/ent/trip"
 	"github.com/SeyramWood/ent/user"
@@ -167,6 +169,36 @@ func (cuu *CompanyUserUpdate) AddTrips(t ...*Trip) *CompanyUserUpdate {
 	return cuu.AddTripIDs(ids...)
 }
 
+// AddIncidentIDs adds the "incidents" edge to the Incident entity by IDs.
+func (cuu *CompanyUserUpdate) AddIncidentIDs(ids ...int) *CompanyUserUpdate {
+	cuu.mutation.AddIncidentIDs(ids...)
+	return cuu
+}
+
+// AddIncidents adds the "incidents" edges to the Incident entity.
+func (cuu *CompanyUserUpdate) AddIncidents(i ...*Incident) *CompanyUserUpdate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return cuu.AddIncidentIDs(ids...)
+}
+
+// AddParcelIDs adds the "parcels" edge to the Parcel entity by IDs.
+func (cuu *CompanyUserUpdate) AddParcelIDs(ids ...int) *CompanyUserUpdate {
+	cuu.mutation.AddParcelIDs(ids...)
+	return cuu
+}
+
+// AddParcels adds the "parcels" edges to the Parcel entity.
+func (cuu *CompanyUserUpdate) AddParcels(p ...*Parcel) *CompanyUserUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return cuu.AddParcelIDs(ids...)
+}
+
 // AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
 func (cuu *CompanyUserUpdate) AddNotificationIDs(ids ...int) *CompanyUserUpdate {
 	cuu.mutation.AddNotificationIDs(ids...)
@@ -231,6 +263,48 @@ func (cuu *CompanyUserUpdate) RemoveTrips(t ...*Trip) *CompanyUserUpdate {
 		ids[i] = t[i].ID
 	}
 	return cuu.RemoveTripIDs(ids...)
+}
+
+// ClearIncidents clears all "incidents" edges to the Incident entity.
+func (cuu *CompanyUserUpdate) ClearIncidents() *CompanyUserUpdate {
+	cuu.mutation.ClearIncidents()
+	return cuu
+}
+
+// RemoveIncidentIDs removes the "incidents" edge to Incident entities by IDs.
+func (cuu *CompanyUserUpdate) RemoveIncidentIDs(ids ...int) *CompanyUserUpdate {
+	cuu.mutation.RemoveIncidentIDs(ids...)
+	return cuu
+}
+
+// RemoveIncidents removes "incidents" edges to Incident entities.
+func (cuu *CompanyUserUpdate) RemoveIncidents(i ...*Incident) *CompanyUserUpdate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return cuu.RemoveIncidentIDs(ids...)
+}
+
+// ClearParcels clears all "parcels" edges to the Parcel entity.
+func (cuu *CompanyUserUpdate) ClearParcels() *CompanyUserUpdate {
+	cuu.mutation.ClearParcels()
+	return cuu
+}
+
+// RemoveParcelIDs removes the "parcels" edge to Parcel entities by IDs.
+func (cuu *CompanyUserUpdate) RemoveParcelIDs(ids ...int) *CompanyUserUpdate {
+	cuu.mutation.RemoveParcelIDs(ids...)
+	return cuu
+}
+
+// RemoveParcels removes "parcels" edges to Parcel entities.
+func (cuu *CompanyUserUpdate) RemoveParcels(p ...*Parcel) *CompanyUserUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return cuu.RemoveParcelIDs(ids...)
 }
 
 // ClearNotifications clears all "notifications" edges to the Notification entity.
@@ -421,6 +495,96 @@ func (cuu *CompanyUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuu.mutation.IncidentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.IncidentsTable,
+			Columns: []string{companyuser.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuu.mutation.RemovedIncidentsIDs(); len(nodes) > 0 && !cuu.mutation.IncidentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.IncidentsTable,
+			Columns: []string{companyuser.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuu.mutation.IncidentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.IncidentsTable,
+			Columns: []string{companyuser.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuu.mutation.ParcelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.ParcelsTable,
+			Columns: []string{companyuser.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuu.mutation.RemovedParcelsIDs(); len(nodes) > 0 && !cuu.mutation.ParcelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.ParcelsTable,
+			Columns: []string{companyuser.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuu.mutation.ParcelsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.ParcelsTable,
+			Columns: []string{companyuser.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -658,6 +822,36 @@ func (cuuo *CompanyUserUpdateOne) AddTrips(t ...*Trip) *CompanyUserUpdateOne {
 	return cuuo.AddTripIDs(ids...)
 }
 
+// AddIncidentIDs adds the "incidents" edge to the Incident entity by IDs.
+func (cuuo *CompanyUserUpdateOne) AddIncidentIDs(ids ...int) *CompanyUserUpdateOne {
+	cuuo.mutation.AddIncidentIDs(ids...)
+	return cuuo
+}
+
+// AddIncidents adds the "incidents" edges to the Incident entity.
+func (cuuo *CompanyUserUpdateOne) AddIncidents(i ...*Incident) *CompanyUserUpdateOne {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return cuuo.AddIncidentIDs(ids...)
+}
+
+// AddParcelIDs adds the "parcels" edge to the Parcel entity by IDs.
+func (cuuo *CompanyUserUpdateOne) AddParcelIDs(ids ...int) *CompanyUserUpdateOne {
+	cuuo.mutation.AddParcelIDs(ids...)
+	return cuuo
+}
+
+// AddParcels adds the "parcels" edges to the Parcel entity.
+func (cuuo *CompanyUserUpdateOne) AddParcels(p ...*Parcel) *CompanyUserUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return cuuo.AddParcelIDs(ids...)
+}
+
 // AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
 func (cuuo *CompanyUserUpdateOne) AddNotificationIDs(ids ...int) *CompanyUserUpdateOne {
 	cuuo.mutation.AddNotificationIDs(ids...)
@@ -722,6 +916,48 @@ func (cuuo *CompanyUserUpdateOne) RemoveTrips(t ...*Trip) *CompanyUserUpdateOne 
 		ids[i] = t[i].ID
 	}
 	return cuuo.RemoveTripIDs(ids...)
+}
+
+// ClearIncidents clears all "incidents" edges to the Incident entity.
+func (cuuo *CompanyUserUpdateOne) ClearIncidents() *CompanyUserUpdateOne {
+	cuuo.mutation.ClearIncidents()
+	return cuuo
+}
+
+// RemoveIncidentIDs removes the "incidents" edge to Incident entities by IDs.
+func (cuuo *CompanyUserUpdateOne) RemoveIncidentIDs(ids ...int) *CompanyUserUpdateOne {
+	cuuo.mutation.RemoveIncidentIDs(ids...)
+	return cuuo
+}
+
+// RemoveIncidents removes "incidents" edges to Incident entities.
+func (cuuo *CompanyUserUpdateOne) RemoveIncidents(i ...*Incident) *CompanyUserUpdateOne {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return cuuo.RemoveIncidentIDs(ids...)
+}
+
+// ClearParcels clears all "parcels" edges to the Parcel entity.
+func (cuuo *CompanyUserUpdateOne) ClearParcels() *CompanyUserUpdateOne {
+	cuuo.mutation.ClearParcels()
+	return cuuo
+}
+
+// RemoveParcelIDs removes the "parcels" edge to Parcel entities by IDs.
+func (cuuo *CompanyUserUpdateOne) RemoveParcelIDs(ids ...int) *CompanyUserUpdateOne {
+	cuuo.mutation.RemoveParcelIDs(ids...)
+	return cuuo
+}
+
+// RemoveParcels removes "parcels" edges to Parcel entities.
+func (cuuo *CompanyUserUpdateOne) RemoveParcels(p ...*Parcel) *CompanyUserUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return cuuo.RemoveParcelIDs(ids...)
 }
 
 // ClearNotifications clears all "notifications" edges to the Notification entity.
@@ -942,6 +1178,96 @@ func (cuuo *CompanyUserUpdateOne) sqlSave(ctx context.Context) (_node *CompanyUs
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuuo.mutation.IncidentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.IncidentsTable,
+			Columns: []string{companyuser.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuuo.mutation.RemovedIncidentsIDs(); len(nodes) > 0 && !cuuo.mutation.IncidentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.IncidentsTable,
+			Columns: []string{companyuser.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuuo.mutation.IncidentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.IncidentsTable,
+			Columns: []string{companyuser.IncidentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuuo.mutation.ParcelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.ParcelsTable,
+			Columns: []string{companyuser.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuuo.mutation.RemovedParcelsIDs(); len(nodes) > 0 && !cuuo.mutation.ParcelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.ParcelsTable,
+			Columns: []string{companyuser.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuuo.mutation.ParcelsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   companyuser.ParcelsTable,
+			Columns: []string{companyuser.ParcelsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
