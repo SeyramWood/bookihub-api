@@ -64,6 +64,8 @@ type (
 	RouteRequest struct {
 		From          string              `json:"from" validate:"required|ascii"`
 		To            string              `json:"to" validate:"required|ascii"`
+		FromTerminal  string              `json:"fromTerminal" validate:"required|ascii"`
+		ToTerminal    string              `json:"toTerminal" validate:"required|ascii"`
 		FromLatitude  float64             `json:"fromLatitude" validate:"required"`
 		FromLongitude float64             `json:"fromLongitude" validate:"required"`
 		ToLatitude    float64             `json:"toLatitude" validate:"required"`
@@ -75,6 +77,8 @@ type (
 	RouteUpdateRequest struct {
 		From          string  `json:"from" validate:"required|ascii"`
 		To            string  `json:"to" validate:"required|ascii"`
+		FromTerminal  string  `json:"fromTerminal" validate:"required|ascii"`
+		ToTerminal    string  `json:"toTerminal" validate:"required|ascii"`
 		FromLatitude  float64 `json:"fromLatitude" validate:"required"`
 		FromLongitude float64 `json:"fromLongitude" validate:"required"`
 		ToLatitude    float64 `json:"toLatitude" validate:"required"`

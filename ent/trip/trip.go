@@ -45,8 +45,6 @@ const (
 	FieldSeatLeft = "seat_left"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// FieldBoardingPoints holds the string denoting the boarding_points field in the database.
-	FieldBoardingPoints = "boarding_points"
 	// EdgeCompany holds the string denoting the company edge name in mutations.
 	EdgeCompany = "company"
 	// EdgeDriver holds the string denoting the driver edge name in mutations.
@@ -132,7 +130,6 @@ var Columns = []string{
 	FieldScheduled,
 	FieldSeatLeft,
 	FieldStatus,
-	FieldBoardingPoints,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "trips"

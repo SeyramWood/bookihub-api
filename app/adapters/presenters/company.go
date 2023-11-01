@@ -48,6 +48,8 @@ type (
 		ID            int                      `json:"id,omitempty"`
 		From          string                   `json:"from"`
 		To            string                   `json:"to"`
+		FromTerminal  string                   `json:"fromTerminal"`
+		ToTerminal    string                   `json:"toTerminal"`
 		FromLatitude  float64                  `json:"fromLatitude,omitempty"`
 		FromLongitude float64                  `json:"fromLongitude,omitempty"`
 		ToLatitude    float64                  `json:"toLatitude,omitempty"`
@@ -80,7 +82,6 @@ type (
 		Status           string                   `json:"status"`
 		Scheduled        bool                     `json:"scheduled"`
 		SeatLeft         int                      `json:"seatLeft"`
-		BoardingPoint    any                      `json:"boardingPoint"`
 		Vehicle          *VehicleResponseData     `json:"vehicle"`
 		Route            *RouteResponseData       `json:"route"`
 		Driver           *CompanyUserResponseData `json:"driver"`
@@ -218,6 +219,8 @@ func RouteResponse(data *ent.Route) *fiber.Map {
 		ID:            data.ID,
 		From:          data.FromLocation,
 		To:            data.ToLocation,
+		FromTerminal:  data.FromTerminal,
+		ToTerminal:    data.ToTerminal,
 		FromLatitude:  data.FromLatitude,
 		FromLongitude: data.FromLongitude,
 		ToLatitude:    data.ToLatitude,
@@ -228,11 +231,7 @@ func RouteResponse(data *ent.Route) *fiber.Map {
 			if stops, err := data.Edges.StopsOrErr(); err == nil {
 				response := make([]*RouteStopResponseData, 0, len(stops))
 				for _, s := range stops {
-					response = append(response, &RouteStopResponseData{
-						ID:        s.ID,
-						Latitude:  s.Latitude,
-						Longitude: s.Longitude,
-					})
+					response = append(response, &RouteStopResponseData{ID: s.ID, Latitude: s.Latitude, Longitude: s.Longitude})
 				}
 				return response
 			}
@@ -249,6 +248,8 @@ func RoutesResponse(data *PaginationResponse) *fiber.Map {
 			ID:            r.ID,
 			From:          r.FromLocation,
 			To:            r.ToLocation,
+			FromTerminal:  r.FromTerminal,
+			ToTerminal:    r.ToTerminal,
 			FromLatitude:  r.FromLatitude,
 			FromLongitude: r.FromLongitude,
 			ToLatitude:    r.ToLatitude,
@@ -280,8 +281,10 @@ func DistinctRoutesResponse(data *PaginationResponse) *fiber.Map {
 	var response []*RouteResponseData
 	for _, r := range data.Data.([]*ent.Route) {
 		response = append(response, &RouteResponseData{
-			From: r.FromLocation,
-			To:   r.ToLocation,
+			From:         r.FromLocation,
+			To:           r.ToLocation,
+			FromTerminal: r.FromTerminal,
+			ToTerminal:   r.ToTerminal,
 		})
 	}
 	data.Data = response
@@ -299,7 +302,6 @@ func TripResponse(data *ent.Trip) *fiber.Map {
 		Status:           string(data.Status),
 		Scheduled:        data.Scheduled,
 		SeatLeft:         data.SeatLeft,
-		BoardingPoint:    data.BoardingPoints,
 		Vehicle: func() *VehicleResponseData {
 			if v, err := data.Edges.VehicleOrErr(); err == nil {
 				return &VehicleResponseData{ID: v.ID, RegistrationNumber: v.RegistrationNumber, Model: v.Model, Seat: v.Seat, Images: func() []*VehicleImageResponseData {
@@ -317,7 +319,7 @@ func TripResponse(data *ent.Trip) *fiber.Map {
 		}(),
 		Route: func() *RouteResponseData {
 			if r, err := data.Edges.RouteOrErr(); err == nil {
-				return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Rate: r.Rate, Discount: r.Discount, Stops: func() []*RouteStopResponseData {
+				return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromTerminal: r.FromTerminal, ToTerminal: r.ToTerminal, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Rate: r.Rate, Discount: r.Discount, Stops: func() []*RouteStopResponseData {
 					if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
 						response := make([]*RouteStopResponseData, 0, len(stops))
 						for _, s := range stops {
@@ -347,18 +349,8 @@ func TripResponse(data *ent.Trip) *fiber.Map {
 				response := make([]*BookingResponseData, 0, len(bookings))
 				for _, b := range bookings {
 					response = append(response, &BookingResponseData{
-						ID:     b.ID,
-						TripID: b.BookingNumber,
-						BoardingPoint: func() string {
-							if t, err := b.Edges.TripOrErr(); err == nil {
-								for _, bp := range t.BoardingPoints {
-									if bp.ID == b.BoardingPoint {
-										return bp.Location
-									}
-								}
-							}
-							return ""
-						}(),
+						ID:              b.ID,
+						TripID:          b.BookingNumber,
 						VAT:             b.Vat,
 						SMSFee:          b.SmsFee,
 						Amount:          b.Amount,
@@ -499,10 +491,9 @@ func TripsResponse(data *PaginationResponse) *fiber.Map {
 				EmergencyEquipment: t.EmergencyEquipmentInspected,
 				FuelAndFluid:       t.FuelAndFluidsInspected,
 			},
-			Status:        string(t.Status),
-			Scheduled:     t.Scheduled,
-			SeatLeft:      t.SeatLeft,
-			BoardingPoint: t.BoardingPoints,
+			Status:    string(t.Status),
+			Scheduled: t.Scheduled,
+			SeatLeft:  t.SeatLeft,
 			Vehicle: func() *VehicleResponseData {
 				if v, err := t.Edges.VehicleOrErr(); err == nil {
 					return &VehicleResponseData{
@@ -533,6 +524,8 @@ func TripsResponse(data *PaginationResponse) *fiber.Map {
 						ID:            r.ID,
 						From:          r.FromLocation,
 						To:            r.ToLocation,
+						FromTerminal:  r.FromTerminal,
+						ToTerminal:    r.ToTerminal,
 						FromLatitude:  r.FromLatitude,
 						FromLongitude: r.FromLongitude,
 						ToLatitude:    r.ToLatitude,
@@ -585,18 +578,8 @@ func TripsResponse(data *PaginationResponse) *fiber.Map {
 					response := make([]*BookingResponseData, 0, len(bookings))
 					for _, b := range bookings {
 						response = append(response, &BookingResponseData{
-							ID:     b.ID,
-							TripID: b.BookingNumber,
-							BoardingPoint: func() string {
-								if t, err := b.Edges.TripOrErr(); err == nil {
-									for _, bp := range t.BoardingPoints {
-										if bp.ID == b.BoardingPoint {
-											return bp.Location
-										}
-									}
-								}
-								return ""
-							}(),
+							ID:              b.ID,
+							TripID:          b.BookingNumber,
 							VAT:             b.Vat,
 							SMSFee:          b.SmsFee,
 							Amount:          b.Amount,

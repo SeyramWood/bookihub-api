@@ -56,7 +56,6 @@ func (r *repository) Insert(companyId int, request *requeststructs.TripRequest) 
 			SetType(trip.Type(request.TripType)).
 			SetScheduled(request.Schedule).
 			SetSeatLeft(r.db.Vehicle.GetX(r.ctx, request.VehicleID).Seat).
-			SetBoardingPoints(r.formatBoardingPoints(request.BoardingPoint)).
 			SetVehicleID(request.VehicleID).
 			SetRouteID(request.RouteID).
 			SetDriverID(request.DriverID).
@@ -73,33 +72,10 @@ func (r *repository) Insert(companyId int, request *requeststructs.TripRequest) 
 		SetType(trip.Type(request.TripType)).
 		SetScheduled(request.Schedule).
 		SetSeatLeft(r.db.Vehicle.GetX(r.ctx, request.VehicleID).Seat).
-		SetBoardingPoints(r.formatBoardingPoints(request.BoardingPoint)).
 		SetVehicleID(request.VehicleID).
 		SetRouteID(request.RouteID).
 		SetDriverID(request.DriverID).
 		SetCompanyID(companyId).
-		Save(r.ctx)
-	if err != nil {
-		return nil, err
-	}
-	return r.Read(result.ID)
-}
-
-// InsertBoardingPoint implements gateways.TripRepo.
-func (r *repository) InsertBoardingPoint(id int, request *requeststructs.TripNewBoardingPoint) (*ent.Trip, error) {
-	t := r.db.Trip.GetX(r.ctx, id)
-	if len(t.BoardingPoints) == 0 {
-		result, err := r.db.Trip.UpdateOneID(id).
-			SetBoardingPoints(r.formatBoardingPoints(request.BoardingPoint)).
-			Save(r.ctx)
-		if err != nil {
-			return nil, err
-		}
-		return r.Read(result.ID)
-	}
-
-	result, err := r.db.Trip.UpdateOneID(id).
-		SetBoardingPoints(append(t.BoardingPoints, r.formatBoardingPoints(request.BoardingPoint)...)).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err
@@ -317,7 +293,6 @@ func (r *repository) Update(id int, request *requeststructs.TripUpdateRequest) (
 			SetArrivalDate(application.ParseRFC3339Datetime(request.ArrivalDate)).
 			SetReturnDate(application.ParseRFC3339Datetime(request.ReturnDate)).
 			SetType(trip.Type(request.TripType)).
-			SetBoardingPoints(r.formatBoardingPoints(request.BoardingPoint)).
 			SetVehicleID(request.VehicleID).
 			SetDriverID(request.DriverID).
 			Save(r.ctx)
@@ -330,7 +305,6 @@ func (r *repository) Update(id int, request *requeststructs.TripUpdateRequest) (
 		SetDepartureDate(application.ParseRFC3339Datetime(request.DepartureDate)).
 		SetArrivalDate(application.ParseRFC3339Datetime(request.ArrivalDate)).
 		SetType(trip.Type(request.TripType)).
-		SetBoardingPoints(r.formatBoardingPoints(request.BoardingPoint)).
 		SetVehicleID(request.VehicleID).
 		SetDriverID(request.DriverID).
 		Save(r.ctx)
@@ -386,43 +360,6 @@ func (r *repository) UpdateStatus(id int, status string) (*ent.Trip, error) {
 		}
 	}(r, result)
 	return r.Read(result.ID)
-}
-
-func (r *repository) formatBoardingPoints(locations any) []struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-} {
-	results := []struct {
-		ID       string "json:\"id\""
-		Location string "json:\"location\""
-	}{}
-	if locations == nil {
-		return results
-	}
-	if sLocations, ok := locations.([]string); ok {
-		for _, location := range sLocations {
-			results = append(results, struct {
-				ID       string "json:\"id\""
-				Location string "json:\"location\""
-			}{
-				ID:       application.OTP(12),
-				Location: location,
-			})
-		}
-		return results
-	}
-	if tLocations, ok := locations.([]*requeststructs.TripBoardingPoint); ok {
-		for _, location := range tLocations {
-			results = append(results, struct {
-				ID       string "json:\"id\""
-				Location string "json:\"location\""
-			}{
-				ID:       location.ID,
-				Location: location.Location,
-			})
-		}
-	}
-	return results
 }
 
 func (r *repository) filterTrip(query *ent.TripQuery, limit, offset int) (*presenters.PaginationResponse, error) {

@@ -20,8 +20,12 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldFromLocation holds the string denoting the from_location field in the database.
 	FieldFromLocation = "from_location"
+	// FieldFromTerminal holds the string denoting the from_terminal field in the database.
+	FieldFromTerminal = "from_terminal"
 	// FieldToLocation holds the string denoting the to_location field in the database.
 	FieldToLocation = "to_location"
+	// FieldToTerminal holds the string denoting the to_terminal field in the database.
+	FieldToTerminal = "to_terminal"
 	// FieldFromLatitude holds the string denoting the from_latitude field in the database.
 	FieldFromLatitude = "from_latitude"
 	// FieldFromLongitude holds the string denoting the from_longitude field in the database.
@@ -73,7 +77,9 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldFromLocation,
+	FieldFromTerminal,
 	FieldToLocation,
+	FieldToTerminal,
 	FieldFromLatitude,
 	FieldFromLongitude,
 	FieldToLatitude,
@@ -146,9 +152,19 @@ func ByFromLocation(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFromLocation, opts...).ToFunc()
 }
 
+// ByFromTerminal orders the results by the from_terminal field.
+func ByFromTerminal(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFromTerminal, opts...).ToFunc()
+}
+
 // ByToLocation orders the results by the to_location field.
 func ByToLocation(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldToLocation, opts...).ToFunc()
+}
+
+// ByToTerminal orders the results by the to_terminal field.
+func ByToTerminal(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldToTerminal, opts...).ToFunc()
 }
 
 // ByFromLatitude orders the results by the from_latitude field.

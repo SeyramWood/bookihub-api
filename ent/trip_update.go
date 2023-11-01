@@ -10,7 +10,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/SeyramWood/ent/booking"
 	"github.com/SeyramWood/ent/company"
@@ -253,30 +252,6 @@ func (tu *TripUpdate) SetNillableStatus(t *trip.Status) *TripUpdate {
 // ClearStatus clears the value of the "status" field.
 func (tu *TripUpdate) ClearStatus() *TripUpdate {
 	tu.mutation.ClearStatus()
-	return tu
-}
-
-// SetBoardingPoints sets the "boarding_points" field.
-func (tu *TripUpdate) SetBoardingPoints(s []struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-}) *TripUpdate {
-	tu.mutation.SetBoardingPoints(s)
-	return tu
-}
-
-// AppendBoardingPoints appends s to the "boarding_points" field.
-func (tu *TripUpdate) AppendBoardingPoints(s []struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-}) *TripUpdate {
-	tu.mutation.AppendBoardingPoints(s)
-	return tu
-}
-
-// ClearBoardingPoints clears the value of the "boarding_points" field.
-func (tu *TripUpdate) ClearBoardingPoints() *TripUpdate {
-	tu.mutation.ClearBoardingPoints()
 	return tu
 }
 
@@ -618,17 +593,6 @@ func (tu *TripUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if tu.mutation.StatusCleared() {
 		_spec.ClearField(trip.FieldStatus, field.TypeEnum)
-	}
-	if value, ok := tu.mutation.BoardingPoints(); ok {
-		_spec.SetField(trip.FieldBoardingPoints, field.TypeJSON, value)
-	}
-	if value, ok := tu.mutation.AppendedBoardingPoints(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, trip.FieldBoardingPoints, value)
-		})
-	}
-	if tu.mutation.BoardingPointsCleared() {
-		_spec.ClearField(trip.FieldBoardingPoints, field.TypeJSON)
 	}
 	if tu.mutation.CompanyCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1122,30 +1086,6 @@ func (tuo *TripUpdateOne) ClearStatus() *TripUpdateOne {
 	return tuo
 }
 
-// SetBoardingPoints sets the "boarding_points" field.
-func (tuo *TripUpdateOne) SetBoardingPoints(s []struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-}) *TripUpdateOne {
-	tuo.mutation.SetBoardingPoints(s)
-	return tuo
-}
-
-// AppendBoardingPoints appends s to the "boarding_points" field.
-func (tuo *TripUpdateOne) AppendBoardingPoints(s []struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-}) *TripUpdateOne {
-	tuo.mutation.AppendBoardingPoints(s)
-	return tuo
-}
-
-// ClearBoardingPoints clears the value of the "boarding_points" field.
-func (tuo *TripUpdateOne) ClearBoardingPoints() *TripUpdateOne {
-	tuo.mutation.ClearBoardingPoints()
-	return tuo
-}
-
 // SetCompanyID sets the "company" edge to the Company entity by ID.
 func (tuo *TripUpdateOne) SetCompanyID(id int) *TripUpdateOne {
 	tuo.mutation.SetCompanyID(id)
@@ -1514,17 +1454,6 @@ func (tuo *TripUpdateOne) sqlSave(ctx context.Context) (_node *Trip, err error) 
 	}
 	if tuo.mutation.StatusCleared() {
 		_spec.ClearField(trip.FieldStatus, field.TypeEnum)
-	}
-	if value, ok := tuo.mutation.BoardingPoints(); ok {
-		_spec.SetField(trip.FieldBoardingPoints, field.TypeJSON, value)
-	}
-	if value, ok := tuo.mutation.AppendedBoardingPoints(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, trip.FieldBoardingPoints, value)
-		})
-	}
-	if tuo.mutation.BoardingPointsCleared() {
-		_spec.ClearField(trip.FieldBoardingPoints, field.TypeJSON)
 	}
 	if tuo.mutation.CompanyCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -377,19 +377,19 @@ func init() {
 	// route.FromLocationValidator is a validator for the "from_location" field. It is called by the builders before save.
 	route.FromLocationValidator = routeDescFromLocation.Validators[0].(func(string) error)
 	// routeDescToLocation is the schema descriptor for to_location field.
-	routeDescToLocation := routeFields[1].Descriptor()
+	routeDescToLocation := routeFields[2].Descriptor()
 	// route.ToLocationValidator is a validator for the "to_location" field. It is called by the builders before save.
 	route.ToLocationValidator = routeDescToLocation.Validators[0].(func(string) error)
 	// routeDescRate is the schema descriptor for rate field.
-	routeDescRate := routeFields[6].Descriptor()
+	routeDescRate := routeFields[8].Descriptor()
 	// route.DefaultRate holds the default value on creation for the rate field.
 	route.DefaultRate = routeDescRate.Default.(float64)
 	// routeDescDiscount is the schema descriptor for discount field.
-	routeDescDiscount := routeFields[7].Descriptor()
+	routeDescDiscount := routeFields[9].Descriptor()
 	// route.DefaultDiscount holds the default value on creation for the discount field.
 	route.DefaultDiscount = routeDescDiscount.Default.(float32)
 	// routeDescPopularity is the schema descriptor for popularity field.
-	routeDescPopularity := routeFields[8].Descriptor()
+	routeDescPopularity := routeFields[10].Descriptor()
 	// route.DefaultPopularity holds the default value on creation for the popularity field.
 	route.DefaultPopularity = routeDescPopularity.Default.(int)
 	routestopMixin := schema.RouteStop{}.Mixin()

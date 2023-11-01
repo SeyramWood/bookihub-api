@@ -51,18 +51,8 @@ type (
 
 func BookingResponse(data *ent.Booking) *fiber.Map {
 	return SuccessResponse(&BookingResponseData{
-		ID:     data.ID,
-		TripID: data.BookingNumber,
-		BoardingPoint: func() string {
-			if t, err := data.Edges.TripOrErr(); err == nil {
-				for _, bp := range t.BoardingPoints {
-					if bp.ID == data.BoardingPoint {
-						return bp.Location
-					}
-				}
-			}
-			return ""
-		}(),
+		ID:              data.ID,
+		TripID:          data.BookingNumber,
 		VAT:             data.Vat,
 		SMSFee:          data.SmsFee,
 		Amount:          data.Amount,
@@ -139,10 +129,9 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 						EmergencyEquipment: t.EmergencyEquipmentInspected,
 						FuelAndFluid:       t.FuelAndFluidsInspected,
 					},
-					Status:        string(t.Status),
-					Scheduled:     t.Scheduled,
-					SeatLeft:      t.SeatLeft,
-					BoardingPoint: t.BoardingPoints,
+					Status:    string(t.Status),
+					Scheduled: t.Scheduled,
+					SeatLeft:  t.SeatLeft,
 					Vehicle: func() *VehicleResponseData {
 						if v, err := t.Edges.VehicleOrErr(); err == nil {
 							return &VehicleResponseData{
@@ -173,6 +162,8 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 								ID:            r.ID,
 								From:          r.FromLocation,
 								To:            r.ToLocation,
+								FromTerminal:  r.FromTerminal,
+								ToTerminal:    r.ToTerminal,
 								FromLatitude:  r.FromLatitude,
 								FromLongitude: r.FromLongitude,
 								ToLatitude:    r.ToLatitude,
@@ -232,18 +223,8 @@ func BookingsResponse(data *PaginationResponse) *fiber.Map {
 	var response []*BookingResponseData
 	for _, b := range data.Data.([]*ent.Booking) {
 		response = append(response, &BookingResponseData{
-			ID:     b.ID,
-			TripID: b.BookingNumber,
-			BoardingPoint: func() string {
-				if t, err := b.Edges.TripOrErr(); err == nil {
-					for _, bp := range t.BoardingPoints {
-						if bp.ID == b.BoardingPoint {
-							return bp.Location
-						}
-					}
-				}
-				return ""
-			}(),
+			ID:              b.ID,
+			TripID:          b.BookingNumber,
 			VAT:             b.Vat,
 			SMSFee:          b.SmsFee,
 			Amount:          b.Amount,
@@ -320,10 +301,9 @@ func BookingsResponse(data *PaginationResponse) *fiber.Map {
 							EmergencyEquipment: t.EmergencyEquipmentInspected,
 							FuelAndFluid:       t.FuelAndFluidsInspected,
 						},
-						Status:        string(t.Status),
-						Scheduled:     t.Scheduled,
-						SeatLeft:      t.SeatLeft,
-						BoardingPoint: t.BoardingPoints,
+						Status:    string(t.Status),
+						Scheduled: t.Scheduled,
+						SeatLeft:  t.SeatLeft,
 						Vehicle: func() *VehicleResponseData {
 							if v, err := t.Edges.VehicleOrErr(); err == nil {
 								return &VehicleResponseData{
@@ -354,6 +334,8 @@ func BookingsResponse(data *PaginationResponse) *fiber.Map {
 									ID:            r.ID,
 									From:          r.FromLocation,
 									To:            r.ToLocation,
+									FromTerminal:  r.FromTerminal,
+									ToTerminal:    r.ToTerminal,
 									FromLatitude:  r.FromLatitude,
 									FromLongitude: r.FromLongitude,
 									ToLatitude:    r.ToLatitude,

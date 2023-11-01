@@ -23,7 +23,9 @@ func (Route) Mixin() []ent.Mixin {
 func (Route) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("from_location").NotEmpty(),
+		field.String("from_terminal").Optional(),
 		field.String("to_location").NotEmpty(),
+		field.String("to_terminal").Optional(),
 		field.Float("from_latitude").Optional(),
 		field.Float("from_longitude").Optional(),
 		field.Float("to_latitude").Optional(),

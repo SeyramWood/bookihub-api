@@ -12563,7 +12563,9 @@ type RouteMutation struct {
 	created_at        *time.Time
 	updated_at        *time.Time
 	from_location     *string
+	from_terminal     *string
 	to_location       *string
+	to_terminal       *string
 	from_latitude     *float64
 	addfrom_latitude  *float64
 	from_longitude    *float64
@@ -12798,6 +12800,55 @@ func (m *RouteMutation) ResetFromLocation() {
 	m.from_location = nil
 }
 
+// SetFromTerminal sets the "from_terminal" field.
+func (m *RouteMutation) SetFromTerminal(s string) {
+	m.from_terminal = &s
+}
+
+// FromTerminal returns the value of the "from_terminal" field in the mutation.
+func (m *RouteMutation) FromTerminal() (r string, exists bool) {
+	v := m.from_terminal
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFromTerminal returns the old "from_terminal" field's value of the Route entity.
+// If the Route object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RouteMutation) OldFromTerminal(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFromTerminal is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFromTerminal requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFromTerminal: %w", err)
+	}
+	return oldValue.FromTerminal, nil
+}
+
+// ClearFromTerminal clears the value of the "from_terminal" field.
+func (m *RouteMutation) ClearFromTerminal() {
+	m.from_terminal = nil
+	m.clearedFields[route.FieldFromTerminal] = struct{}{}
+}
+
+// FromTerminalCleared returns if the "from_terminal" field was cleared in this mutation.
+func (m *RouteMutation) FromTerminalCleared() bool {
+	_, ok := m.clearedFields[route.FieldFromTerminal]
+	return ok
+}
+
+// ResetFromTerminal resets all changes to the "from_terminal" field.
+func (m *RouteMutation) ResetFromTerminal() {
+	m.from_terminal = nil
+	delete(m.clearedFields, route.FieldFromTerminal)
+}
+
 // SetToLocation sets the "to_location" field.
 func (m *RouteMutation) SetToLocation(s string) {
 	m.to_location = &s
@@ -12832,6 +12883,55 @@ func (m *RouteMutation) OldToLocation(ctx context.Context) (v string, err error)
 // ResetToLocation resets all changes to the "to_location" field.
 func (m *RouteMutation) ResetToLocation() {
 	m.to_location = nil
+}
+
+// SetToTerminal sets the "to_terminal" field.
+func (m *RouteMutation) SetToTerminal(s string) {
+	m.to_terminal = &s
+}
+
+// ToTerminal returns the value of the "to_terminal" field in the mutation.
+func (m *RouteMutation) ToTerminal() (r string, exists bool) {
+	v := m.to_terminal
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldToTerminal returns the old "to_terminal" field's value of the Route entity.
+// If the Route object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RouteMutation) OldToTerminal(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldToTerminal is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldToTerminal requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldToTerminal: %w", err)
+	}
+	return oldValue.ToTerminal, nil
+}
+
+// ClearToTerminal clears the value of the "to_terminal" field.
+func (m *RouteMutation) ClearToTerminal() {
+	m.to_terminal = nil
+	m.clearedFields[route.FieldToTerminal] = struct{}{}
+}
+
+// ToTerminalCleared returns if the "to_terminal" field was cleared in this mutation.
+func (m *RouteMutation) ToTerminalCleared() bool {
+	_, ok := m.clearedFields[route.FieldToTerminal]
+	return ok
+}
+
+// ResetToTerminal resets all changes to the "to_terminal" field.
+func (m *RouteMutation) ResetToTerminal() {
+	m.to_terminal = nil
+	delete(m.clearedFields, route.FieldToTerminal)
 }
 
 // SetFromLatitude sets the "from_latitude" field.
@@ -13463,7 +13563,7 @@ func (m *RouteMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RouteMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 13)
 	if m.created_at != nil {
 		fields = append(fields, route.FieldCreatedAt)
 	}
@@ -13473,8 +13573,14 @@ func (m *RouteMutation) Fields() []string {
 	if m.from_location != nil {
 		fields = append(fields, route.FieldFromLocation)
 	}
+	if m.from_terminal != nil {
+		fields = append(fields, route.FieldFromTerminal)
+	}
 	if m.to_location != nil {
 		fields = append(fields, route.FieldToLocation)
+	}
+	if m.to_terminal != nil {
+		fields = append(fields, route.FieldToTerminal)
 	}
 	if m.from_latitude != nil {
 		fields = append(fields, route.FieldFromLatitude)
@@ -13511,8 +13617,12 @@ func (m *RouteMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case route.FieldFromLocation:
 		return m.FromLocation()
+	case route.FieldFromTerminal:
+		return m.FromTerminal()
 	case route.FieldToLocation:
 		return m.ToLocation()
+	case route.FieldToTerminal:
+		return m.ToTerminal()
 	case route.FieldFromLatitude:
 		return m.FromLatitude()
 	case route.FieldFromLongitude:
@@ -13542,8 +13652,12 @@ func (m *RouteMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldUpdatedAt(ctx)
 	case route.FieldFromLocation:
 		return m.OldFromLocation(ctx)
+	case route.FieldFromTerminal:
+		return m.OldFromTerminal(ctx)
 	case route.FieldToLocation:
 		return m.OldToLocation(ctx)
+	case route.FieldToTerminal:
+		return m.OldToTerminal(ctx)
 	case route.FieldFromLatitude:
 		return m.OldFromLatitude(ctx)
 	case route.FieldFromLongitude:
@@ -13588,12 +13702,26 @@ func (m *RouteMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetFromLocation(v)
 		return nil
+	case route.FieldFromTerminal:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFromTerminal(v)
+		return nil
 	case route.FieldToLocation:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetToLocation(v)
+		return nil
+	case route.FieldToTerminal:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetToTerminal(v)
 		return nil
 	case route.FieldFromLatitude:
 		v, ok := value.(float64)
@@ -13761,6 +13889,12 @@ func (m *RouteMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *RouteMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(route.FieldFromTerminal) {
+		fields = append(fields, route.FieldFromTerminal)
+	}
+	if m.FieldCleared(route.FieldToTerminal) {
+		fields = append(fields, route.FieldToTerminal)
+	}
 	if m.FieldCleared(route.FieldFromLatitude) {
 		fields = append(fields, route.FieldFromLatitude)
 	}
@@ -13787,6 +13921,12 @@ func (m *RouteMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *RouteMutation) ClearField(name string) error {
 	switch name {
+	case route.FieldFromTerminal:
+		m.ClearFromTerminal()
+		return nil
+	case route.FieldToTerminal:
+		m.ClearToTerminal()
+		return nil
 	case route.FieldFromLatitude:
 		m.ClearFromLatitude()
 		return nil
@@ -13816,8 +13956,14 @@ func (m *RouteMutation) ResetField(name string) error {
 	case route.FieldFromLocation:
 		m.ResetFromLocation()
 		return nil
+	case route.FieldFromTerminal:
+		m.ResetFromTerminal()
+		return nil
 	case route.FieldToLocation:
 		m.ResetToLocation()
+		return nil
+	case route.FieldToTerminal:
+		m.ResetToTerminal()
 		return nil
 	case route.FieldFromLatitude:
 		m.ResetFromLatitude()
@@ -14661,35 +14807,27 @@ type TripMutation struct {
 	seat_left                     *int
 	addseat_left                  *int
 	status                        *trip.Status
-	boarding_points               *[]struct {
-		ID       string "json:\"id\""
-		Location string "json:\"location\""
-	}
-	appendboarding_points []struct {
-		ID       string "json:\"id\""
-		Location string "json:\"location\""
-	}
-	clearedFields    map[string]struct{}
-	company          *int
-	clearedcompany   bool
-	_driver          *int
-	cleared_driver   bool
-	vehicle          *int
-	clearedvehicle   bool
-	route            *int
-	clearedroute     bool
-	bookings         map[int]struct{}
-	removedbookings  map[int]struct{}
-	clearedbookings  bool
-	incidents        map[int]struct{}
-	removedincidents map[int]struct{}
-	clearedincidents bool
-	parcels          map[int]struct{}
-	removedparcels   map[int]struct{}
-	clearedparcels   bool
-	done             bool
-	oldValue         func(context.Context) (*Trip, error)
-	predicates       []predicate.Trip
+	clearedFields                 map[string]struct{}
+	company                       *int
+	clearedcompany                bool
+	_driver                       *int
+	cleared_driver                bool
+	vehicle                       *int
+	clearedvehicle                bool
+	route                         *int
+	clearedroute                  bool
+	bookings                      map[int]struct{}
+	removedbookings               map[int]struct{}
+	clearedbookings               bool
+	incidents                     map[int]struct{}
+	removedincidents              map[int]struct{}
+	clearedincidents              bool
+	parcels                       map[int]struct{}
+	removedparcels                map[int]struct{}
+	clearedparcels                bool
+	done                          bool
+	oldValue                      func(context.Context) (*Trip, error)
+	predicates                    []predicate.Trip
 }
 
 var _ ent.Mutation = (*TripMutation)(nil)
@@ -15402,86 +15540,6 @@ func (m *TripMutation) ResetStatus() {
 	delete(m.clearedFields, trip.FieldStatus)
 }
 
-// SetBoardingPoints sets the "boarding_points" field.
-func (m *TripMutation) SetBoardingPoints(s []struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-}) {
-	m.boarding_points = &s
-	m.appendboarding_points = nil
-}
-
-// BoardingPoints returns the value of the "boarding_points" field in the mutation.
-func (m *TripMutation) BoardingPoints() (r []struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-}, exists bool) {
-	v := m.boarding_points
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBoardingPoints returns the old "boarding_points" field's value of the Trip entity.
-// If the Trip object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TripMutation) OldBoardingPoints(ctx context.Context) (v []struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-}, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBoardingPoints is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBoardingPoints requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBoardingPoints: %w", err)
-	}
-	return oldValue.BoardingPoints, nil
-}
-
-// AppendBoardingPoints adds s to the "boarding_points" field.
-func (m *TripMutation) AppendBoardingPoints(s []struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-}) {
-	m.appendboarding_points = append(m.appendboarding_points, s...)
-}
-
-// AppendedBoardingPoints returns the list of values that were appended to the "boarding_points" field in this mutation.
-func (m *TripMutation) AppendedBoardingPoints() ([]struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-}, bool) {
-	if len(m.appendboarding_points) == 0 {
-		return nil, false
-	}
-	return m.appendboarding_points, true
-}
-
-// ClearBoardingPoints clears the value of the "boarding_points" field.
-func (m *TripMutation) ClearBoardingPoints() {
-	m.boarding_points = nil
-	m.appendboarding_points = nil
-	m.clearedFields[trip.FieldBoardingPoints] = struct{}{}
-}
-
-// BoardingPointsCleared returns if the "boarding_points" field was cleared in this mutation.
-func (m *TripMutation) BoardingPointsCleared() bool {
-	_, ok := m.clearedFields[trip.FieldBoardingPoints]
-	return ok
-}
-
-// ResetBoardingPoints resets all changes to the "boarding_points" field.
-func (m *TripMutation) ResetBoardingPoints() {
-	m.boarding_points = nil
-	m.appendboarding_points = nil
-	delete(m.clearedFields, trip.FieldBoardingPoints)
-}
-
 // SetCompanyID sets the "company" edge to the Company entity by id.
 func (m *TripMutation) SetCompanyID(id int) {
 	m.company = &id
@@ -15834,7 +15892,7 @@ func (m *TripMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TripMutation) Fields() []string {
-	fields := make([]string, 0, 16)
+	fields := make([]string, 0, 15)
 	if m.created_at != nil {
 		fields = append(fields, trip.FieldCreatedAt)
 	}
@@ -15880,9 +15938,6 @@ func (m *TripMutation) Fields() []string {
 	if m.status != nil {
 		fields = append(fields, trip.FieldStatus)
 	}
-	if m.boarding_points != nil {
-		fields = append(fields, trip.FieldBoardingPoints)
-	}
 	return fields
 }
 
@@ -15921,8 +15976,6 @@ func (m *TripMutation) Field(name string) (ent.Value, bool) {
 		return m.SeatLeft()
 	case trip.FieldStatus:
 		return m.Status()
-	case trip.FieldBoardingPoints:
-		return m.BoardingPoints()
 	}
 	return nil, false
 }
@@ -15962,8 +16015,6 @@ func (m *TripMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldSeatLeft(ctx)
 	case trip.FieldStatus:
 		return m.OldStatus(ctx)
-	case trip.FieldBoardingPoints:
-		return m.OldBoardingPoints(ctx)
 	}
 	return nil, fmt.Errorf("unknown Trip field %s", name)
 }
@@ -16078,16 +16129,6 @@ func (m *TripMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetStatus(v)
 		return nil
-	case trip.FieldBoardingPoints:
-		v, ok := value.([]struct {
-			ID       string "json:\"id\""
-			Location string "json:\"location\""
-		})
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBoardingPoints(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Trip field %s", name)
 }
@@ -16145,9 +16186,6 @@ func (m *TripMutation) ClearedFields() []string {
 	if m.FieldCleared(trip.FieldStatus) {
 		fields = append(fields, trip.FieldStatus)
 	}
-	if m.FieldCleared(trip.FieldBoardingPoints) {
-		fields = append(fields, trip.FieldBoardingPoints)
-	}
 	return fields
 }
 
@@ -16173,9 +16211,6 @@ func (m *TripMutation) ClearField(name string) error {
 		return nil
 	case trip.FieldStatus:
 		m.ClearStatus()
-		return nil
-	case trip.FieldBoardingPoints:
-		m.ClearBoardingPoints()
 		return nil
 	}
 	return fmt.Errorf("unknown Trip nullable field %s", name)
@@ -16229,9 +16264,6 @@ func (m *TripMutation) ResetField(name string) error {
 		return nil
 	case trip.FieldStatus:
 		m.ResetStatus()
-		return nil
-	case trip.FieldBoardingPoints:
-		m.ResetBoardingPoints()
 		return nil
 	}
 	return fmt.Errorf("unknown Trip field %s", name)

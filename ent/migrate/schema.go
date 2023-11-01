@@ -368,7 +368,9 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "from_location", Type: field.TypeString},
+		{Name: "from_terminal", Type: field.TypeString, Nullable: true},
 		{Name: "to_location", Type: field.TypeString},
+		{Name: "to_terminal", Type: field.TypeString, Nullable: true},
 		{Name: "from_latitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "from_longitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "to_latitude", Type: field.TypeFloat64, Nullable: true},
@@ -386,7 +388,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "routes_companies_routes",
-				Columns:    []*schema.Column{RoutesColumns[12]},
+				Columns:    []*schema.Column{RoutesColumns[14]},
 				RefColumns: []*schema.Column{CompaniesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -433,7 +435,6 @@ var (
 		{Name: "scheduled", Type: field.TypeBool, Default: false},
 		{Name: "seat_left", Type: field.TypeInt, Default: 0},
 		{Name: "status", Type: field.TypeEnum, Nullable: true, Enums: []string{"started", "ended"}},
-		{Name: "boarding_points", Type: field.TypeJSON, Nullable: true},
 		{Name: "company_trips", Type: field.TypeInt, Nullable: true},
 		{Name: "company_user_trips", Type: field.TypeInt, Nullable: true},
 		{Name: "route_trips", Type: field.TypeInt, Nullable: true},
@@ -447,25 +448,25 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "trips_companies_trips",
-				Columns:    []*schema.Column{TripsColumns[17]},
+				Columns:    []*schema.Column{TripsColumns[16]},
 				RefColumns: []*schema.Column{CompaniesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "trips_company_users_trips",
-				Columns:    []*schema.Column{TripsColumns[18]},
+				Columns:    []*schema.Column{TripsColumns[17]},
 				RefColumns: []*schema.Column{CompanyUsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "trips_routes_trips",
-				Columns:    []*schema.Column{TripsColumns[19]},
+				Columns:    []*schema.Column{TripsColumns[18]},
 				RefColumns: []*schema.Column{RoutesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "trips_vehicles_trips",
-				Columns:    []*schema.Column{TripsColumns[20]},
+				Columns:    []*schema.Column{TripsColumns[19]},
 				RefColumns: []*schema.Column{VehiclesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},

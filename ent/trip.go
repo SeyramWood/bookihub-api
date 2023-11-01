@@ -3,7 +3,6 @@
 package ent
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -52,11 +51,6 @@ type Trip struct {
 	SeatLeft int `json:"seat_left,omitempty"`
 	// Status holds the value of the "status" field.
 	Status trip.Status `json:"status,omitempty"`
-	// BoardingPoints holds the value of the "boarding_points" field.
-	BoardingPoints []struct {
-		ID       string "json:\"id\""
-		Location string "json:\"location\""
-	} `json:"boarding_points,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TripQuery when eager-loading is set.
 	Edges              TripEdges `json:"edges"`
@@ -172,8 +166,6 @@ func (*Trip) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case trip.FieldBoardingPoints:
-			values[i] = new([]byte)
 		case trip.FieldExteriorInspected, trip.FieldInteriorInspected, trip.FieldEngineCompartmentInspected, trip.FieldBrakeAndSteeringInspected, trip.FieldEmergencyEquipmentInspected, trip.FieldFuelAndFluidsInspected, trip.FieldScheduled:
 			values[i] = new(sql.NullBool)
 		case trip.FieldID, trip.FieldSeatLeft:
@@ -300,14 +292,6 @@ func (t *Trip) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				t.Status = trip.Status(value.String)
-			}
-		case trip.FieldBoardingPoints:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field boarding_points", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &t.BoardingPoints); err != nil {
-					return fmt.Errorf("unmarshal field boarding_points: %w", err)
-				}
 			}
 		case trip.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -452,9 +436,6 @@ func (t *Trip) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", t.Status))
-	builder.WriteString(", ")
-	builder.WriteString("boarding_points=")
-	builder.WriteString(fmt.Sprintf("%v", t.BoardingPoints))
 	builder.WriteByte(')')
 	return builder.String()
 }

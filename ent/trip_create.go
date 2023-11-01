@@ -237,15 +237,6 @@ func (tc *TripCreate) SetNillableStatus(t *trip.Status) *TripCreate {
 	return tc
 }
 
-// SetBoardingPoints sets the "boarding_points" field.
-func (tc *TripCreate) SetBoardingPoints(s []struct {
-	ID       string "json:\"id\""
-	Location string "json:\"location\""
-}) *TripCreate {
-	tc.mutation.SetBoardingPoints(s)
-	return tc
-}
-
 // SetCompanyID sets the "company" edge to the Company entity by ID.
 func (tc *TripCreate) SetCompanyID(id int) *TripCreate {
 	tc.mutation.SetCompanyID(id)
@@ -578,10 +569,6 @@ func (tc *TripCreate) createSpec() (*Trip, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.Status(); ok {
 		_spec.SetField(trip.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
-	}
-	if value, ok := tc.mutation.BoardingPoints(); ok {
-		_spec.SetField(trip.FieldBoardingPoints, field.TypeJSON, value)
-		_node.BoardingPoints = value
 	}
 	if nodes := tc.mutation.CompanyIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

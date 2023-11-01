@@ -91,10 +91,9 @@ func ParcelResponse(data *ent.Parcel) *fiber.Map {
 						EmergencyEquipment: t.EmergencyEquipmentInspected,
 						FuelAndFluid:       t.FuelAndFluidsInspected,
 					},
-					Status:        string(t.Status),
-					Scheduled:     t.Scheduled,
-					SeatLeft:      t.SeatLeft,
-					BoardingPoint: t.BoardingPoints,
+					Status:    string(t.Status),
+					Scheduled: t.Scheduled,
+					SeatLeft:  t.SeatLeft,
 					Vehicle: func() *VehicleResponseData {
 						if v, err := t.Edges.VehicleOrErr(); err == nil {
 							return &VehicleResponseData{
@@ -125,6 +124,8 @@ func ParcelResponse(data *ent.Parcel) *fiber.Map {
 								ID:            r.ID,
 								From:          r.FromLocation,
 								To:            r.ToLocation,
+								FromTerminal:  r.FromTerminal,
+								ToTerminal:    r.ToTerminal,
 								FromLatitude:  r.FromLatitude,
 								FromLongitude: r.FromLongitude,
 								ToLatitude:    r.ToLatitude,
@@ -242,10 +243,9 @@ func ParcelsResponse(data *PaginationResponse) *fiber.Map {
 							EmergencyEquipment: t.EmergencyEquipmentInspected,
 							FuelAndFluid:       t.FuelAndFluidsInspected,
 						},
-						Status:        string(t.Status),
-						Scheduled:     t.Scheduled,
-						SeatLeft:      t.SeatLeft,
-						BoardingPoint: t.BoardingPoints,
+						Status:    string(t.Status),
+						Scheduled: t.Scheduled,
+						SeatLeft:  t.SeatLeft,
 						Vehicle: func() *VehicleResponseData {
 							if v, err := t.Edges.VehicleOrErr(); err == nil {
 								return &VehicleResponseData{
@@ -276,6 +276,8 @@ func ParcelsResponse(data *PaginationResponse) *fiber.Map {
 									ID:            r.ID,
 									From:          r.FromLocation,
 									To:            r.ToLocation,
+									FromTerminal:  r.FromTerminal,
+									ToTerminal:    r.ToTerminal,
 									FromLatitude:  r.FromLatitude,
 									FromLongitude: r.FromLongitude,
 									ToLatitude:    r.ToLatitude,

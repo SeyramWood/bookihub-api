@@ -50,6 +50,8 @@ func (r *repository) Insert(companyId int, request *requeststructs.RouteRequest)
 		SetToLocation(request.To).
 		SetFromLatitude(request.FromLatitude).
 		SetFromLongitude(request.FromLongitude).
+		SetFromTerminal(request.FromTerminal).
+		SetToTerminal(request.ToTerminal).
 		SetToLatitude(request.ToLatitude).
 		SetToLongitude(request.ToLongitude).
 		SetRate(request.Rate).
@@ -143,6 +145,8 @@ func (r *repository) Update(id int, request *requeststructs.RouteUpdateRequest) 
 		SetToLocation(request.To).
 		SetFromLatitude(request.FromLatitude).
 		SetFromLongitude(request.FromLongitude).
+		SetFromTerminal(request.FromTerminal).
+		SetToTerminal(request.ToTerminal).
 		SetToLatitude(request.ToLatitude).
 		SetToLongitude(request.ToLongitude).
 		SetRate(request.Rate).

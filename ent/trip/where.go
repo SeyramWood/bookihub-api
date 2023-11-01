@@ -510,16 +510,6 @@ func StatusNotNil() predicate.Trip {
 	return predicate.Trip(sql.FieldNotNull(FieldStatus))
 }
 
-// BoardingPointsIsNil applies the IsNil predicate on the "boarding_points" field.
-func BoardingPointsIsNil() predicate.Trip {
-	return predicate.Trip(sql.FieldIsNull(FieldBoardingPoints))
-}
-
-// BoardingPointsNotNil applies the NotNil predicate on the "boarding_points" field.
-func BoardingPointsNotNil() predicate.Trip {
-	return predicate.Trip(sql.FieldNotNull(FieldBoardingPoints))
-}
-
 // HasCompany applies the HasEdge predicate on the "company" edge.
 func HasCompany() predicate.Trip {
 	return predicate.Trip(func(s *sql.Selector) {

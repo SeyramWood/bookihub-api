@@ -35,10 +35,6 @@ func (Trip) Fields() []ent.Field {
 		field.Bool("scheduled").Default(false),
 		field.Int("seat_left").Default(0),
 		field.Enum("status").Values("started", "ended").Optional(),
-		field.JSON("boarding_points", []struct {
-			ID       string `json:"id"`
-			Location string `json:"location"`
-		}{}).Optional(),
 	}
 }
 

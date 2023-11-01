@@ -60,7 +60,6 @@ func CompanyRoutes(r fiber.Router, router *apiRouter) {
 	tripGroup.Get("/driver/:id", tripHandler.FetchAllByDriver())
 	tripGroup.Get("/:id", tripHandler.Fetch())
 	tripGroup.Post("/company/:id", requests.ValidateTrip(), tripHandler.Create())
-	tripGroup.Post("/:id/add-boarding-point", requests.ValidateTripBoardingPoint(), tripHandler.AddBoardingPoint())
 	tripGroup.Put("/:id", requests.ValidateTripUpdate(), tripHandler.Update())
 	tripGroup.Put("/:id/update-status", tripHandler.UpdateStatus())
 	tripGroup.Put("/:id/update-schedule", tripHandler.UpdateSchedule())

@@ -241,18 +241,6 @@ func ValidateTrip() fiber.Handler {
 		return c.Next()
 	}
 }
-func ValidateTripBoardingPoint() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		request := new(requeststructs.TripNewBoardingPoint)
-		if err := c.BodyParser(request); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
-		}
-		if er := validator.Validate(request); er != nil {
-			return c.Status(fiber.StatusUnprocessableEntity).JSON(presenters.UnprocessableEntityResponse(er))
-		}
-		return c.Next()
-	}
-}
 func ValidateTripUpdate() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		request := new(requeststructs.TripUpdateRequest)

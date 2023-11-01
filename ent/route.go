@@ -24,8 +24,12 @@ type Route struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// FromLocation holds the value of the "from_location" field.
 	FromLocation string `json:"from_location,omitempty"`
+	// FromTerminal holds the value of the "from_terminal" field.
+	FromTerminal string `json:"from_terminal,omitempty"`
 	// ToLocation holds the value of the "to_location" field.
 	ToLocation string `json:"to_location,omitempty"`
+	// ToTerminal holds the value of the "to_terminal" field.
+	ToTerminal string `json:"to_terminal,omitempty"`
 	// FromLatitude holds the value of the "from_latitude" field.
 	FromLatitude float64 `json:"from_latitude,omitempty"`
 	// FromLongitude holds the value of the "from_longitude" field.
@@ -100,7 +104,7 @@ func (*Route) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case route.FieldID, route.FieldPopularity:
 			values[i] = new(sql.NullInt64)
-		case route.FieldFromLocation, route.FieldToLocation:
+		case route.FieldFromLocation, route.FieldFromTerminal, route.FieldToLocation, route.FieldToTerminal:
 			values[i] = new(sql.NullString)
 		case route.FieldCreatedAt, route.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -145,11 +149,23 @@ func (r *Route) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				r.FromLocation = value.String
 			}
+		case route.FieldFromTerminal:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field from_terminal", values[i])
+			} else if value.Valid {
+				r.FromTerminal = value.String
+			}
 		case route.FieldToLocation:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field to_location", values[i])
 			} else if value.Valid {
 				r.ToLocation = value.String
+			}
+		case route.FieldToTerminal:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field to_terminal", values[i])
+			} else if value.Valid {
+				r.ToTerminal = value.String
 			}
 		case route.FieldFromLatitude:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
@@ -260,8 +276,14 @@ func (r *Route) String() string {
 	builder.WriteString("from_location=")
 	builder.WriteString(r.FromLocation)
 	builder.WriteString(", ")
+	builder.WriteString("from_terminal=")
+	builder.WriteString(r.FromTerminal)
+	builder.WriteString(", ")
 	builder.WriteString("to_location=")
 	builder.WriteString(r.ToLocation)
+	builder.WriteString(", ")
+	builder.WriteString("to_terminal=")
+	builder.WriteString(r.ToTerminal)
 	builder.WriteString(", ")
 	builder.WriteString("from_latitude=")
 	builder.WriteString(fmt.Sprintf("%v", r.FromLatitude))

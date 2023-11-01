@@ -22,11 +22,6 @@ func (s *service) Create(companyId int, request *requeststructs.TripRequest) (*e
 	return s.repo.Insert(companyId, request)
 }
 
-// AddBoardingPoint implements gateways.TripService.
-func (s *service) AddBoardingPoint(id int, request *requeststructs.TripNewBoardingPoint) (*ent.Trip, error) {
-	return s.repo.InsertBoardingPoint(id, request)
-}
-
 // Fetch implements gateways.TripService.
 func (s *service) Fetch(id int) (*ent.Trip, error) {
 	return s.repo.Read(id)

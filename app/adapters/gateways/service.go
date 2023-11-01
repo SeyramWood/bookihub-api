@@ -105,7 +105,6 @@ type (
 		FetchAllPopular(limit, offset int) (*presenters.PaginationResponse, error)
 		Fetch(id int) (*ent.Trip, error)
 		Create(companyId int, request *requeststructs.TripRequest) (*ent.Trip, error)
-		AddBoardingPoint(id int, request *requeststructs.TripNewBoardingPoint) (*ent.Trip, error)
 		Update(id int, request *requeststructs.TripUpdateRequest) (*ent.Trip, error)
 		UpdateStatus(id int, status string) (*ent.Trip, error)
 		UpdateInspection(id int, request *requeststructs.TripInspectionStatusRequest) (*ent.Trip, error)

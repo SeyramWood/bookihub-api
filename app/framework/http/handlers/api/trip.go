@@ -156,24 +156,6 @@ func (h *tripHandler) Update() fiber.Handler {
 	}
 }
 
-func (h *tripHandler) AddBoardingPoint() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		request := new(requeststructs.TripNewBoardingPoint)
-		if c.BodyParser(request) != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
-		}
-		id, _ := c.ParamsInt("id")
-		result, err := h.service.AddBoardingPoint(id, request)
-		if err != nil {
-			if ent.IsNotFound(err) {
-				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("trip not found")))
-			}
-			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
-		}
-		return c.Status(fiber.StatusOK).JSON(presenters.TripResponse(result))
-	}
-}
-
 func (h *tripHandler) UpdateInspection() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		request := new(requeststructs.TripInspectionStatusRequest)
