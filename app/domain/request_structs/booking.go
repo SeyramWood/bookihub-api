@@ -3,7 +3,6 @@ package requeststructs
 type (
 	BookingRequest struct {
 		Reference       string                     `json:"reference" validate:"required"`
-		BoardingPointID string                     `json:"boardingPointId" validate:"required"`
 		Passenger       []*BookingPassengerRequest `json:"passenger" validate:"required"`
 		Luggage         []*BookingLuggagesRequest  `json:"luggage"`
 		Contact         *BookingContactRequest     `json:"contact" validate:"required"`
@@ -16,7 +15,6 @@ type (
 		CustomerID      int                        `json:"customerId"`
 	}
 	BookingUpdateRequest struct {
-		BoardingPointID string                           `json:"boardingPointId" validate:"required"`
 		Passenger       []*BookingPassengerUpdateRequest `json:"passenger" validate:"required"`
 		Luggage         []*BookingLuggagesUpdateRequest  `json:"luggage"`
 		Contact         *BookingContactUpdateRequest     `json:"contact" validate:"required"`

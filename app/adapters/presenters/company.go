@@ -68,10 +68,6 @@ type (
 		EmergencyEquipment bool `json:"emergencyEquipment"`
 		FuelAndFluid       bool `json:"fuelAndFluid"`
 	}
-	TripBoardingPoint struct {
-		ID       string `json:"id"`
-		Location string `json:"location"`
-	}
 	TripResponseData struct {
 		ID               int                      `json:"id"`
 		DepartureDate    any                      `json:"departureDate"`

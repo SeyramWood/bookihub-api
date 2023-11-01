@@ -65,7 +65,6 @@ func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse 
 		res, err := tx.Booking.Create().
 			SetReference(request.Reference).
 			SetBookingNumber(application.OTP(12)).
-			SetBoardingPoint(request.BoardingPointID).
 			SetVat(request.VAT).
 			SetSmsFee(request.SMSFee).
 			SetAmount(request.Amount).
@@ -85,7 +84,6 @@ func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse 
 		res, err := tx.Booking.Create().
 			SetReference(request.Reference).
 			SetBookingNumber(application.OTP(12)).
-			SetBoardingPoint(request.BoardingPointID).
 			SetVat(request.VAT).
 			SetSmsFee(request.SMSFee).
 			SetAmount(request.Amount).
@@ -375,8 +373,8 @@ func (r *repository) Update(id int, request *requeststructs.BookingUpdateRequest
 	if err != nil {
 		return nil, fmt.Errorf("error starting a transaction: %w", err)
 	}
+
 	result, err := tx.Booking.UpdateOneID(id).
-		SetBoardingPoint(request.BoardingPointID).
 		SetVat(request.VAT).
 		SetSmsFee(request.SMSFee).
 		SetAmount(request.Amount).

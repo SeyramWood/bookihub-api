@@ -32,7 +32,6 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "reference", Type: field.TypeString, Nullable: true},
 		{Name: "booking_number", Type: field.TypeString},
-		{Name: "boarding_point", Type: field.TypeString},
 		{Name: "vat", Type: field.TypeFloat64, Default: 0},
 		{Name: "sms_fee", Type: field.TypeFloat64, Default: 0},
 		{Name: "amount", Type: field.TypeFloat64, Default: 0},
@@ -54,19 +53,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "bookings_companies_bookings",
-				Columns:    []*schema.Column{BookingsColumns[15]},
+				Columns:    []*schema.Column{BookingsColumns[14]},
 				RefColumns: []*schema.Column{CompaniesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "bookings_customers_bookings",
-				Columns:    []*schema.Column{BookingsColumns[16]},
+				Columns:    []*schema.Column{BookingsColumns[15]},
 				RefColumns: []*schema.Column{CustomersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "bookings_trips_bookings",
-				Columns:    []*schema.Column{BookingsColumns[17]},
+				Columns:    []*schema.Column{BookingsColumns[16]},
 				RefColumns: []*schema.Column{TripsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},

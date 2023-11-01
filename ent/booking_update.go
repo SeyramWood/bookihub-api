@@ -67,12 +67,6 @@ func (bu *BookingUpdate) SetBookingNumber(s string) *BookingUpdate {
 	return bu
 }
 
-// SetBoardingPoint sets the "boarding_point" field.
-func (bu *BookingUpdate) SetBoardingPoint(s string) *BookingUpdate {
-	bu.mutation.SetBoardingPoint(s)
-	return bu
-}
-
 // SetVat sets the "vat" field.
 func (bu *BookingUpdate) SetVat(f float64) *BookingUpdate {
 	bu.mutation.ResetVat()
@@ -465,11 +459,6 @@ func (bu *BookingUpdate) check() error {
 			return &ValidationError{Name: "booking_number", err: fmt.Errorf(`ent: validator failed for field "Booking.booking_number": %w`, err)}
 		}
 	}
-	if v, ok := bu.mutation.BoardingPoint(); ok {
-		if err := booking.BoardingPointValidator(v); err != nil {
-			return &ValidationError{Name: "boarding_point", err: fmt.Errorf(`ent: validator failed for field "Booking.boarding_point": %w`, err)}
-		}
-	}
 	if v, ok := bu.mutation.TansType(); ok {
 		if err := booking.TansTypeValidator(v); err != nil {
 			return &ValidationError{Name: "tans_type", err: fmt.Errorf(`ent: validator failed for field "Booking.tans_type": %w`, err)}
@@ -512,9 +501,6 @@ func (bu *BookingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := bu.mutation.BookingNumber(); ok {
 		_spec.SetField(booking.FieldBookingNumber, field.TypeString, value)
-	}
-	if value, ok := bu.mutation.BoardingPoint(); ok {
-		_spec.SetField(booking.FieldBoardingPoint, field.TypeString, value)
 	}
 	if value, ok := bu.mutation.Vat(); ok {
 		_spec.SetField(booking.FieldVat, field.TypeFloat64, value)
@@ -821,12 +807,6 @@ func (buo *BookingUpdateOne) ClearReference() *BookingUpdateOne {
 // SetBookingNumber sets the "booking_number" field.
 func (buo *BookingUpdateOne) SetBookingNumber(s string) *BookingUpdateOne {
 	buo.mutation.SetBookingNumber(s)
-	return buo
-}
-
-// SetBoardingPoint sets the "boarding_point" field.
-func (buo *BookingUpdateOne) SetBoardingPoint(s string) *BookingUpdateOne {
-	buo.mutation.SetBoardingPoint(s)
 	return buo
 }
 
@@ -1235,11 +1215,6 @@ func (buo *BookingUpdateOne) check() error {
 			return &ValidationError{Name: "booking_number", err: fmt.Errorf(`ent: validator failed for field "Booking.booking_number": %w`, err)}
 		}
 	}
-	if v, ok := buo.mutation.BoardingPoint(); ok {
-		if err := booking.BoardingPointValidator(v); err != nil {
-			return &ValidationError{Name: "boarding_point", err: fmt.Errorf(`ent: validator failed for field "Booking.boarding_point": %w`, err)}
-		}
-	}
 	if v, ok := buo.mutation.TansType(); ok {
 		if err := booking.TansTypeValidator(v); err != nil {
 			return &ValidationError{Name: "tans_type", err: fmt.Errorf(`ent: validator failed for field "Booking.tans_type": %w`, err)}
@@ -1299,9 +1274,6 @@ func (buo *BookingUpdateOne) sqlSave(ctx context.Context) (_node *Booking, err e
 	}
 	if value, ok := buo.mutation.BookingNumber(); ok {
 		_spec.SetField(booking.FieldBookingNumber, field.TypeString, value)
-	}
-	if value, ok := buo.mutation.BoardingPoint(); ok {
-		_spec.SetField(booking.FieldBoardingPoint, field.TypeString, value)
 	}
 	if value, ok := buo.mutation.Vat(); ok {
 		_spec.SetField(booking.FieldVat, field.TypeFloat64, value)

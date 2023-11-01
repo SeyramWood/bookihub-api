@@ -23,8 +23,6 @@ const (
 	FieldReference = "reference"
 	// FieldBookingNumber holds the string denoting the booking_number field in the database.
 	FieldBookingNumber = "booking_number"
-	// FieldBoardingPoint holds the string denoting the boarding_point field in the database.
-	FieldBoardingPoint = "boarding_point"
 	// FieldVat holds the string denoting the vat field in the database.
 	FieldVat = "vat"
 	// FieldSmsFee holds the string denoting the sms_fee field in the database.
@@ -108,7 +106,6 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldReference,
 	FieldBookingNumber,
-	FieldBoardingPoint,
 	FieldVat,
 	FieldSmsFee,
 	FieldAmount,
@@ -152,8 +149,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// BookingNumberValidator is a validator for the "booking_number" field. It is called by the builders before save.
 	BookingNumberValidator func(string) error
-	// BoardingPointValidator is a validator for the "boarding_point" field. It is called by the builders before save.
-	BoardingPointValidator func(string) error
 	// DefaultVat holds the default value on creation for the "vat" field.
 	DefaultVat float64
 	// DefaultSmsFee holds the default value on creation for the "sms_fee" field.
@@ -243,11 +238,6 @@ func ByReference(opts ...sql.OrderTermOption) OrderOption {
 // ByBookingNumber orders the results by the booking_number field.
 func ByBookingNumber(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBookingNumber, opts...).ToFunc()
-}
-
-// ByBoardingPoint orders the results by the boarding_point field.
-func ByBoardingPoint(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBoardingPoint, opts...).ToFunc()
 }
 
 // ByVat orders the results by the vat field.

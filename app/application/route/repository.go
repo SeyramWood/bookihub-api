@@ -88,6 +88,7 @@ func (r *repository) Read(id int) (*ent.Route, error) {
 		return nil, err
 	}
 	return result, nil
+
 }
 
 // ReadAll implements gateways.RouteRepo.

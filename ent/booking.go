@@ -29,8 +29,6 @@ type Booking struct {
 	Reference string `json:"reference,omitempty"`
 	// BookingNumber holds the value of the "booking_number" field.
 	BookingNumber string `json:"booking_number,omitempty"`
-	// BoardingPoint holds the value of the "boarding_point" field.
-	BoardingPoint string `json:"boarding_point,omitempty"`
 	// Vat holds the value of the "vat" field.
 	Vat float64 `json:"vat,omitempty"`
 	// SmsFee holds the value of the "sms_fee" field.
@@ -158,7 +156,7 @@ func (*Booking) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case booking.FieldID:
 			values[i] = new(sql.NullInt64)
-		case booking.FieldReference, booking.FieldBookingNumber, booking.FieldBoardingPoint, booking.FieldTansType, booking.FieldStatus:
+		case booking.FieldReference, booking.FieldBookingNumber, booking.FieldTansType, booking.FieldStatus:
 			values[i] = new(sql.NullString)
 		case booking.FieldCreatedAt, booking.FieldUpdatedAt, booking.FieldPaidAt, booking.FieldRefundAt:
 			values[i] = new(sql.NullTime)
@@ -212,12 +210,6 @@ func (b *Booking) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field booking_number", values[i])
 			} else if value.Valid {
 				b.BookingNumber = value.String
-			}
-		case booking.FieldBoardingPoint:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field boarding_point", values[i])
-			} else if value.Valid {
-				b.BoardingPoint = value.String
 			}
 		case booking.FieldVat:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
@@ -371,9 +363,6 @@ func (b *Booking) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("booking_number=")
 	builder.WriteString(b.BookingNumber)
-	builder.WriteString(", ")
-	builder.WriteString("boarding_point=")
-	builder.WriteString(b.BoardingPoint)
 	builder.WriteString(", ")
 	builder.WriteString("vat=")
 	builder.WriteString(fmt.Sprintf("%v", b.Vat))

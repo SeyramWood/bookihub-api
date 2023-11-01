@@ -87,24 +87,22 @@ type (
 		Discount      float32 `json:"discount" validate:"min:1|max:100"`
 	}
 	TripRequest struct {
-		VehicleID     int      `json:"vehicleId" validate:"required"`
-		RouteID       int      `json:"routeId" validate:"required"`
-		DriverID      int      `json:"driverId" validate:"required"`
-		DepartureDate string   `json:"departureDate" validate:"required|ascii"`
-		ArrivalDate   string   `json:"arrivalDate" validate:"required|ascii"`
-		ReturnDate    string   `json:"returnDate" validate:"ascii"`
-		TripType      string   `json:"tripType" validate:"required|string"`
-		Schedule      bool     `json:"schedule"`
-		BoardingPoint []string `json:"boardingPoint" validate:"required"`
+		VehicleID     int    `json:"vehicleId" validate:"required"`
+		RouteID       int    `json:"routeId" validate:"required"`
+		DriverID      int    `json:"driverId" validate:"required"`
+		DepartureDate string `json:"departureDate" validate:"required|ascii"`
+		ArrivalDate   string `json:"arrivalDate" validate:"required|ascii"`
+		ReturnDate    string `json:"returnDate" validate:"ascii"`
+		TripType      string `json:"tripType" validate:"required|string"`
+		Schedule      bool   `json:"schedule"`
 	}
 	TripUpdateRequest struct {
-		VehicleID     int                  `json:"vehicleId" validate:"required"`
-		DriverID      int                  `json:"driverId" validate:"required"`
-		DepartureDate string               `json:"departureDate" validate:"required|ascii"`
-		ArrivalDate   string               `json:"arrivalDate" validate:"required|ascii"`
-		ReturnDate    string               `json:"returnDate" validate:"ascii"`
-		TripType      string               `json:"tripType" validate:"required|string"`
-		BoardingPoint []*TripBoardingPoint `json:"boardingPoint" validate:"required"`
+		VehicleID     int    `json:"vehicleId" validate:"required"`
+		DriverID      int    `json:"driverId" validate:"required"`
+		DepartureDate string `json:"departureDate" validate:"required|ascii"`
+		ArrivalDate   string `json:"arrivalDate" validate:"required|ascii"`
+		ReturnDate    string `json:"returnDate" validate:"ascii"`
+		TripType      string `json:"tripType" validate:"required|string"`
 	}
 	TripInspectionStatusRequest struct {
 		Exterior           bool `json:"exterior"`
@@ -114,13 +112,7 @@ type (
 		EmergencyEquipment bool `json:"emergencyEquipment"`
 		FuelAndFluid       bool `json:"fuelAndFluid"`
 	}
-	TripBoardingPoint struct {
-		ID       string `json:"id"`
-		Location string `json:"location"`
-	}
-	TripNewBoardingPoint struct {
-		BoardingPoint []string `json:"boardingPoint" validate:"required"`
-	}
+
 	TripFilterRequest struct {
 		Today     bool
 		Scheduled bool

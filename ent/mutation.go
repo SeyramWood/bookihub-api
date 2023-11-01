@@ -898,7 +898,6 @@ type BookingMutation struct {
 	updated_at        *time.Time
 	reference         *string
 	booking_number    *string
-	boarding_point    *string
 	vat               *float64
 	addvat            *float64
 	sms_fee           *float64
@@ -1185,42 +1184,6 @@ func (m *BookingMutation) OldBookingNumber(ctx context.Context) (v string, err e
 // ResetBookingNumber resets all changes to the "booking_number" field.
 func (m *BookingMutation) ResetBookingNumber() {
 	m.booking_number = nil
-}
-
-// SetBoardingPoint sets the "boarding_point" field.
-func (m *BookingMutation) SetBoardingPoint(s string) {
-	m.boarding_point = &s
-}
-
-// BoardingPoint returns the value of the "boarding_point" field in the mutation.
-func (m *BookingMutation) BoardingPoint() (r string, exists bool) {
-	v := m.boarding_point
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBoardingPoint returns the old "boarding_point" field's value of the Booking entity.
-// If the Booking object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BookingMutation) OldBoardingPoint(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBoardingPoint is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBoardingPoint requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBoardingPoint: %w", err)
-	}
-	return oldValue.BoardingPoint, nil
-}
-
-// ResetBoardingPoint resets all changes to the "boarding_point" field.
-func (m *BookingMutation) ResetBoardingPoint() {
-	m.boarding_point = nil
 }
 
 // SetVat sets the "vat" field.
@@ -1965,7 +1928,7 @@ func (m *BookingMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BookingMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 13)
 	if m.created_at != nil {
 		fields = append(fields, booking.FieldCreatedAt)
 	}
@@ -1977,9 +1940,6 @@ func (m *BookingMutation) Fields() []string {
 	}
 	if m.booking_number != nil {
 		fields = append(fields, booking.FieldBookingNumber)
-	}
-	if m.boarding_point != nil {
-		fields = append(fields, booking.FieldBoardingPoint)
 	}
 	if m.vat != nil {
 		fields = append(fields, booking.FieldVat)
@@ -2024,8 +1984,6 @@ func (m *BookingMutation) Field(name string) (ent.Value, bool) {
 		return m.Reference()
 	case booking.FieldBookingNumber:
 		return m.BookingNumber()
-	case booking.FieldBoardingPoint:
-		return m.BoardingPoint()
 	case booking.FieldVat:
 		return m.Vat()
 	case booking.FieldSmsFee:
@@ -2061,8 +2019,6 @@ func (m *BookingMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldReference(ctx)
 	case booking.FieldBookingNumber:
 		return m.OldBookingNumber(ctx)
-	case booking.FieldBoardingPoint:
-		return m.OldBoardingPoint(ctx)
 	case booking.FieldVat:
 		return m.OldVat(ctx)
 	case booking.FieldSmsFee:
@@ -2117,13 +2073,6 @@ func (m *BookingMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBookingNumber(v)
-		return nil
-	case booking.FieldBoardingPoint:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBoardingPoint(v)
 		return nil
 	case booking.FieldVat:
 		v, ok := value.(float64)
@@ -2326,9 +2275,6 @@ func (m *BookingMutation) ResetField(name string) error {
 		return nil
 	case booking.FieldBookingNumber:
 		m.ResetBookingNumber()
-		return nil
-	case booking.FieldBoardingPoint:
-		m.ResetBoardingPoint()
 		return nil
 	case booking.FieldVat:
 		m.ResetVat()

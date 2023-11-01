@@ -74,12 +74,6 @@ func (bc *BookingCreate) SetBookingNumber(s string) *BookingCreate {
 	return bc
 }
 
-// SetBoardingPoint sets the "boarding_point" field.
-func (bc *BookingCreate) SetBoardingPoint(s string) *BookingCreate {
-	bc.mutation.SetBoardingPoint(s)
-	return bc
-}
-
 // SetVat sets the "vat" field.
 func (bc *BookingCreate) SetVat(f float64) *BookingCreate {
 	bc.mutation.SetVat(f)
@@ -397,14 +391,6 @@ func (bc *BookingCreate) check() error {
 			return &ValidationError{Name: "booking_number", err: fmt.Errorf(`ent: validator failed for field "Booking.booking_number": %w`, err)}
 		}
 	}
-	if _, ok := bc.mutation.BoardingPoint(); !ok {
-		return &ValidationError{Name: "boarding_point", err: errors.New(`ent: missing required field "Booking.boarding_point"`)}
-	}
-	if v, ok := bc.mutation.BoardingPoint(); ok {
-		if err := booking.BoardingPointValidator(v); err != nil {
-			return &ValidationError{Name: "boarding_point", err: fmt.Errorf(`ent: validator failed for field "Booking.boarding_point": %w`, err)}
-		}
-	}
 	if _, ok := bc.mutation.Vat(); !ok {
 		return &ValidationError{Name: "vat", err: errors.New(`ent: missing required field "Booking.vat"`)}
 	}
@@ -474,10 +460,6 @@ func (bc *BookingCreate) createSpec() (*Booking, *sqlgraph.CreateSpec) {
 	if value, ok := bc.mutation.BookingNumber(); ok {
 		_spec.SetField(booking.FieldBookingNumber, field.TypeString, value)
 		_node.BookingNumber = value
-	}
-	if value, ok := bc.mutation.BoardingPoint(); ok {
-		_spec.SetField(booking.FieldBoardingPoint, field.TypeString, value)
-		_node.BoardingPoint = value
 	}
 	if value, ok := bc.mutation.Vat(); ok {
 		_spec.SetField(booking.FieldVat, field.TypeFloat64, value)

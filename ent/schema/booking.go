@@ -24,7 +24,6 @@ func (Booking) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("reference").Optional(),
 		field.String("booking_number").NotEmpty(),
-		field.String("boarding_point").NotEmpty(),
 		field.Float("vat").Default(0.00),
 		field.Float("sms_fee").Default(0.00),
 		field.Float("amount").Default(0.00),

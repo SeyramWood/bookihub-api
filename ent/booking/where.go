@@ -75,11 +75,6 @@ func BookingNumber(v string) predicate.Booking {
 	return predicate.Booking(sql.FieldEQ(FieldBookingNumber, v))
 }
 
-// BoardingPoint applies equality check predicate on the "boarding_point" field. It's identical to BoardingPointEQ.
-func BoardingPoint(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldEQ(FieldBoardingPoint, v))
-}
-
 // Vat applies equality check predicate on the "vat" field. It's identical to VatEQ.
 func Vat(v float64) predicate.Booking {
 	return predicate.Booking(sql.FieldEQ(FieldVat, v))
@@ -333,71 +328,6 @@ func BookingNumberEqualFold(v string) predicate.Booking {
 // BookingNumberContainsFold applies the ContainsFold predicate on the "booking_number" field.
 func BookingNumberContainsFold(v string) predicate.Booking {
 	return predicate.Booking(sql.FieldContainsFold(FieldBookingNumber, v))
-}
-
-// BoardingPointEQ applies the EQ predicate on the "boarding_point" field.
-func BoardingPointEQ(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldEQ(FieldBoardingPoint, v))
-}
-
-// BoardingPointNEQ applies the NEQ predicate on the "boarding_point" field.
-func BoardingPointNEQ(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldNEQ(FieldBoardingPoint, v))
-}
-
-// BoardingPointIn applies the In predicate on the "boarding_point" field.
-func BoardingPointIn(vs ...string) predicate.Booking {
-	return predicate.Booking(sql.FieldIn(FieldBoardingPoint, vs...))
-}
-
-// BoardingPointNotIn applies the NotIn predicate on the "boarding_point" field.
-func BoardingPointNotIn(vs ...string) predicate.Booking {
-	return predicate.Booking(sql.FieldNotIn(FieldBoardingPoint, vs...))
-}
-
-// BoardingPointGT applies the GT predicate on the "boarding_point" field.
-func BoardingPointGT(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldGT(FieldBoardingPoint, v))
-}
-
-// BoardingPointGTE applies the GTE predicate on the "boarding_point" field.
-func BoardingPointGTE(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldGTE(FieldBoardingPoint, v))
-}
-
-// BoardingPointLT applies the LT predicate on the "boarding_point" field.
-func BoardingPointLT(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldLT(FieldBoardingPoint, v))
-}
-
-// BoardingPointLTE applies the LTE predicate on the "boarding_point" field.
-func BoardingPointLTE(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldLTE(FieldBoardingPoint, v))
-}
-
-// BoardingPointContains applies the Contains predicate on the "boarding_point" field.
-func BoardingPointContains(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldContains(FieldBoardingPoint, v))
-}
-
-// BoardingPointHasPrefix applies the HasPrefix predicate on the "boarding_point" field.
-func BoardingPointHasPrefix(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldHasPrefix(FieldBoardingPoint, v))
-}
-
-// BoardingPointHasSuffix applies the HasSuffix predicate on the "boarding_point" field.
-func BoardingPointHasSuffix(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldHasSuffix(FieldBoardingPoint, v))
-}
-
-// BoardingPointEqualFold applies the EqualFold predicate on the "boarding_point" field.
-func BoardingPointEqualFold(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldEqualFold(FieldBoardingPoint, v))
-}
-
-// BoardingPointContainsFold applies the ContainsFold predicate on the "boarding_point" field.
-func BoardingPointContainsFold(v string) predicate.Booking {
-	return predicate.Booking(sql.FieldContainsFold(FieldBoardingPoint, v))
 }
 
 // VatEQ applies the EQ predicate on the "vat" field.

@@ -77,24 +77,20 @@ func init() {
 	bookingDescBookingNumber := bookingFields[1].Descriptor()
 	// booking.BookingNumberValidator is a validator for the "booking_number" field. It is called by the builders before save.
 	booking.BookingNumberValidator = bookingDescBookingNumber.Validators[0].(func(string) error)
-	// bookingDescBoardingPoint is the schema descriptor for boarding_point field.
-	bookingDescBoardingPoint := bookingFields[2].Descriptor()
-	// booking.BoardingPointValidator is a validator for the "boarding_point" field. It is called by the builders before save.
-	booking.BoardingPointValidator = bookingDescBoardingPoint.Validators[0].(func(string) error)
 	// bookingDescVat is the schema descriptor for vat field.
-	bookingDescVat := bookingFields[3].Descriptor()
+	bookingDescVat := bookingFields[2].Descriptor()
 	// booking.DefaultVat holds the default value on creation for the vat field.
 	booking.DefaultVat = bookingDescVat.Default.(float64)
 	// bookingDescSmsFee is the schema descriptor for sms_fee field.
-	bookingDescSmsFee := bookingFields[4].Descriptor()
+	bookingDescSmsFee := bookingFields[3].Descriptor()
 	// booking.DefaultSmsFee holds the default value on creation for the sms_fee field.
 	booking.DefaultSmsFee = bookingDescSmsFee.Default.(float64)
 	// bookingDescAmount is the schema descriptor for amount field.
-	bookingDescAmount := bookingFields[5].Descriptor()
+	bookingDescAmount := bookingFields[4].Descriptor()
 	// booking.DefaultAmount holds the default value on creation for the amount field.
 	booking.DefaultAmount = bookingDescAmount.Default.(float64)
 	// bookingDescSmsNotification is the schema descriptor for sms_notification field.
-	bookingDescSmsNotification := bookingFields[10].Descriptor()
+	bookingDescSmsNotification := bookingFields[9].Descriptor()
 	// booking.DefaultSmsNotification holds the default value on creation for the sms_notification field.
 	booking.DefaultSmsNotification = bookingDescSmsNotification.Default.(bool)
 	companyMixin := schema.Company{}.Mixin()
