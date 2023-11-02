@@ -29,7 +29,6 @@ type (
 	BookingResponseData struct {
 		ID              int                             `json:"id"`
 		TripID          string                          `json:"tripId"`
-		BoardingPoint   string                          `json:"boardingPoint"`
 		VAT             float64                         `json:"vat"`
 		SMSFee          float64                         `json:"smsFee"`
 		Amount          float64                         `json:"amount"`
