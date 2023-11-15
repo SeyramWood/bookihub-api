@@ -10,7 +10,7 @@ import (
 
 	amqp "github.com/rabbitmq/amqp091-go"
 
-	"github.com/SeyramWood/config"
+	"github.com/SeyramWood/bookibus/config"
 )
 
 type (

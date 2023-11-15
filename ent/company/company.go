@@ -28,6 +28,8 @@ const (
 	FieldEmail = "email"
 	// EdgeProfile holds the string denoting the profile edge name in mutations.
 	EdgeProfile = "profile"
+	// EdgeTerminals holds the string denoting the terminals edge name in mutations.
+	EdgeTerminals = "terminals"
 	// EdgeVehicles holds the string denoting the vehicles edge name in mutations.
 	EdgeVehicles = "vehicles"
 	// EdgeRoutes holds the string denoting the routes edge name in mutations.
@@ -51,6 +53,13 @@ const (
 	ProfileInverseTable = "company_users"
 	// ProfileColumn is the table column denoting the profile relation/edge.
 	ProfileColumn = "company_profile"
+	// TerminalsTable is the table that holds the terminals relation/edge.
+	TerminalsTable = "terminals"
+	// TerminalsInverseTable is the table name for the Terminal entity.
+	// It exists in this package in order to avoid circular dependency with the "terminal" package.
+	TerminalsInverseTable = "terminals"
+	// TerminalsColumn is the table column denoting the terminals relation/edge.
+	TerminalsColumn = "company_terminals"
 	// VehiclesTable is the table that holds the vehicles relation/edge.
 	VehiclesTable = "vehicles"
 	// VehiclesInverseTable is the table name for the Vehicle entity.
@@ -190,6 +199,20 @@ func ByProfile(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByTerminalsCount orders the results by terminals count.
+func ByTerminalsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTerminalsStep(), opts...)
+	}
+}
+
+// ByTerminals orders the results by terminals terms.
+func ByTerminals(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTerminalsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByVehiclesCount orders the results by vehicles count.
 func ByVehiclesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -292,6 +315,13 @@ func newProfileStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProfileInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ProfileTable, ProfileColumn),
+	)
+}
+func newTerminalsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TerminalsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TerminalsTable, TerminalsColumn),
 	)
 }
 func newVehiclesStep() *sqlgraph.Step {

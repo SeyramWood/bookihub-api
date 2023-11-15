@@ -9,10 +9,10 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/bookibususer"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/customer"
-	"github.com/SeyramWood/ent/user"
+	"github.com/SeyramWood/bookibus/ent/bookibususer"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/customer"
+	"github.com/SeyramWood/bookibus/ent/user"
 )
 
 // User is the model entity for the User schema.

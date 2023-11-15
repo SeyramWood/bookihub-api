@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/customercontact"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/customercontact"
 )
 
 // CustomerContactCreate is the builder for creating a CustomerContact entity.

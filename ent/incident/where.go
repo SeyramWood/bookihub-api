@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/SeyramWood/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
@@ -78,6 +78,11 @@ func Location(v string) predicate.Incident {
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
 func Description(v string) predicate.Incident {
 	return predicate.Incident(sql.FieldEQ(FieldDescription, v))
+}
+
+// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
+func Type(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldEQ(FieldType, v))
 }
 
 // Audio applies equality check predicate on the "audio" field. It's identical to AudioEQ.
@@ -345,6 +350,71 @@ func DescriptionContainsFold(v string) predicate.Incident {
 	return predicate.Incident(sql.FieldContainsFold(FieldDescription, v))
 }
 
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldEQ(FieldType, v))
+}
+
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldNEQ(FieldType, v))
+}
+
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...string) predicate.Incident {
+	return predicate.Incident(sql.FieldIn(FieldType, vs...))
+}
+
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...string) predicate.Incident {
+	return predicate.Incident(sql.FieldNotIn(FieldType, vs...))
+}
+
+// TypeGT applies the GT predicate on the "type" field.
+func TypeGT(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldGT(FieldType, v))
+}
+
+// TypeGTE applies the GTE predicate on the "type" field.
+func TypeGTE(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldGTE(FieldType, v))
+}
+
+// TypeLT applies the LT predicate on the "type" field.
+func TypeLT(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldLT(FieldType, v))
+}
+
+// TypeLTE applies the LTE predicate on the "type" field.
+func TypeLTE(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldLTE(FieldType, v))
+}
+
+// TypeContains applies the Contains predicate on the "type" field.
+func TypeContains(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldContains(FieldType, v))
+}
+
+// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
+func TypeHasPrefix(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldHasPrefix(FieldType, v))
+}
+
+// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
+func TypeHasSuffix(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldHasSuffix(FieldType, v))
+}
+
+// TypeEqualFold applies the EqualFold predicate on the "type" field.
+func TypeEqualFold(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldEqualFold(FieldType, v))
+}
+
+// TypeContainsFold applies the ContainsFold predicate on the "type" field.
+func TypeContainsFold(v string) predicate.Incident {
+	return predicate.Incident(sql.FieldContainsFold(FieldType, v))
+}
+
 // AudioEQ applies the EQ predicate on the "audio" field.
 func AudioEQ(v string) predicate.Incident {
 	return predicate.Incident(sql.FieldEQ(FieldAudio, v))
@@ -418,6 +488,26 @@ func AudioEqualFold(v string) predicate.Incident {
 // AudioContainsFold applies the ContainsFold predicate on the "audio" field.
 func AudioContainsFold(v string) predicate.Incident {
 	return predicate.Incident(sql.FieldContainsFold(FieldAudio, v))
+}
+
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v Status) predicate.Incident {
+	return predicate.Incident(sql.FieldEQ(FieldStatus, v))
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v Status) predicate.Incident {
+	return predicate.Incident(sql.FieldNEQ(FieldStatus, v))
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...Status) predicate.Incident {
+	return predicate.Incident(sql.FieldIn(FieldStatus, vs...))
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...Status) predicate.Incident {
+	return predicate.Incident(sql.FieldNotIn(FieldStatus, vs...))
 }
 
 // HasImages applies the HasEdge predicate on the "images" edge.

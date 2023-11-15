@@ -1,4 +1,4 @@
-FROM golang:1.21.3-alpine as base
+FROM golang:1.21.4-alpine as base
 RUN apk add openssl
 WORKDIR /app
 COPY go.mod go.sum ./

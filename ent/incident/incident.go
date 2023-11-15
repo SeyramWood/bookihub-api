@@ -3,6 +3,7 @@
 package incident
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -24,8 +25,12 @@ const (
 	FieldLocation = "location"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
 	// FieldAudio holds the string denoting the audio field in the database.
 	FieldAudio = "audio"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
 	// EdgeImages holds the string denoting the images edge name in mutations.
 	EdgeImages = "images"
 	// EdgeTrip holds the string denoting the trip edge name in mutations.
@@ -74,7 +79,9 @@ var Columns = []string{
 	FieldTime,
 	FieldLocation,
 	FieldDescription,
+	FieldType,
 	FieldAudio,
+	FieldStatus,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "incidents"
@@ -111,7 +118,35 @@ var (
 	LocationValidator func(string) error
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
+	// TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	TypeValidator func(string) error
 )
+
+// Status defines the type for the "status" enum field.
+type Status string
+
+// StatusPending is the default value of the Status enum.
+const DefaultStatus = StatusPending
+
+// Status values.
+const (
+	StatusPending  Status = "pending"
+	StatusResolved Status = "resolved"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusPending, StatusResolved:
+		return nil
+	default:
+		return fmt.Errorf("incident: invalid enum value for status field: %q", s)
+	}
+}
 
 // OrderOption defines the ordering options for the Incident queries.
 type OrderOption func(*sql.Selector)
@@ -146,9 +181,19 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
 // ByAudio orders the results by the audio field.
 func ByAudio(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAudio, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
 // ByImagesCount orders the results by images count.

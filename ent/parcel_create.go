@@ -10,11 +10,11 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/parcelimage"
-	"github.com/SeyramWood/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // ParcelCreate is the builder for creating a Parcel entity.
@@ -58,6 +58,12 @@ func (pc *ParcelCreate) SetParcelCode(s string) *ParcelCreate {
 	return pc
 }
 
+// SetType sets the "type" field.
+func (pc *ParcelCreate) SetType(s string) *ParcelCreate {
+	pc.mutation.SetType(s)
+	return pc
+}
+
 // SetSenderName sets the "sender_name" field.
 func (pc *ParcelCreate) SetSenderName(s string) *ParcelCreate {
 	pc.mutation.SetSenderName(s)
@@ -67,6 +73,12 @@ func (pc *ParcelCreate) SetSenderName(s string) *ParcelCreate {
 // SetSenderPhone sets the "sender_phone" field.
 func (pc *ParcelCreate) SetSenderPhone(s string) *ParcelCreate {
 	pc.mutation.SetSenderPhone(s)
+	return pc
+}
+
+// SetSenderEmail sets the "sender_email" field.
+func (pc *ParcelCreate) SetSenderEmail(s string) *ParcelCreate {
+	pc.mutation.SetSenderEmail(s)
 	return pc
 }
 
@@ -85,6 +97,20 @@ func (pc *ParcelCreate) SetRecipientPhone(s string) *ParcelCreate {
 // SetRecipientLocation sets the "recipient_location" field.
 func (pc *ParcelCreate) SetRecipientLocation(s string) *ParcelCreate {
 	pc.mutation.SetRecipientLocation(s)
+	return pc
+}
+
+// SetWeight sets the "weight" field.
+func (pc *ParcelCreate) SetWeight(f float32) *ParcelCreate {
+	pc.mutation.SetWeight(f)
+	return pc
+}
+
+// SetNillableWeight sets the "weight" field if the given value is not nil.
+func (pc *ParcelCreate) SetNillableWeight(f *float32) *ParcelCreate {
+	if f != nil {
+		pc.SetWeight(*f)
+	}
 	return pc
 }
 
@@ -289,6 +315,14 @@ func (pc *ParcelCreate) check() error {
 			return &ValidationError{Name: "parcel_code", err: fmt.Errorf(`ent: validator failed for field "Parcel.parcel_code": %w`, err)}
 		}
 	}
+	if _, ok := pc.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Parcel.type"`)}
+	}
+	if v, ok := pc.mutation.GetType(); ok {
+		if err := parcel.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Parcel.type": %w`, err)}
+		}
+	}
 	if _, ok := pc.mutation.SenderName(); !ok {
 		return &ValidationError{Name: "sender_name", err: errors.New(`ent: missing required field "Parcel.sender_name"`)}
 	}
@@ -303,6 +337,14 @@ func (pc *ParcelCreate) check() error {
 	if v, ok := pc.mutation.SenderPhone(); ok {
 		if err := parcel.SenderPhoneValidator(v); err != nil {
 			return &ValidationError{Name: "sender_phone", err: fmt.Errorf(`ent: validator failed for field "Parcel.sender_phone": %w`, err)}
+		}
+	}
+	if _, ok := pc.mutation.SenderEmail(); !ok {
+		return &ValidationError{Name: "sender_email", err: errors.New(`ent: missing required field "Parcel.sender_email"`)}
+	}
+	if v, ok := pc.mutation.SenderEmail(); ok {
+		if err := parcel.SenderEmailValidator(v); err != nil {
+			return &ValidationError{Name: "sender_email", err: fmt.Errorf(`ent: validator failed for field "Parcel.sender_email": %w`, err)}
 		}
 	}
 	if _, ok := pc.mutation.RecipientName(); !ok {
@@ -386,6 +428,10 @@ func (pc *ParcelCreate) createSpec() (*Parcel, *sqlgraph.CreateSpec) {
 		_spec.SetField(parcel.FieldParcelCode, field.TypeString, value)
 		_node.ParcelCode = value
 	}
+	if value, ok := pc.mutation.GetType(); ok {
+		_spec.SetField(parcel.FieldType, field.TypeString, value)
+		_node.Type = value
+	}
 	if value, ok := pc.mutation.SenderName(); ok {
 		_spec.SetField(parcel.FieldSenderName, field.TypeString, value)
 		_node.SenderName = value
@@ -393,6 +439,10 @@ func (pc *ParcelCreate) createSpec() (*Parcel, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.SenderPhone(); ok {
 		_spec.SetField(parcel.FieldSenderPhone, field.TypeString, value)
 		_node.SenderPhone = value
+	}
+	if value, ok := pc.mutation.SenderEmail(); ok {
+		_spec.SetField(parcel.FieldSenderEmail, field.TypeString, value)
+		_node.SenderEmail = value
 	}
 	if value, ok := pc.mutation.RecipientName(); ok {
 		_spec.SetField(parcel.FieldRecipientName, field.TypeString, value)
@@ -405,6 +455,10 @@ func (pc *ParcelCreate) createSpec() (*Parcel, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.RecipientLocation(); ok {
 		_spec.SetField(parcel.FieldRecipientLocation, field.TypeString, value)
 		_node.RecipientLocation = value
+	}
+	if value, ok := pc.mutation.Weight(); ok {
+		_spec.SetField(parcel.FieldWeight, field.TypeFloat32, value)
+		_node.Weight = value
 	}
 	if value, ok := pc.mutation.Amount(); ok {
 		_spec.SetField(parcel.FieldAmount, field.TypeFloat64, value)

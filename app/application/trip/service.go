@@ -1,10 +1,10 @@
 package trip
 
 import (
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 type service struct {

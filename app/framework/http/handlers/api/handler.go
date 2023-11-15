@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 
-	"github.com/SeyramWood/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
 	"github.com/gofiber/fiber/v2"
 )
 

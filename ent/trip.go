@@ -9,11 +9,12 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
 
 // Trip is the model entity for the Trip schema.
@@ -57,6 +58,8 @@ type Trip struct {
 	company_trips      *int
 	company_user_trips *int
 	route_trips        *int
+	terminal_from      *int
+	terminal_to        *int
 	vehicle_trips      *int
 	selectValues       sql.SelectValues
 }
@@ -67,6 +70,10 @@ type TripEdges struct {
 	Company *Company `json:"company,omitempty"`
 	// Driver holds the value of the driver edge.
 	Driver *CompanyUser `json:"driver,omitempty"`
+	// FromTerminal holds the value of the from_terminal edge.
+	FromTerminal *Terminal `json:"from_terminal,omitempty"`
+	// ToTerminal holds the value of the to_terminal edge.
+	ToTerminal *Terminal `json:"to_terminal,omitempty"`
 	// Vehicle holds the value of the vehicle edge.
 	Vehicle *Vehicle `json:"vehicle,omitempty"`
 	// Route holds the value of the route edge.
@@ -79,7 +86,7 @@ type TripEdges struct {
 	Parcels []*Parcel `json:"parcels,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [7]bool
+	loadedTypes [9]bool
 }
 
 // CompanyOrErr returns the Company value or an error if the edge
@@ -108,10 +115,36 @@ func (e TripEdges) DriverOrErr() (*CompanyUser, error) {
 	return nil, &NotLoadedError{edge: "driver"}
 }
 
+// FromTerminalOrErr returns the FromTerminal value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e TripEdges) FromTerminalOrErr() (*Terminal, error) {
+	if e.loadedTypes[2] {
+		if e.FromTerminal == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: terminal.Label}
+		}
+		return e.FromTerminal, nil
+	}
+	return nil, &NotLoadedError{edge: "from_terminal"}
+}
+
+// ToTerminalOrErr returns the ToTerminal value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e TripEdges) ToTerminalOrErr() (*Terminal, error) {
+	if e.loadedTypes[3] {
+		if e.ToTerminal == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: terminal.Label}
+		}
+		return e.ToTerminal, nil
+	}
+	return nil, &NotLoadedError{edge: "to_terminal"}
+}
+
 // VehicleOrErr returns the Vehicle value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e TripEdges) VehicleOrErr() (*Vehicle, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[4] {
 		if e.Vehicle == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: vehicle.Label}
@@ -124,7 +157,7 @@ func (e TripEdges) VehicleOrErr() (*Vehicle, error) {
 // RouteOrErr returns the Route value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e TripEdges) RouteOrErr() (*Route, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[5] {
 		if e.Route == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: route.Label}
@@ -137,7 +170,7 @@ func (e TripEdges) RouteOrErr() (*Route, error) {
 // BookingsOrErr returns the Bookings value or an error if the edge
 // was not loaded in eager-loading.
 func (e TripEdges) BookingsOrErr() ([]*Booking, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[6] {
 		return e.Bookings, nil
 	}
 	return nil, &NotLoadedError{edge: "bookings"}
@@ -146,7 +179,7 @@ func (e TripEdges) BookingsOrErr() ([]*Booking, error) {
 // IncidentsOrErr returns the Incidents value or an error if the edge
 // was not loaded in eager-loading.
 func (e TripEdges) IncidentsOrErr() ([]*Incident, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[7] {
 		return e.Incidents, nil
 	}
 	return nil, &NotLoadedError{edge: "incidents"}
@@ -155,7 +188,7 @@ func (e TripEdges) IncidentsOrErr() ([]*Incident, error) {
 // ParcelsOrErr returns the Parcels value or an error if the edge
 // was not loaded in eager-loading.
 func (e TripEdges) ParcelsOrErr() ([]*Parcel, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[8] {
 		return e.Parcels, nil
 	}
 	return nil, &NotLoadedError{edge: "parcels"}
@@ -180,7 +213,11 @@ func (*Trip) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case trip.ForeignKeys[2]: // route_trips
 			values[i] = new(sql.NullInt64)
-		case trip.ForeignKeys[3]: // vehicle_trips
+		case trip.ForeignKeys[3]: // terminal_from
+			values[i] = new(sql.NullInt64)
+		case trip.ForeignKeys[4]: // terminal_to
+			values[i] = new(sql.NullInt64)
+		case trip.ForeignKeys[5]: // vehicle_trips
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -316,6 +353,20 @@ func (t *Trip) assignValues(columns []string, values []any) error {
 			}
 		case trip.ForeignKeys[3]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field terminal_from", value)
+			} else if value.Valid {
+				t.terminal_from = new(int)
+				*t.terminal_from = int(value.Int64)
+			}
+		case trip.ForeignKeys[4]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field terminal_to", value)
+			} else if value.Valid {
+				t.terminal_to = new(int)
+				*t.terminal_to = int(value.Int64)
+			}
+		case trip.ForeignKeys[5]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field vehicle_trips", value)
 			} else if value.Valid {
 				t.vehicle_trips = new(int)
@@ -342,6 +393,16 @@ func (t *Trip) QueryCompany() *CompanyQuery {
 // QueryDriver queries the "driver" edge of the Trip entity.
 func (t *Trip) QueryDriver() *CompanyUserQuery {
 	return NewTripClient(t.config).QueryDriver(t)
+}
+
+// QueryFromTerminal queries the "from_terminal" edge of the Trip entity.
+func (t *Trip) QueryFromTerminal() *TerminalQuery {
+	return NewTripClient(t.config).QueryFromTerminal(t)
+}
+
+// QueryToTerminal queries the "to_terminal" edge of the Trip entity.
+func (t *Trip) QueryToTerminal() *TerminalQuery {
+	return NewTripClient(t.config).QueryToTerminal(t)
 }
 
 // QueryVehicle queries the "vehicle" edge of the Trip entity.

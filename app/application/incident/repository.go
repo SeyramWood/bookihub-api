@@ -6,15 +6,15 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"golang.org/x/net/context"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/ent"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/ent"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
 )
 
 type repository struct {
@@ -58,6 +58,7 @@ func (r *repository) Insert(companyId int, request *requeststructs.IncidentReque
 			SetLocation(request.Location).
 			SetDescription(request.Description).
 			SetAudio(audio[0]).
+			SetType(request.Type).
 			SetTripID(request.TripID).
 			SetDriverID(request.DriverID).
 			SetCompanyID(companyId).
@@ -71,6 +72,7 @@ func (r *repository) Insert(companyId int, request *requeststructs.IncidentReque
 			SetTime(application.ParseRFC3339Datetime(request.Time)).
 			SetLocation(request.Location).
 			SetDescription(request.Description).
+			SetType(request.Type).
 			SetTripID(request.TripID).
 			SetDriverID(request.DriverID).
 			SetCompanyID(companyId).
@@ -187,6 +189,18 @@ func (r *repository) Update(id int, request *requeststructs.IncidentUpdateReques
 	_, err := r.db.Incident.UpdateOneID(id).
 		SetLocation(request.Location).
 		SetDescription(request.Description).
+		SetType(request.Type).
+		Save(r.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return r.Read(id)
+}
+
+// UpdateStatus implements gateways.IncidentRepo.
+func (r *repository) UpdateStatus(id int, status string) (*ent.Incident, error) {
+	_, err := r.db.Incident.UpdateOneID(id).
+		SetStatus(incident.Status(status)).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err

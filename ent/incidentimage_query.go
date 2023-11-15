@@ -10,9 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/incidentimage"
-	"github.com/SeyramWood/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/incidentimage"
+	"github.com/SeyramWood/bookibus/ent/predicate"
 )
 
 // IncidentImageQuery is the builder for querying IncidentImage entities.

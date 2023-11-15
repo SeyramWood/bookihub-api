@@ -10,9 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/parcelimage"
-	"github.com/SeyramWood/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/predicate"
 )
 
 // ParcelImageQuery is the builder for querying ParcelImage entities.

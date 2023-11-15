@@ -8,7 +8,7 @@ import (
 
 	amqp "github.com/rabbitmq/amqp091-go"
 
-	"github.com/SeyramWood/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
 )
 
 type producer struct {

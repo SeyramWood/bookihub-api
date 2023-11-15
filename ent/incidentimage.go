@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/incidentimage"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/incidentimage"
 )
 
 // IncidentImage is the model entity for the IncidentImage schema.

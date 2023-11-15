@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
 )
 
 // RouteStopCreate is the builder for creating a RouteStop entity.

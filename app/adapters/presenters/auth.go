@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 type (

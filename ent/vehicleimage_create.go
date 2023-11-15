@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/vehicle"
-	"github.com/SeyramWood/ent/vehicleimage"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/vehicleimage"
 )
 
 // VehicleImageCreate is the builder for creating a VehicleImage entity.

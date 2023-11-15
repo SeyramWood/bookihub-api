@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/customerluggage"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/customerluggage"
 )
 
 // CustomerLuggage is the model entity for the CustomerLuggage schema.

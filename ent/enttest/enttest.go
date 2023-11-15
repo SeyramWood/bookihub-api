@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/ent"
 	// required by schema hooks.
-	_ "github.com/SeyramWood/ent/runtime"
+	_ "github.com/SeyramWood/bookibus/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/SeyramWood/ent/migrate"
+	"github.com/SeyramWood/bookibus/ent/migrate"
 )
 
 type (

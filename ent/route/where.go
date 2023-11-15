@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/SeyramWood/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
@@ -70,19 +70,9 @@ func FromLocation(v string) predicate.Route {
 	return predicate.Route(sql.FieldEQ(FieldFromLocation, v))
 }
 
-// FromTerminal applies equality check predicate on the "from_terminal" field. It's identical to FromTerminalEQ.
-func FromTerminal(v string) predicate.Route {
-	return predicate.Route(sql.FieldEQ(FieldFromTerminal, v))
-}
-
 // ToLocation applies equality check predicate on the "to_location" field. It's identical to ToLocationEQ.
 func ToLocation(v string) predicate.Route {
 	return predicate.Route(sql.FieldEQ(FieldToLocation, v))
-}
-
-// ToTerminal applies equality check predicate on the "to_terminal" field. It's identical to ToTerminalEQ.
-func ToTerminal(v string) predicate.Route {
-	return predicate.Route(sql.FieldEQ(FieldToTerminal, v))
 }
 
 // FromLatitude applies equality check predicate on the "from_latitude" field. It's identical to FromLatitudeEQ.
@@ -265,81 +255,6 @@ func FromLocationContainsFold(v string) predicate.Route {
 	return predicate.Route(sql.FieldContainsFold(FieldFromLocation, v))
 }
 
-// FromTerminalEQ applies the EQ predicate on the "from_terminal" field.
-func FromTerminalEQ(v string) predicate.Route {
-	return predicate.Route(sql.FieldEQ(FieldFromTerminal, v))
-}
-
-// FromTerminalNEQ applies the NEQ predicate on the "from_terminal" field.
-func FromTerminalNEQ(v string) predicate.Route {
-	return predicate.Route(sql.FieldNEQ(FieldFromTerminal, v))
-}
-
-// FromTerminalIn applies the In predicate on the "from_terminal" field.
-func FromTerminalIn(vs ...string) predicate.Route {
-	return predicate.Route(sql.FieldIn(FieldFromTerminal, vs...))
-}
-
-// FromTerminalNotIn applies the NotIn predicate on the "from_terminal" field.
-func FromTerminalNotIn(vs ...string) predicate.Route {
-	return predicate.Route(sql.FieldNotIn(FieldFromTerminal, vs...))
-}
-
-// FromTerminalGT applies the GT predicate on the "from_terminal" field.
-func FromTerminalGT(v string) predicate.Route {
-	return predicate.Route(sql.FieldGT(FieldFromTerminal, v))
-}
-
-// FromTerminalGTE applies the GTE predicate on the "from_terminal" field.
-func FromTerminalGTE(v string) predicate.Route {
-	return predicate.Route(sql.FieldGTE(FieldFromTerminal, v))
-}
-
-// FromTerminalLT applies the LT predicate on the "from_terminal" field.
-func FromTerminalLT(v string) predicate.Route {
-	return predicate.Route(sql.FieldLT(FieldFromTerminal, v))
-}
-
-// FromTerminalLTE applies the LTE predicate on the "from_terminal" field.
-func FromTerminalLTE(v string) predicate.Route {
-	return predicate.Route(sql.FieldLTE(FieldFromTerminal, v))
-}
-
-// FromTerminalContains applies the Contains predicate on the "from_terminal" field.
-func FromTerminalContains(v string) predicate.Route {
-	return predicate.Route(sql.FieldContains(FieldFromTerminal, v))
-}
-
-// FromTerminalHasPrefix applies the HasPrefix predicate on the "from_terminal" field.
-func FromTerminalHasPrefix(v string) predicate.Route {
-	return predicate.Route(sql.FieldHasPrefix(FieldFromTerminal, v))
-}
-
-// FromTerminalHasSuffix applies the HasSuffix predicate on the "from_terminal" field.
-func FromTerminalHasSuffix(v string) predicate.Route {
-	return predicate.Route(sql.FieldHasSuffix(FieldFromTerminal, v))
-}
-
-// FromTerminalIsNil applies the IsNil predicate on the "from_terminal" field.
-func FromTerminalIsNil() predicate.Route {
-	return predicate.Route(sql.FieldIsNull(FieldFromTerminal))
-}
-
-// FromTerminalNotNil applies the NotNil predicate on the "from_terminal" field.
-func FromTerminalNotNil() predicate.Route {
-	return predicate.Route(sql.FieldNotNull(FieldFromTerminal))
-}
-
-// FromTerminalEqualFold applies the EqualFold predicate on the "from_terminal" field.
-func FromTerminalEqualFold(v string) predicate.Route {
-	return predicate.Route(sql.FieldEqualFold(FieldFromTerminal, v))
-}
-
-// FromTerminalContainsFold applies the ContainsFold predicate on the "from_terminal" field.
-func FromTerminalContainsFold(v string) predicate.Route {
-	return predicate.Route(sql.FieldContainsFold(FieldFromTerminal, v))
-}
-
 // ToLocationEQ applies the EQ predicate on the "to_location" field.
 func ToLocationEQ(v string) predicate.Route {
 	return predicate.Route(sql.FieldEQ(FieldToLocation, v))
@@ -403,81 +318,6 @@ func ToLocationEqualFold(v string) predicate.Route {
 // ToLocationContainsFold applies the ContainsFold predicate on the "to_location" field.
 func ToLocationContainsFold(v string) predicate.Route {
 	return predicate.Route(sql.FieldContainsFold(FieldToLocation, v))
-}
-
-// ToTerminalEQ applies the EQ predicate on the "to_terminal" field.
-func ToTerminalEQ(v string) predicate.Route {
-	return predicate.Route(sql.FieldEQ(FieldToTerminal, v))
-}
-
-// ToTerminalNEQ applies the NEQ predicate on the "to_terminal" field.
-func ToTerminalNEQ(v string) predicate.Route {
-	return predicate.Route(sql.FieldNEQ(FieldToTerminal, v))
-}
-
-// ToTerminalIn applies the In predicate on the "to_terminal" field.
-func ToTerminalIn(vs ...string) predicate.Route {
-	return predicate.Route(sql.FieldIn(FieldToTerminal, vs...))
-}
-
-// ToTerminalNotIn applies the NotIn predicate on the "to_terminal" field.
-func ToTerminalNotIn(vs ...string) predicate.Route {
-	return predicate.Route(sql.FieldNotIn(FieldToTerminal, vs...))
-}
-
-// ToTerminalGT applies the GT predicate on the "to_terminal" field.
-func ToTerminalGT(v string) predicate.Route {
-	return predicate.Route(sql.FieldGT(FieldToTerminal, v))
-}
-
-// ToTerminalGTE applies the GTE predicate on the "to_terminal" field.
-func ToTerminalGTE(v string) predicate.Route {
-	return predicate.Route(sql.FieldGTE(FieldToTerminal, v))
-}
-
-// ToTerminalLT applies the LT predicate on the "to_terminal" field.
-func ToTerminalLT(v string) predicate.Route {
-	return predicate.Route(sql.FieldLT(FieldToTerminal, v))
-}
-
-// ToTerminalLTE applies the LTE predicate on the "to_terminal" field.
-func ToTerminalLTE(v string) predicate.Route {
-	return predicate.Route(sql.FieldLTE(FieldToTerminal, v))
-}
-
-// ToTerminalContains applies the Contains predicate on the "to_terminal" field.
-func ToTerminalContains(v string) predicate.Route {
-	return predicate.Route(sql.FieldContains(FieldToTerminal, v))
-}
-
-// ToTerminalHasPrefix applies the HasPrefix predicate on the "to_terminal" field.
-func ToTerminalHasPrefix(v string) predicate.Route {
-	return predicate.Route(sql.FieldHasPrefix(FieldToTerminal, v))
-}
-
-// ToTerminalHasSuffix applies the HasSuffix predicate on the "to_terminal" field.
-func ToTerminalHasSuffix(v string) predicate.Route {
-	return predicate.Route(sql.FieldHasSuffix(FieldToTerminal, v))
-}
-
-// ToTerminalIsNil applies the IsNil predicate on the "to_terminal" field.
-func ToTerminalIsNil() predicate.Route {
-	return predicate.Route(sql.FieldIsNull(FieldToTerminal))
-}
-
-// ToTerminalNotNil applies the NotNil predicate on the "to_terminal" field.
-func ToTerminalNotNil() predicate.Route {
-	return predicate.Route(sql.FieldNotNull(FieldToTerminal))
-}
-
-// ToTerminalEqualFold applies the EqualFold predicate on the "to_terminal" field.
-func ToTerminalEqualFold(v string) predicate.Route {
-	return predicate.Route(sql.FieldEqualFold(FieldToTerminal, v))
-}
-
-// ToTerminalContainsFold applies the ContainsFold predicate on the "to_terminal" field.
-func ToTerminalContainsFold(v string) predicate.Route {
-	return predicate.Route(sql.FieldContainsFold(FieldToTerminal, v))
 }
 
 // FromLatitudeEQ applies the EQ predicate on the "from_latitude" field.

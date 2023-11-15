@@ -15,7 +15,7 @@ import (
 
 	"github.com/gabriel-vasile/mimetype"
 
-	"github.com/SeyramWood/app/framework/database"
+	"github.com/SeyramWood/bookibus/app/framework/database"
 )
 
 func Validate(i any, rs ...*http.Request) any {
@@ -513,7 +513,6 @@ func snakeCase(field string) string {
 		}
 	}
 	return text
-
 }
 func camelCase(field string) string {
 	var text string

@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // TripDelete is the builder for deleting a Trip entity.

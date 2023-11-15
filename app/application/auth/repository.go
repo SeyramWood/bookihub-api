@@ -6,11 +6,11 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/ent"
-	"github.com/SeyramWood/ent/user"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/ent"
+	"github.com/SeyramWood/bookibus/ent/user"
 )
 
 type repository struct {

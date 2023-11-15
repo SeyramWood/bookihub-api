@@ -11,8 +11,8 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 func Rollback(tx *ent. /*  */ Tx, err error) error {

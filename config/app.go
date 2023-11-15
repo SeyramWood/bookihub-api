@@ -3,7 +3,7 @@ package config
 import (
 	"os"
 
-	"github.com/SeyramWood/utils/env"
+	"github.com/SeyramWood/bookibus/utils/env"
 )
 
 type (

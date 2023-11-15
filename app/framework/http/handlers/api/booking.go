@@ -5,13 +5,13 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application"
-	"github.com/SeyramWood/app/application/booking"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application"
+	"github.com/SeyramWood/bookibus/app/application/booking"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 type bookingHandler struct {

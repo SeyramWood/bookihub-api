@@ -1,15 +1,16 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application/auth"
-	"github.com/SeyramWood/app/application/onboarding/company"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application/onboarding/company"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 type companyHandler struct {
@@ -74,7 +75,7 @@ func (h *companyHandler) Update() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		request := new(requeststructs.CompanyUpdateRequest)
 		if c.BodyParser(request) != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(auth.ErrBadRequest))
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
 		}
 		id, _ := c.ParamsInt("id")
 		result, err := h.service.Update(id, request)

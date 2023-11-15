@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/exp/slices"
 
-	"github.com/SeyramWood/utils/jwt"
+	"github.com/SeyramWood/bookibus/utils/jwt"
 )
 
 func ValidateRefreshToken() fiber.Handler {

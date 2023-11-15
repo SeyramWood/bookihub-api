@@ -9,12 +9,12 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/bookibususer"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/customer"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/schema"
+	"github.com/SeyramWood/bookibus/ent/bookibususer"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/customer"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/schema"
 )
 
 // NotificationCreate is the builder for creating a Notification entity.

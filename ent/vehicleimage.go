@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/vehicle"
-	"github.com/SeyramWood/ent/vehicleimage"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/vehicleimage"
 )
 
 // VehicleImage is the model entity for the VehicleImage schema.

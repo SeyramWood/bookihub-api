@@ -11,14 +11,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/user"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/user"
 )
 
 // CompanyUserQuery is the builder for querying CompanyUser entities.

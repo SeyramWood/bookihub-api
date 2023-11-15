@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/parcelimage"
 )
 
 // ParcelImage is the model entity for the ParcelImage schema.

@@ -10,9 +10,9 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/bookibususer"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/user"
+	"github.com/SeyramWood/bookibus/ent/bookibususer"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/user"
 )
 
 // BookibusUserCreate is the builder for creating a BookibusUser entity.

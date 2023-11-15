@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/SeyramWood/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
@@ -548,6 +548,52 @@ func HasDriver() predicate.Trip {
 func HasDriverWith(preds ...predicate.CompanyUser) predicate.Trip {
 	return predicate.Trip(func(s *sql.Selector) {
 		step := newDriverStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasFromTerminal applies the HasEdge predicate on the "from_terminal" edge.
+func HasFromTerminal() predicate.Trip {
+	return predicate.Trip(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, FromTerminalTable, FromTerminalColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFromTerminalWith applies the HasEdge predicate on the "from_terminal" edge with a given conditions (other predicates).
+func HasFromTerminalWith(preds ...predicate.Terminal) predicate.Trip {
+	return predicate.Trip(func(s *sql.Selector) {
+		step := newFromTerminalStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasToTerminal applies the HasEdge predicate on the "to_terminal" edge.
+func HasToTerminal() predicate.Trip {
+	return predicate.Trip(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ToTerminalTable, ToTerminalColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasToTerminalWith applies the HasEdge predicate on the "to_terminal" edge with a given conditions (other predicates).
+func HasToTerminalWith(preds ...predicate.Terminal) predicate.Trip {
+	return predicate.Trip(func(s *sql.Selector) {
+		step := newToTerminalStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

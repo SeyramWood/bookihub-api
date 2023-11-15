@@ -5,8 +5,8 @@ import (
 	"mime/multipart"
 	"sync"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/config"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/config"
 )
 
 var drivers = map[string]string{

@@ -11,14 +11,14 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 
-	"github.com/SeyramWood/app/application/cache"
-	"github.com/SeyramWood/app/application/storage"
-	"github.com/SeyramWood/app/application/worker"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/config"
-	"github.com/SeyramWood/ent/migrate"
-	"github.com/SeyramWood/utils/env"
-	"github.com/SeyramWood/utils/router"
+	"github.com/SeyramWood/bookibus/app/application/cache"
+	"github.com/SeyramWood/bookibus/app/application/storage"
+	"github.com/SeyramWood/bookibus/app/application/worker"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/config"
+	"github.com/SeyramWood/bookibus/ent/migrate"
+	"github.com/SeyramWood/bookibus/utils/env"
+	"github.com/SeyramWood/bookibus/utils/router"
 )
 
 func init() {

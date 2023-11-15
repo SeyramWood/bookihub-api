@@ -11,12 +11,12 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/parcelimage"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // ParcelUpdate is the builder for updating Parcel entities.
@@ -45,6 +45,12 @@ func (pu *ParcelUpdate) SetParcelCode(s string) *ParcelUpdate {
 	return pu
 }
 
+// SetType sets the "type" field.
+func (pu *ParcelUpdate) SetType(s string) *ParcelUpdate {
+	pu.mutation.SetType(s)
+	return pu
+}
+
 // SetSenderName sets the "sender_name" field.
 func (pu *ParcelUpdate) SetSenderName(s string) *ParcelUpdate {
 	pu.mutation.SetSenderName(s)
@@ -54,6 +60,12 @@ func (pu *ParcelUpdate) SetSenderName(s string) *ParcelUpdate {
 // SetSenderPhone sets the "sender_phone" field.
 func (pu *ParcelUpdate) SetSenderPhone(s string) *ParcelUpdate {
 	pu.mutation.SetSenderPhone(s)
+	return pu
+}
+
+// SetSenderEmail sets the "sender_email" field.
+func (pu *ParcelUpdate) SetSenderEmail(s string) *ParcelUpdate {
+	pu.mutation.SetSenderEmail(s)
 	return pu
 }
 
@@ -72,6 +84,33 @@ func (pu *ParcelUpdate) SetRecipientPhone(s string) *ParcelUpdate {
 // SetRecipientLocation sets the "recipient_location" field.
 func (pu *ParcelUpdate) SetRecipientLocation(s string) *ParcelUpdate {
 	pu.mutation.SetRecipientLocation(s)
+	return pu
+}
+
+// SetWeight sets the "weight" field.
+func (pu *ParcelUpdate) SetWeight(f float32) *ParcelUpdate {
+	pu.mutation.ResetWeight()
+	pu.mutation.SetWeight(f)
+	return pu
+}
+
+// SetNillableWeight sets the "weight" field if the given value is not nil.
+func (pu *ParcelUpdate) SetNillableWeight(f *float32) *ParcelUpdate {
+	if f != nil {
+		pu.SetWeight(*f)
+	}
+	return pu
+}
+
+// AddWeight adds f to the "weight" field.
+func (pu *ParcelUpdate) AddWeight(f float32) *ParcelUpdate {
+	pu.mutation.AddWeight(f)
+	return pu
+}
+
+// ClearWeight clears the value of the "weight" field.
+func (pu *ParcelUpdate) ClearWeight() *ParcelUpdate {
+	pu.mutation.ClearWeight()
 	return pu
 }
 
@@ -303,6 +342,11 @@ func (pu *ParcelUpdate) check() error {
 			return &ValidationError{Name: "parcel_code", err: fmt.Errorf(`ent: validator failed for field "Parcel.parcel_code": %w`, err)}
 		}
 	}
+	if v, ok := pu.mutation.GetType(); ok {
+		if err := parcel.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Parcel.type": %w`, err)}
+		}
+	}
 	if v, ok := pu.mutation.SenderName(); ok {
 		if err := parcel.SenderNameValidator(v); err != nil {
 			return &ValidationError{Name: "sender_name", err: fmt.Errorf(`ent: validator failed for field "Parcel.sender_name": %w`, err)}
@@ -311,6 +355,11 @@ func (pu *ParcelUpdate) check() error {
 	if v, ok := pu.mutation.SenderPhone(); ok {
 		if err := parcel.SenderPhoneValidator(v); err != nil {
 			return &ValidationError{Name: "sender_phone", err: fmt.Errorf(`ent: validator failed for field "Parcel.sender_phone": %w`, err)}
+		}
+	}
+	if v, ok := pu.mutation.SenderEmail(); ok {
+		if err := parcel.SenderEmailValidator(v); err != nil {
+			return &ValidationError{Name: "sender_email", err: fmt.Errorf(`ent: validator failed for field "Parcel.sender_email": %w`, err)}
 		}
 	}
 	if v, ok := pu.mutation.RecipientName(); ok {
@@ -365,11 +414,17 @@ func (pu *ParcelUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.ParcelCode(); ok {
 		_spec.SetField(parcel.FieldParcelCode, field.TypeString, value)
 	}
+	if value, ok := pu.mutation.GetType(); ok {
+		_spec.SetField(parcel.FieldType, field.TypeString, value)
+	}
 	if value, ok := pu.mutation.SenderName(); ok {
 		_spec.SetField(parcel.FieldSenderName, field.TypeString, value)
 	}
 	if value, ok := pu.mutation.SenderPhone(); ok {
 		_spec.SetField(parcel.FieldSenderPhone, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.SenderEmail(); ok {
+		_spec.SetField(parcel.FieldSenderEmail, field.TypeString, value)
 	}
 	if value, ok := pu.mutation.RecipientName(); ok {
 		_spec.SetField(parcel.FieldRecipientName, field.TypeString, value)
@@ -379,6 +434,15 @@ func (pu *ParcelUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.RecipientLocation(); ok {
 		_spec.SetField(parcel.FieldRecipientLocation, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.Weight(); ok {
+		_spec.SetField(parcel.FieldWeight, field.TypeFloat32, value)
+	}
+	if value, ok := pu.mutation.AddedWeight(); ok {
+		_spec.AddField(parcel.FieldWeight, field.TypeFloat32, value)
+	}
+	if pu.mutation.WeightCleared() {
+		_spec.ClearField(parcel.FieldWeight, field.TypeFloat32)
 	}
 	if value, ok := pu.mutation.Amount(); ok {
 		_spec.SetField(parcel.FieldAmount, field.TypeFloat64, value)
@@ -564,6 +628,12 @@ func (puo *ParcelUpdateOne) SetParcelCode(s string) *ParcelUpdateOne {
 	return puo
 }
 
+// SetType sets the "type" field.
+func (puo *ParcelUpdateOne) SetType(s string) *ParcelUpdateOne {
+	puo.mutation.SetType(s)
+	return puo
+}
+
 // SetSenderName sets the "sender_name" field.
 func (puo *ParcelUpdateOne) SetSenderName(s string) *ParcelUpdateOne {
 	puo.mutation.SetSenderName(s)
@@ -573,6 +643,12 @@ func (puo *ParcelUpdateOne) SetSenderName(s string) *ParcelUpdateOne {
 // SetSenderPhone sets the "sender_phone" field.
 func (puo *ParcelUpdateOne) SetSenderPhone(s string) *ParcelUpdateOne {
 	puo.mutation.SetSenderPhone(s)
+	return puo
+}
+
+// SetSenderEmail sets the "sender_email" field.
+func (puo *ParcelUpdateOne) SetSenderEmail(s string) *ParcelUpdateOne {
+	puo.mutation.SetSenderEmail(s)
 	return puo
 }
 
@@ -591,6 +667,33 @@ func (puo *ParcelUpdateOne) SetRecipientPhone(s string) *ParcelUpdateOne {
 // SetRecipientLocation sets the "recipient_location" field.
 func (puo *ParcelUpdateOne) SetRecipientLocation(s string) *ParcelUpdateOne {
 	puo.mutation.SetRecipientLocation(s)
+	return puo
+}
+
+// SetWeight sets the "weight" field.
+func (puo *ParcelUpdateOne) SetWeight(f float32) *ParcelUpdateOne {
+	puo.mutation.ResetWeight()
+	puo.mutation.SetWeight(f)
+	return puo
+}
+
+// SetNillableWeight sets the "weight" field if the given value is not nil.
+func (puo *ParcelUpdateOne) SetNillableWeight(f *float32) *ParcelUpdateOne {
+	if f != nil {
+		puo.SetWeight(*f)
+	}
+	return puo
+}
+
+// AddWeight adds f to the "weight" field.
+func (puo *ParcelUpdateOne) AddWeight(f float32) *ParcelUpdateOne {
+	puo.mutation.AddWeight(f)
+	return puo
+}
+
+// ClearWeight clears the value of the "weight" field.
+func (puo *ParcelUpdateOne) ClearWeight() *ParcelUpdateOne {
+	puo.mutation.ClearWeight()
 	return puo
 }
 
@@ -835,6 +938,11 @@ func (puo *ParcelUpdateOne) check() error {
 			return &ValidationError{Name: "parcel_code", err: fmt.Errorf(`ent: validator failed for field "Parcel.parcel_code": %w`, err)}
 		}
 	}
+	if v, ok := puo.mutation.GetType(); ok {
+		if err := parcel.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Parcel.type": %w`, err)}
+		}
+	}
 	if v, ok := puo.mutation.SenderName(); ok {
 		if err := parcel.SenderNameValidator(v); err != nil {
 			return &ValidationError{Name: "sender_name", err: fmt.Errorf(`ent: validator failed for field "Parcel.sender_name": %w`, err)}
@@ -843,6 +951,11 @@ func (puo *ParcelUpdateOne) check() error {
 	if v, ok := puo.mutation.SenderPhone(); ok {
 		if err := parcel.SenderPhoneValidator(v); err != nil {
 			return &ValidationError{Name: "sender_phone", err: fmt.Errorf(`ent: validator failed for field "Parcel.sender_phone": %w`, err)}
+		}
+	}
+	if v, ok := puo.mutation.SenderEmail(); ok {
+		if err := parcel.SenderEmailValidator(v); err != nil {
+			return &ValidationError{Name: "sender_email", err: fmt.Errorf(`ent: validator failed for field "Parcel.sender_email": %w`, err)}
 		}
 	}
 	if v, ok := puo.mutation.RecipientName(); ok {
@@ -914,11 +1027,17 @@ func (puo *ParcelUpdateOne) sqlSave(ctx context.Context) (_node *Parcel, err err
 	if value, ok := puo.mutation.ParcelCode(); ok {
 		_spec.SetField(parcel.FieldParcelCode, field.TypeString, value)
 	}
+	if value, ok := puo.mutation.GetType(); ok {
+		_spec.SetField(parcel.FieldType, field.TypeString, value)
+	}
 	if value, ok := puo.mutation.SenderName(); ok {
 		_spec.SetField(parcel.FieldSenderName, field.TypeString, value)
 	}
 	if value, ok := puo.mutation.SenderPhone(); ok {
 		_spec.SetField(parcel.FieldSenderPhone, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.SenderEmail(); ok {
+		_spec.SetField(parcel.FieldSenderEmail, field.TypeString, value)
 	}
 	if value, ok := puo.mutation.RecipientName(); ok {
 		_spec.SetField(parcel.FieldRecipientName, field.TypeString, value)
@@ -928,6 +1047,15 @@ func (puo *ParcelUpdateOne) sqlSave(ctx context.Context) (_node *Parcel, err err
 	}
 	if value, ok := puo.mutation.RecipientLocation(); ok {
 		_spec.SetField(parcel.FieldRecipientLocation, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.Weight(); ok {
+		_spec.SetField(parcel.FieldWeight, field.TypeFloat32, value)
+	}
+	if value, ok := puo.mutation.AddedWeight(); ok {
+		_spec.AddField(parcel.FieldWeight, field.TypeFloat32, value)
+	}
+	if puo.mutation.WeightCleared() {
+		_spec.ClearField(parcel.FieldWeight, field.TypeFloat32)
 	}
 	if value, ok := puo.mutation.Amount(); ok {
 		_spec.SetField(parcel.FieldAmount, field.TypeFloat64, value)

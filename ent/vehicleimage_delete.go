@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/vehicleimage"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/vehicleimage"
 )
 
 // VehicleImageDelete is the builder for deleting a VehicleImage entity.

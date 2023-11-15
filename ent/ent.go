@@ -12,25 +12,26 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/SeyramWood/ent/bookibususer"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/customer"
-	"github.com/SeyramWood/ent/customercontact"
-	"github.com/SeyramWood/ent/customerluggage"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/incidentimage"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/parcelimage"
-	"github.com/SeyramWood/ent/passenger"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/routestop"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/user"
-	"github.com/SeyramWood/ent/vehicle"
-	"github.com/SeyramWood/ent/vehicleimage"
+	"github.com/SeyramWood/bookibus/ent/bookibususer"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/customer"
+	"github.com/SeyramWood/bookibus/ent/customercontact"
+	"github.com/SeyramWood/bookibus/ent/customerluggage"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/incidentimage"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/passenger"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/user"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/vehicleimage"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -106,6 +107,7 @@ func checkColumn(table, column string) error {
 			passenger.Table:       passenger.ValidColumn,
 			route.Table:           route.ValidColumn,
 			routestop.Table:       routestop.ValidColumn,
+			terminal.Table:        terminal.ValidColumn,
 			trip.Table:            trip.ValidColumn,
 			user.Table:            user.ValidColumn,
 			vehicle.Table:         vehicle.ValidColumn,

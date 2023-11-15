@@ -10,8 +10,8 @@ import (
 	rediscache "github.com/go-redis/cache/v9"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/config"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/config"
 )
 
 var (

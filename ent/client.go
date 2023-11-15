@@ -9,31 +9,32 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/SeyramWood/ent/migrate"
+	"github.com/SeyramWood/bookibus/ent/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/SeyramWood/ent/bookibususer"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/customer"
-	"github.com/SeyramWood/ent/customercontact"
-	"github.com/SeyramWood/ent/customerluggage"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/incidentimage"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/parcelimage"
-	"github.com/SeyramWood/ent/passenger"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/routestop"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/user"
-	"github.com/SeyramWood/ent/vehicle"
-	"github.com/SeyramWood/ent/vehicleimage"
+	"github.com/SeyramWood/bookibus/ent/bookibususer"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/customer"
+	"github.com/SeyramWood/bookibus/ent/customercontact"
+	"github.com/SeyramWood/bookibus/ent/customerluggage"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/incidentimage"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/passenger"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/user"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/vehicleimage"
 )
 
 // Client is the client that holds all ent builders.
@@ -71,6 +72,8 @@ type Client struct {
 	Route *RouteClient
 	// RouteStop is the client for interacting with the RouteStop builders.
 	RouteStop *RouteStopClient
+	// Terminal is the client for interacting with the Terminal builders.
+	Terminal *TerminalClient
 	// Trip is the client for interacting with the Trip builders.
 	Trip *TripClient
 	// User is the client for interacting with the User builders.
@@ -107,6 +110,7 @@ func (c *Client) init() {
 	c.Passenger = NewPassengerClient(c.config)
 	c.Route = NewRouteClient(c.config)
 	c.RouteStop = NewRouteStopClient(c.config)
+	c.Terminal = NewTerminalClient(c.config)
 	c.Trip = NewTripClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.Vehicle = NewVehicleClient(c.config)
@@ -211,6 +215,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Passenger:       NewPassengerClient(cfg),
 		Route:           NewRouteClient(cfg),
 		RouteStop:       NewRouteStopClient(cfg),
+		Terminal:        NewTerminalClient(cfg),
 		Trip:            NewTripClient(cfg),
 		User:            NewUserClient(cfg),
 		Vehicle:         NewVehicleClient(cfg),
@@ -249,6 +254,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Passenger:       NewPassengerClient(cfg),
 		Route:           NewRouteClient(cfg),
 		RouteStop:       NewRouteStopClient(cfg),
+		Terminal:        NewTerminalClient(cfg),
 		Trip:            NewTripClient(cfg),
 		User:            NewUserClient(cfg),
 		Vehicle:         NewVehicleClient(cfg),
@@ -285,7 +291,7 @@ func (c *Client) Use(hooks ...Hook) {
 		c.BookibusUser, c.Booking, c.Company, c.CompanyUser, c.Customer,
 		c.CustomerContact, c.CustomerLuggage, c.Incident, c.IncidentImage,
 		c.Notification, c.Parcel, c.ParcelImage, c.Passenger, c.Route, c.RouteStop,
-		c.Trip, c.User, c.Vehicle, c.VehicleImage,
+		c.Terminal, c.Trip, c.User, c.Vehicle, c.VehicleImage,
 	} {
 		n.Use(hooks...)
 	}
@@ -298,7 +304,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.BookibusUser, c.Booking, c.Company, c.CompanyUser, c.Customer,
 		c.CustomerContact, c.CustomerLuggage, c.Incident, c.IncidentImage,
 		c.Notification, c.Parcel, c.ParcelImage, c.Passenger, c.Route, c.RouteStop,
-		c.Trip, c.User, c.Vehicle, c.VehicleImage,
+		c.Terminal, c.Trip, c.User, c.Vehicle, c.VehicleImage,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -337,6 +343,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Route.mutate(ctx, m)
 	case *RouteStopMutation:
 		return c.RouteStop.mutate(ctx, m)
+	case *TerminalMutation:
+		return c.Terminal.mutate(ctx, m)
 	case *TripMutation:
 		return c.Trip.mutate(ctx, m)
 	case *UserMutation:
@@ -861,6 +869,22 @@ func (c *CompanyClient) QueryProfile(co *Company) *CompanyUserQuery {
 			sqlgraph.From(company.Table, company.FieldID, id),
 			sqlgraph.To(companyuser.Table, companyuser.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, company.ProfileTable, company.ProfileColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTerminals queries the terminals edge of a Company.
+func (c *CompanyClient) QueryTerminals(co *Company) *TerminalQuery {
+	query := (&TerminalClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, id),
+			sqlgraph.To(terminal.Table, terminal.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, company.TerminalsTable, company.TerminalsColumn),
 		)
 		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
 		return fromV, nil
@@ -3081,6 +3105,187 @@ func (c *RouteStopClient) mutate(ctx context.Context, m *RouteStopMutation) (Val
 	}
 }
 
+// TerminalClient is a client for the Terminal schema.
+type TerminalClient struct {
+	config
+}
+
+// NewTerminalClient returns a client for the Terminal from the given config.
+func NewTerminalClient(c config) *TerminalClient {
+	return &TerminalClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `terminal.Hooks(f(g(h())))`.
+func (c *TerminalClient) Use(hooks ...Hook) {
+	c.hooks.Terminal = append(c.hooks.Terminal, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `terminal.Intercept(f(g(h())))`.
+func (c *TerminalClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Terminal = append(c.inters.Terminal, interceptors...)
+}
+
+// Create returns a builder for creating a Terminal entity.
+func (c *TerminalClient) Create() *TerminalCreate {
+	mutation := newTerminalMutation(c.config, OpCreate)
+	return &TerminalCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Terminal entities.
+func (c *TerminalClient) CreateBulk(builders ...*TerminalCreate) *TerminalCreateBulk {
+	return &TerminalCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TerminalClient) MapCreateBulk(slice any, setFunc func(*TerminalCreate, int)) *TerminalCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TerminalCreateBulk{err: fmt.Errorf("calling to TerminalClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TerminalCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TerminalCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Terminal.
+func (c *TerminalClient) Update() *TerminalUpdate {
+	mutation := newTerminalMutation(c.config, OpUpdate)
+	return &TerminalUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TerminalClient) UpdateOne(t *Terminal) *TerminalUpdateOne {
+	mutation := newTerminalMutation(c.config, OpUpdateOne, withTerminal(t))
+	return &TerminalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TerminalClient) UpdateOneID(id int) *TerminalUpdateOne {
+	mutation := newTerminalMutation(c.config, OpUpdateOne, withTerminalID(id))
+	return &TerminalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Terminal.
+func (c *TerminalClient) Delete() *TerminalDelete {
+	mutation := newTerminalMutation(c.config, OpDelete)
+	return &TerminalDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TerminalClient) DeleteOne(t *Terminal) *TerminalDeleteOne {
+	return c.DeleteOneID(t.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TerminalClient) DeleteOneID(id int) *TerminalDeleteOne {
+	builder := c.Delete().Where(terminal.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TerminalDeleteOne{builder}
+}
+
+// Query returns a query builder for Terminal.
+func (c *TerminalClient) Query() *TerminalQuery {
+	return &TerminalQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTerminal},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Terminal entity by its id.
+func (c *TerminalClient) Get(ctx context.Context, id int) (*Terminal, error) {
+	return c.Query().Where(terminal.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TerminalClient) GetX(ctx context.Context, id int) *Terminal {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCompany queries the company edge of a Terminal.
+func (c *TerminalClient) QueryCompany(t *Terminal) *CompanyQuery {
+	query := (&CompanyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(terminal.Table, terminal.FieldID, id),
+			sqlgraph.To(company.Table, company.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, terminal.CompanyTable, terminal.CompanyColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFrom queries the from edge of a Terminal.
+func (c *TerminalClient) QueryFrom(t *Terminal) *TripQuery {
+	query := (&TripClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(terminal.Table, terminal.FieldID, id),
+			sqlgraph.To(trip.Table, trip.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, terminal.FromTable, terminal.FromColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTo queries the to edge of a Terminal.
+func (c *TerminalClient) QueryTo(t *Terminal) *TripQuery {
+	query := (&TripClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(terminal.Table, terminal.FieldID, id),
+			sqlgraph.To(trip.Table, trip.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, terminal.ToTable, terminal.ToColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TerminalClient) Hooks() []Hook {
+	return c.hooks.Terminal
+}
+
+// Interceptors returns the client interceptors.
+func (c *TerminalClient) Interceptors() []Interceptor {
+	return c.inters.Terminal
+}
+
+func (c *TerminalClient) mutate(ctx context.Context, m *TerminalMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TerminalCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TerminalUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TerminalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TerminalDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Terminal mutation op: %q", m.Op())
+	}
+}
+
 // TripClient is a client for the Trip schema.
 type TripClient struct {
 	config
@@ -3214,6 +3419,38 @@ func (c *TripClient) QueryDriver(t *Trip) *CompanyUserQuery {
 			sqlgraph.From(trip.Table, trip.FieldID, id),
 			sqlgraph.To(companyuser.Table, companyuser.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, trip.DriverTable, trip.DriverColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFromTerminal queries the from_terminal edge of a Trip.
+func (c *TripClient) QueryFromTerminal(t *Trip) *TerminalQuery {
+	query := (&TerminalClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trip.Table, trip.FieldID, id),
+			sqlgraph.To(terminal.Table, terminal.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, trip.FromTerminalTable, trip.FromTerminalColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryToTerminal queries the to_terminal edge of a Trip.
+func (c *TripClient) QueryToTerminal(t *Trip) *TerminalQuery {
+	query := (&TerminalClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trip.Table, trip.FieldID, id),
+			sqlgraph.To(terminal.Table, terminal.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, trip.ToTerminalTable, trip.ToTerminalColumn),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil
@@ -3842,12 +4079,13 @@ type (
 	hooks struct {
 		BookibusUser, Booking, Company, CompanyUser, Customer, CustomerContact,
 		CustomerLuggage, Incident, IncidentImage, Notification, Parcel, ParcelImage,
-		Passenger, Route, RouteStop, Trip, User, Vehicle, VehicleImage []ent.Hook
+		Passenger, Route, RouteStop, Terminal, Trip, User, Vehicle,
+		VehicleImage []ent.Hook
 	}
 	inters struct {
 		BookibusUser, Booking, Company, CompanyUser, Customer, CustomerContact,
 		CustomerLuggage, Incident, IncidentImage, Notification, Parcel, ParcelImage,
-		Passenger, Route, RouteStop, Trip, User, Vehicle,
+		Passenger, Route, RouteStop, Terminal, Trip, User, Vehicle,
 		VehicleImage []ent.Interceptor
 	}
 )

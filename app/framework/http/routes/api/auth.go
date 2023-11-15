@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/SeyramWood/app/framework/http/handlers/api"
+	"github.com/SeyramWood/bookibus/app/framework/http/handlers/api"
 )
 
 func AuthRoutes(r fiber.Router, router *apiRouter) {

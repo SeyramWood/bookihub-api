@@ -11,16 +11,17 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
 
 // CompanyUpdate is the builder for updating Company entities.
@@ -94,6 +95,21 @@ func (cu *CompanyUpdate) AddProfile(c ...*CompanyUser) *CompanyUpdate {
 		ids[i] = c[i].ID
 	}
 	return cu.AddProfileIDs(ids...)
+}
+
+// AddTerminalIDs adds the "terminals" edge to the Terminal entity by IDs.
+func (cu *CompanyUpdate) AddTerminalIDs(ids ...int) *CompanyUpdate {
+	cu.mutation.AddTerminalIDs(ids...)
+	return cu
+}
+
+// AddTerminals adds the "terminals" edges to the Terminal entity.
+func (cu *CompanyUpdate) AddTerminals(t ...*Terminal) *CompanyUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return cu.AddTerminalIDs(ids...)
 }
 
 // AddVehicleIDs adds the "vehicles" edge to the Vehicle entity by IDs.
@@ -225,6 +241,27 @@ func (cu *CompanyUpdate) RemoveProfile(c ...*CompanyUser) *CompanyUpdate {
 		ids[i] = c[i].ID
 	}
 	return cu.RemoveProfileIDs(ids...)
+}
+
+// ClearTerminals clears all "terminals" edges to the Terminal entity.
+func (cu *CompanyUpdate) ClearTerminals() *CompanyUpdate {
+	cu.mutation.ClearTerminals()
+	return cu
+}
+
+// RemoveTerminalIDs removes the "terminals" edge to Terminal entities by IDs.
+func (cu *CompanyUpdate) RemoveTerminalIDs(ids ...int) *CompanyUpdate {
+	cu.mutation.RemoveTerminalIDs(ids...)
+	return cu
+}
+
+// RemoveTerminals removes "terminals" edges to Terminal entities.
+func (cu *CompanyUpdate) RemoveTerminals(t ...*Terminal) *CompanyUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return cu.RemoveTerminalIDs(ids...)
 }
 
 // ClearVehicles clears all "vehicles" edges to the Vehicle entity.
@@ -504,6 +541,51 @@ func (cu *CompanyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(companyuser.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cu.mutation.TerminalsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TerminalsTable,
+			Columns: []string{company.TerminalsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.RemovedTerminalsIDs(); len(nodes) > 0 && !cu.mutation.TerminalsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TerminalsTable,
+			Columns: []string{company.TerminalsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.TerminalsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TerminalsTable,
+			Columns: []string{company.TerminalsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -907,6 +989,21 @@ func (cuo *CompanyUpdateOne) AddProfile(c ...*CompanyUser) *CompanyUpdateOne {
 	return cuo.AddProfileIDs(ids...)
 }
 
+// AddTerminalIDs adds the "terminals" edge to the Terminal entity by IDs.
+func (cuo *CompanyUpdateOne) AddTerminalIDs(ids ...int) *CompanyUpdateOne {
+	cuo.mutation.AddTerminalIDs(ids...)
+	return cuo
+}
+
+// AddTerminals adds the "terminals" edges to the Terminal entity.
+func (cuo *CompanyUpdateOne) AddTerminals(t ...*Terminal) *CompanyUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return cuo.AddTerminalIDs(ids...)
+}
+
 // AddVehicleIDs adds the "vehicles" edge to the Vehicle entity by IDs.
 func (cuo *CompanyUpdateOne) AddVehicleIDs(ids ...int) *CompanyUpdateOne {
 	cuo.mutation.AddVehicleIDs(ids...)
@@ -1036,6 +1133,27 @@ func (cuo *CompanyUpdateOne) RemoveProfile(c ...*CompanyUser) *CompanyUpdateOne 
 		ids[i] = c[i].ID
 	}
 	return cuo.RemoveProfileIDs(ids...)
+}
+
+// ClearTerminals clears all "terminals" edges to the Terminal entity.
+func (cuo *CompanyUpdateOne) ClearTerminals() *CompanyUpdateOne {
+	cuo.mutation.ClearTerminals()
+	return cuo
+}
+
+// RemoveTerminalIDs removes the "terminals" edge to Terminal entities by IDs.
+func (cuo *CompanyUpdateOne) RemoveTerminalIDs(ids ...int) *CompanyUpdateOne {
+	cuo.mutation.RemoveTerminalIDs(ids...)
+	return cuo
+}
+
+// RemoveTerminals removes "terminals" edges to Terminal entities.
+func (cuo *CompanyUpdateOne) RemoveTerminals(t ...*Terminal) *CompanyUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return cuo.RemoveTerminalIDs(ids...)
 }
 
 // ClearVehicles clears all "vehicles" edges to the Vehicle entity.
@@ -1345,6 +1463,51 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(companyuser.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuo.mutation.TerminalsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TerminalsTable,
+			Columns: []string{company.TerminalsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.RemovedTerminalsIDs(); len(nodes) > 0 && !cuo.mutation.TerminalsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TerminalsTable,
+			Columns: []string{company.TerminalsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.TerminalsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TerminalsTable,
+			Columns: []string{company.TerminalsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

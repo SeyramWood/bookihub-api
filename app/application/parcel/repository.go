@@ -6,16 +6,16 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/ent"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/ent"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/parcelimage"
 )
 
 type repository struct {
@@ -50,12 +50,15 @@ func (r *repository) Insert(companyId int, request *requeststructs.ParcelRequest
 		SetParcelCode(fmt.Sprintf("PC_%s", application.OTP(9))).
 		SetSenderName(request.SenderName).
 		SetSenderPhone(request.SenderPhone).
+		SetSenderEmail(request.SenderEmail).
 		SetRecipientName(request.RecipientName).
 		SetRecipientPhone(request.RecipientPhone).
 		SetRecipientLocation(request.RecipientLocation).
 		SetAmount(request.Amount).
 		SetPaidAt(application.ParseRFC3339Datetime(refResponse.PaidAt)).
 		SetTansType(parcel.TansType(refResponse.TransType)).
+		SetWeight(request.Weight).
+		SetType(request.Type).
 		SetTripID(request.TripID).
 		SetDriverID(request.DriverID).
 		SetCompanyID(companyId).
@@ -96,6 +99,27 @@ func (r *repository) InsertImage(id int, request []string) (*ent.Parcel, error) 
 // Read implements gateways.ParcelRepo.
 func (r *repository) Read(id int) (*ent.Parcel, error) {
 	result, err := r.db.Parcel.Query().Where(parcel.ID(id)).
+		WithImages().
+		WithTrip(func(tq *ent.TripQuery) {
+			tq.WithVehicle(func(vq *ent.VehicleQuery) {
+				vq.WithImages()
+			})
+			tq.WithRoute(func(rq *ent.RouteQuery) {
+				rq.WithStops()
+			})
+			tq.WithDriver()
+			tq.WithCompany()
+		}).
+		Only(r.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// ReadByCode implements gateways.ParcelRepo.
+func (r *repository) ReadByCode(code string) (*ent.Parcel, error) {
+	result, err := r.db.Parcel.Query().Where(parcel.ParcelCode(code)).
 		WithImages().
 		WithTrip(func(tq *ent.TripQuery) {
 			tq.WithVehicle(func(vq *ent.VehicleQuery) {
@@ -163,9 +187,11 @@ func (r *repository) Update(id int, request *requeststructs.ParcelUpdateRequest)
 	_, err := r.db.Parcel.UpdateOneID(id).
 		SetSenderName(request.SenderName).
 		SetSenderPhone(request.SenderPhone).
+		SetSenderEmail(request.SenderEmail).
 		SetRecipientName(request.RecipientName).
 		SetRecipientPhone(request.RecipientPhone).
 		SetRecipientLocation(request.RecipientLocation).
+		SetType(request.Type).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err

@@ -11,16 +11,17 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
 
 // CompanyQuery is the builder for querying Company entities.
@@ -31,6 +32,7 @@ type CompanyQuery struct {
 	inters            []Interceptor
 	predicates        []predicate.Company
 	withProfile       *CompanyUserQuery
+	withTerminals     *TerminalQuery
 	withVehicles      *VehicleQuery
 	withRoutes        *RouteQuery
 	withTrips         *TripQuery
@@ -90,6 +92,28 @@ func (cq *CompanyQuery) QueryProfile() *CompanyUserQuery {
 			sqlgraph.From(company.Table, company.FieldID, selector),
 			sqlgraph.To(companyuser.Table, companyuser.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, company.ProfileTable, company.ProfileColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTerminals chains the current query on the "terminals" edge.
+func (cq *CompanyQuery) QueryTerminals() *TerminalQuery {
+	query := (&TerminalClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, selector),
+			sqlgraph.To(terminal.Table, terminal.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, company.TerminalsTable, company.TerminalsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -444,6 +468,7 @@ func (cq *CompanyQuery) Clone() *CompanyQuery {
 		inters:            append([]Interceptor{}, cq.inters...),
 		predicates:        append([]predicate.Company{}, cq.predicates...),
 		withProfile:       cq.withProfile.Clone(),
+		withTerminals:     cq.withTerminals.Clone(),
 		withVehicles:      cq.withVehicles.Clone(),
 		withRoutes:        cq.withRoutes.Clone(),
 		withTrips:         cq.withTrips.Clone(),
@@ -465,6 +490,17 @@ func (cq *CompanyQuery) WithProfile(opts ...func(*CompanyUserQuery)) *CompanyQue
 		opt(query)
 	}
 	cq.withProfile = query
+	return cq
+}
+
+// WithTerminals tells the query-builder to eager-load the nodes that are connected to
+// the "terminals" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CompanyQuery) WithTerminals(opts ...func(*TerminalQuery)) *CompanyQuery {
+	query := (&TerminalClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withTerminals = query
 	return cq
 }
 
@@ -623,8 +659,9 @@ func (cq *CompanyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Comp
 	var (
 		nodes       = []*Company{}
 		_spec       = cq.querySpec()
-		loadedTypes = [8]bool{
+		loadedTypes = [9]bool{
 			cq.withProfile != nil,
+			cq.withTerminals != nil,
 			cq.withVehicles != nil,
 			cq.withRoutes != nil,
 			cq.withTrips != nil,
@@ -659,6 +696,13 @@ func (cq *CompanyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Comp
 		if err := cq.loadProfile(ctx, query, nodes,
 			func(n *Company) { n.Edges.Profile = []*CompanyUser{} },
 			func(n *Company, e *CompanyUser) { n.Edges.Profile = append(n.Edges.Profile, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withTerminals; query != nil {
+		if err := cq.loadTerminals(ctx, query, nodes,
+			func(n *Company) { n.Edges.Terminals = []*Terminal{} },
+			func(n *Company, e *Terminal) { n.Edges.Terminals = append(n.Edges.Terminals, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -740,6 +784,37 @@ func (cq *CompanyQuery) loadProfile(ctx context.Context, query *CompanyUserQuery
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "company_profile" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (cq *CompanyQuery) loadTerminals(ctx context.Context, query *TerminalQuery, nodes []*Company, init func(*Company), assign func(*Company, *Terminal)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Company)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Terminal(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(company.TerminalsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.company_terminals
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "company_terminals" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "company_terminals" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -9,10 +9,10 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // Incident is the model entity for the Incident schema.
@@ -30,8 +30,12 @@ type Incident struct {
 	Location string `json:"location,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
+	// Type holds the value of the "type" field.
+	Type string `json:"type,omitempty"`
 	// Audio holds the value of the "audio" field.
 	Audio string `json:"audio,omitempty"`
+	// Status holds the value of the "status" field.
+	Status incident.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the IncidentQuery when eager-loading is set.
 	Edges                  IncidentEdges `json:"edges"`
@@ -111,7 +115,7 @@ func (*Incident) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case incident.FieldID:
 			values[i] = new(sql.NullInt64)
-		case incident.FieldLocation, incident.FieldDescription, incident.FieldAudio:
+		case incident.FieldLocation, incident.FieldDescription, incident.FieldType, incident.FieldAudio, incident.FieldStatus:
 			values[i] = new(sql.NullString)
 		case incident.FieldCreatedAt, incident.FieldUpdatedAt, incident.FieldTime:
 			values[i] = new(sql.NullTime)
@@ -172,11 +176,23 @@ func (i *Incident) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				i.Description = value.String
 			}
+		case incident.FieldType:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[j])
+			} else if value.Valid {
+				i.Type = value.String
+			}
 		case incident.FieldAudio:
 			if value, ok := values[j].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field audio", values[j])
 			} else if value.Valid {
 				i.Audio = value.String
+			}
+		case incident.FieldStatus:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[j])
+			} else if value.Valid {
+				i.Status = incident.Status(value.String)
 			}
 		case incident.ForeignKeys[0]:
 			if value, ok := values[j].(*sql.NullInt64); !ok {
@@ -270,8 +286,14 @@ func (i *Incident) String() string {
 	builder.WriteString("description=")
 	builder.WriteString(i.Description)
 	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(i.Type)
+	builder.WriteString(", ")
 	builder.WriteString("audio=")
 	builder.WriteString(i.Audio)
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", i.Status))
 	builder.WriteByte(')')
 	return builder.String()
 }

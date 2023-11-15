@@ -2,9 +2,10 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 
-	"github.com/SeyramWood/app/framework/http/handlers/api"
-	"github.com/SeyramWood/app/framework/http/requests"
+	"github.com/SeyramWood/bookibus/app/framework/http/handlers/api"
+	"github.com/SeyramWood/bookibus/app/framework/http/requests"
 )
 
 func BookingRoutes(r fiber.Router, router *apiRouter) {
@@ -14,8 +15,7 @@ func BookingRoutes(r fiber.Router, router *apiRouter) {
 	bookingGroup.Get("", handler.FetchAll())
 	bookingGroup.Get("/company/:id", handler.FetchAllByCompany())
 	bookingGroup.Get("/:id", handler.Fetch())
-	bookingGroup.Post("", requests.ValidateBooking(), handler.Create())
-	bookingGroup.Put("/:id", requests.ValidateBookingUpdate(), handler.Update())
+	bookingGroup.Put("/:id", adaptor.HTTPMiddleware(requests.ValidateBookingUpdate), handler.Update())
 	bookingGroup.Delete("/:id", handler.Remove())
 
 }

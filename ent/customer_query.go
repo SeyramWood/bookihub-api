@@ -11,11 +11,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/customer"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/user"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/customer"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/user"
 )
 
 // CustomerQuery is the builder for querying Customer entities.

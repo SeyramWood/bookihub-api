@@ -10,11 +10,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/bookibususer"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/customer"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/user"
+	"github.com/SeyramWood/bookibus/ent/bookibususer"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/customer"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/user"
 )
 
 // UserQuery is the builder for querying User entities.

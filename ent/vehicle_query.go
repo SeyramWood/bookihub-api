@@ -11,11 +11,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/vehicle"
-	"github.com/SeyramWood/ent/vehicleimage"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/vehicleimage"
 )
 
 // VehicleQuery is the builder for querying Vehicle entities.

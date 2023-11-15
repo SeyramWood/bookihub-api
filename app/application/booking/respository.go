@@ -8,21 +8,21 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"golang.org/x/net/context"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/ent"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/customer"
-	"github.com/SeyramWood/ent/customercontact"
-	"github.com/SeyramWood/ent/customerluggage"
-	"github.com/SeyramWood/ent/passenger"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/user"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/ent"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/customer"
+	"github.com/SeyramWood/bookibus/ent/customercontact"
+	"github.com/SeyramWood/bookibus/ent/customerluggage"
+	"github.com/SeyramWood/bookibus/ent/passenger"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/user"
 )
 
 type repository struct {
@@ -39,7 +39,7 @@ func NewRepository(db *database.Adapter) gateways.BookingRepo {
 
 // CancelBooking implements gateways.BookingRepo.
 func (r *repository) CancelBooking(id int, request *requeststructs.BookingCancelRequest) (*ent.Booking, error) {
-	return r.db.Booking.UpdateOneID(id).SetRefundAmount(request.Amount).SetRefundAt(time.Now()).Save(r.ctx)
+	return r.db.Booking.UpdateOneID(id).SetRefundAmount(request.Amount).SetStatus(booking.StatusCanceled).SetRefundAt(time.Now()).Save(r.ctx)
 }
 
 // Delete implements gateways.BookingRepo.

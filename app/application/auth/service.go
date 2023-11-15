@@ -8,14 +8,14 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application"
-	"github.com/SeyramWood/app/domain"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/ent"
-	"github.com/SeyramWood/ent/user"
-	"github.com/SeyramWood/utils/jwt"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application"
+	"github.com/SeyramWood/bookibus/app/domain"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/ent"
+	"github.com/SeyramWood/bookibus/ent/user"
+	"github.com/SeyramWood/bookibus/utils/jwt"
 )
 
 const (

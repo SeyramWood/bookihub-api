@@ -11,12 +11,12 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/incidentimage"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/incidentimage"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // IncidentUpdate is the builder for updating Incident entities.
@@ -71,6 +71,12 @@ func (iu *IncidentUpdate) SetDescription(s string) *IncidentUpdate {
 	return iu
 }
 
+// SetType sets the "type" field.
+func (iu *IncidentUpdate) SetType(s string) *IncidentUpdate {
+	iu.mutation.SetType(s)
+	return iu
+}
+
 // SetAudio sets the "audio" field.
 func (iu *IncidentUpdate) SetAudio(s string) *IncidentUpdate {
 	iu.mutation.SetAudio(s)
@@ -88,6 +94,20 @@ func (iu *IncidentUpdate) SetNillableAudio(s *string) *IncidentUpdate {
 // ClearAudio clears the value of the "audio" field.
 func (iu *IncidentUpdate) ClearAudio() *IncidentUpdate {
 	iu.mutation.ClearAudio()
+	return iu
+}
+
+// SetStatus sets the "status" field.
+func (iu *IncidentUpdate) SetStatus(i incident.Status) *IncidentUpdate {
+	iu.mutation.SetStatus(i)
+	return iu
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableStatus(i *incident.Status) *IncidentUpdate {
+	if i != nil {
+		iu.SetStatus(*i)
+	}
 	return iu
 }
 
@@ -255,6 +275,16 @@ func (iu *IncidentUpdate) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Incident.description": %w`, err)}
 		}
 	}
+	if v, ok := iu.mutation.GetType(); ok {
+		if err := incident.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Incident.type": %w`, err)}
+		}
+	}
+	if v, ok := iu.mutation.Status(); ok {
+		if err := incident.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Incident.status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -291,11 +321,17 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := iu.mutation.Description(); ok {
 		_spec.SetField(incident.FieldDescription, field.TypeString, value)
 	}
+	if value, ok := iu.mutation.GetType(); ok {
+		_spec.SetField(incident.FieldType, field.TypeString, value)
+	}
 	if value, ok := iu.mutation.Audio(); ok {
 		_spec.SetField(incident.FieldAudio, field.TypeString, value)
 	}
 	if iu.mutation.AudioCleared() {
 		_spec.ClearField(incident.FieldAudio, field.TypeString)
+	}
+	if value, ok := iu.mutation.Status(); ok {
+		_spec.SetField(incident.FieldStatus, field.TypeEnum, value)
 	}
 	if iu.mutation.ImagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -489,6 +525,12 @@ func (iuo *IncidentUpdateOne) SetDescription(s string) *IncidentUpdateOne {
 	return iuo
 }
 
+// SetType sets the "type" field.
+func (iuo *IncidentUpdateOne) SetType(s string) *IncidentUpdateOne {
+	iuo.mutation.SetType(s)
+	return iuo
+}
+
 // SetAudio sets the "audio" field.
 func (iuo *IncidentUpdateOne) SetAudio(s string) *IncidentUpdateOne {
 	iuo.mutation.SetAudio(s)
@@ -506,6 +548,20 @@ func (iuo *IncidentUpdateOne) SetNillableAudio(s *string) *IncidentUpdateOne {
 // ClearAudio clears the value of the "audio" field.
 func (iuo *IncidentUpdateOne) ClearAudio() *IncidentUpdateOne {
 	iuo.mutation.ClearAudio()
+	return iuo
+}
+
+// SetStatus sets the "status" field.
+func (iuo *IncidentUpdateOne) SetStatus(i incident.Status) *IncidentUpdateOne {
+	iuo.mutation.SetStatus(i)
+	return iuo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableStatus(i *incident.Status) *IncidentUpdateOne {
+	if i != nil {
+		iuo.SetStatus(*i)
+	}
 	return iuo
 }
 
@@ -686,6 +742,16 @@ func (iuo *IncidentUpdateOne) check() error {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Incident.description": %w`, err)}
 		}
 	}
+	if v, ok := iuo.mutation.GetType(); ok {
+		if err := incident.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Incident.type": %w`, err)}
+		}
+	}
+	if v, ok := iuo.mutation.Status(); ok {
+		if err := incident.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Incident.status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -739,11 +805,17 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 	if value, ok := iuo.mutation.Description(); ok {
 		_spec.SetField(incident.FieldDescription, field.TypeString, value)
 	}
+	if value, ok := iuo.mutation.GetType(); ok {
+		_spec.SetField(incident.FieldType, field.TypeString, value)
+	}
 	if value, ok := iuo.mutation.Audio(); ok {
 		_spec.SetField(incident.FieldAudio, field.TypeString, value)
 	}
 	if iuo.mutation.AudioCleared() {
 		_spec.ClearField(incident.FieldAudio, field.TypeString)
+	}
+	if value, ok := iuo.mutation.Status(); ok {
+		_spec.SetField(incident.FieldStatus, field.TypeEnum, value)
 	}
 	if iuo.mutation.ImagesCleared() {
 		edge := &sqlgraph.EdgeSpec{

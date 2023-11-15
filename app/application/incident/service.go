@@ -3,11 +3,11 @@ package incident
 import (
 	"strings"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/config"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/config"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 type service struct {
@@ -181,6 +181,11 @@ func (s *service) RemoveAudio(id int) error {
 // Update implements gateways.IncidentService.
 func (s *service) Update(id int, request *requeststructs.IncidentUpdateRequest) (*ent.Incident, error) {
 	return s.repo.Update(id, request)
+}
+
+// UpdateStatus implements gateways.IncidentService.
+func (s *service) UpdateStatus(id int, status string) (*ent.Incident, error) {
+	return s.repo.UpdateStatus(id, status)
 }
 
 // UpdateAudio implements gateways.IncidentService.

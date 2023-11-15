@@ -23,11 +23,14 @@ func (Parcel) Mixin() []ent.Mixin {
 func (Parcel) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("parcel_code").NotEmpty(),
+		field.String("type").NotEmpty(),
 		field.String("sender_name").NotEmpty(),
 		field.String("sender_phone").NotEmpty(),
+		field.String("sender_email").NotEmpty(),
 		field.String("recipient_name").NotEmpty(),
 		field.String("recipient_phone").NotEmpty(),
 		field.String("recipient_location").NotEmpty(),
+		field.Float32("weight").Optional(),
 		field.Float("amount").Default(0.00),
 		field.Time("paid_at").Optional(),
 		field.Enum("tans_type").Values("momo", "card", "cash").Default("cash"),

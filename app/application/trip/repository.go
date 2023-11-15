@@ -7,17 +7,17 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/ent"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/trip"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/ent"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 const (
@@ -56,6 +56,8 @@ func (r *repository) Insert(companyId int, request *requeststructs.TripRequest) 
 			SetType(trip.Type(request.TripType)).
 			SetScheduled(request.Schedule).
 			SetSeatLeft(r.db.Vehicle.GetX(r.ctx, request.VehicleID).Seat).
+			SetFromTerminalID(request.FromTerminalID).
+			SetToTerminalID(request.ToTerminalID).
 			SetVehicleID(request.VehicleID).
 			SetRouteID(request.RouteID).
 			SetDriverID(request.DriverID).
@@ -72,6 +74,8 @@ func (r *repository) Insert(companyId int, request *requeststructs.TripRequest) 
 		SetType(trip.Type(request.TripType)).
 		SetScheduled(request.Schedule).
 		SetSeatLeft(r.db.Vehicle.GetX(r.ctx, request.VehicleID).Seat).
+		SetFromTerminalID(request.FromTerminalID).
+		SetToTerminalID(request.ToTerminalID).
 		SetVehicleID(request.VehicleID).
 		SetRouteID(request.RouteID).
 		SetDriverID(request.DriverID).
@@ -86,6 +90,8 @@ func (r *repository) Insert(companyId int, request *requeststructs.TripRequest) 
 // Read implements gateways.TripRepo.
 func (r *repository) Read(id int) (*ent.Trip, error) {
 	result, err := r.db.Trip.Query().Where(trip.ID(id)).
+		WithFromTerminal().
+		WithToTerminal().
 		WithVehicle(func(vq *ent.VehicleQuery) {
 			vq.WithImages()
 		}).
@@ -304,6 +310,7 @@ func (r *repository) Update(id int, request *requeststructs.TripUpdateRequest) (
 	result, err := r.db.Trip.UpdateOneID(id).
 		SetDepartureDate(application.ParseRFC3339Datetime(request.DepartureDate)).
 		SetArrivalDate(application.ParseRFC3339Datetime(request.ArrivalDate)).
+		ClearReturnDate().
 		SetType(trip.Type(request.TripType)).
 		SetVehicleID(request.VehicleID).
 		SetDriverID(request.DriverID).
@@ -368,6 +375,8 @@ func (r *repository) filterTrip(query *ent.TripQuery, limit, offset int) (*prese
 		Limit(limit).
 		Offset(offset).
 		Order(ent.Desc(trip.FieldCreatedAt)).
+		WithFromTerminal().
+		WithToTerminal().
 		WithVehicle(func(vq *ent.VehicleQuery) {
 			vq.WithImages()
 		}).
@@ -407,6 +416,8 @@ func (r *repository) filterTripByPopularity(query *ent.TripQuery, limit, offset 
 				sql.OrderDesc(),
 			),
 		).
+		WithFromTerminal().
+		WithToTerminal().
 		WithVehicle(func(vq *ent.VehicleQuery) {
 			vq.WithImages()
 		}).

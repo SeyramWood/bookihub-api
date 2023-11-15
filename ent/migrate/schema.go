@@ -185,7 +185,9 @@ var (
 		{Name: "time", Type: field.TypeTime, Nullable: true},
 		{Name: "location", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Size: 2147483647},
+		{Name: "type", Type: field.TypeString},
 		{Name: "audio", Type: field.TypeString, Nullable: true},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "resolved"}, Default: "pending"},
 		{Name: "company_incidents", Type: field.TypeInt, Nullable: true},
 		{Name: "company_user_incidents", Type: field.TypeInt, Nullable: true},
 		{Name: "trip_incidents", Type: field.TypeInt, Nullable: true},
@@ -198,19 +200,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "incidents_companies_incidents",
-				Columns:    []*schema.Column{IncidentsColumns[7]},
+				Columns:    []*schema.Column{IncidentsColumns[9]},
 				RefColumns: []*schema.Column{CompaniesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "incidents_company_users_incidents",
-				Columns:    []*schema.Column{IncidentsColumns[8]},
+				Columns:    []*schema.Column{IncidentsColumns[10]},
 				RefColumns: []*schema.Column{CompanyUsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "incidents_trips_incidents",
-				Columns:    []*schema.Column{IncidentsColumns[9]},
+				Columns:    []*schema.Column{IncidentsColumns[11]},
 				RefColumns: []*schema.Column{TripsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -274,11 +276,14 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "parcel_code", Type: field.TypeString},
+		{Name: "type", Type: field.TypeString},
 		{Name: "sender_name", Type: field.TypeString},
 		{Name: "sender_phone", Type: field.TypeString},
+		{Name: "sender_email", Type: field.TypeString},
 		{Name: "recipient_name", Type: field.TypeString},
 		{Name: "recipient_phone", Type: field.TypeString},
 		{Name: "recipient_location", Type: field.TypeString},
+		{Name: "weight", Type: field.TypeFloat32, Nullable: true},
 		{Name: "amount", Type: field.TypeFloat64, Default: 0},
 		{Name: "paid_at", Type: field.TypeTime, Nullable: true},
 		{Name: "tans_type", Type: field.TypeEnum, Enums: []string{"momo", "card", "cash"}, Default: "cash"},
@@ -295,19 +300,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "parcels_companies_parcels",
-				Columns:    []*schema.Column{ParcelsColumns[13]},
+				Columns:    []*schema.Column{ParcelsColumns[16]},
 				RefColumns: []*schema.Column{CompaniesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "parcels_company_users_parcels",
-				Columns:    []*schema.Column{ParcelsColumns[14]},
+				Columns:    []*schema.Column{ParcelsColumns[17]},
 				RefColumns: []*schema.Column{CompanyUsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "parcels_trips_parcels",
-				Columns:    []*schema.Column{ParcelsColumns[15]},
+				Columns:    []*schema.Column{ParcelsColumns[18]},
 				RefColumns: []*schema.Column{TripsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -367,9 +372,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "from_location", Type: field.TypeString},
-		{Name: "from_terminal", Type: field.TypeString, Nullable: true},
 		{Name: "to_location", Type: field.TypeString},
-		{Name: "to_terminal", Type: field.TypeString, Nullable: true},
 		{Name: "from_latitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "from_longitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "to_latitude", Type: field.TypeFloat64, Nullable: true},
@@ -387,7 +390,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "routes_companies_routes",
-				Columns:    []*schema.Column{RoutesColumns[14]},
+				Columns:    []*schema.Column{RoutesColumns[12]},
 				RefColumns: []*schema.Column{CompaniesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -416,6 +419,28 @@ var (
 			},
 		},
 	}
+	// TerminalsColumns holds the columns for the "terminals" table.
+	TerminalsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "name", Type: field.TypeString},
+		{Name: "company_terminals", Type: field.TypeInt, Nullable: true},
+	}
+	// TerminalsTable holds the schema information for the "terminals" table.
+	TerminalsTable = &schema.Table{
+		Name:       "terminals",
+		Columns:    TerminalsColumns,
+		PrimaryKey: []*schema.Column{TerminalsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "terminals_companies_terminals",
+				Columns:    []*schema.Column{TerminalsColumns[4]},
+				RefColumns: []*schema.Column{CompaniesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// TripsColumns holds the columns for the "trips" table.
 	TripsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -437,6 +462,8 @@ var (
 		{Name: "company_trips", Type: field.TypeInt, Nullable: true},
 		{Name: "company_user_trips", Type: field.TypeInt, Nullable: true},
 		{Name: "route_trips", Type: field.TypeInt, Nullable: true},
+		{Name: "terminal_from", Type: field.TypeInt, Nullable: true},
+		{Name: "terminal_to", Type: field.TypeInt, Nullable: true},
 		{Name: "vehicle_trips", Type: field.TypeInt, Nullable: true},
 	}
 	// TripsTable holds the schema information for the "trips" table.
@@ -464,8 +491,20 @@ var (
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "trips_vehicles_trips",
+				Symbol:     "trips_terminals_from",
 				Columns:    []*schema.Column{TripsColumns[19]},
+				RefColumns: []*schema.Column{TerminalsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "trips_terminals_to",
+				Columns:    []*schema.Column{TripsColumns[20]},
+				RefColumns: []*schema.Column{TerminalsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "trips_vehicles_trips",
+				Columns:    []*schema.Column{TripsColumns[21]},
 				RefColumns: []*schema.Column{VehiclesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -647,6 +686,7 @@ var (
 		PassengersTable,
 		RoutesTable,
 		RouteStopsTable,
+		TerminalsTable,
 		TripsTable,
 		UsersTable,
 		VehiclesTable,
@@ -676,10 +716,13 @@ func init() {
 	PassengersTable.ForeignKeys[0].RefTable = BookingsTable
 	RoutesTable.ForeignKeys[0].RefTable = CompaniesTable
 	RouteStopsTable.ForeignKeys[0].RefTable = RoutesTable
+	TerminalsTable.ForeignKeys[0].RefTable = CompaniesTable
 	TripsTable.ForeignKeys[0].RefTable = CompaniesTable
 	TripsTable.ForeignKeys[1].RefTable = CompanyUsersTable
 	TripsTable.ForeignKeys[2].RefTable = RoutesTable
-	TripsTable.ForeignKeys[3].RefTable = VehiclesTable
+	TripsTable.ForeignKeys[3].RefTable = TerminalsTable
+	TripsTable.ForeignKeys[4].RefTable = TerminalsTable
+	TripsTable.ForeignKeys[5].RefTable = VehiclesTable
 	UsersTable.ForeignKeys[0].RefTable = BookibusUsersTable
 	UsersTable.ForeignKeys[1].RefTable = CompanyUsersTable
 	UsersTable.ForeignKeys[2].RefTable = CustomersTable

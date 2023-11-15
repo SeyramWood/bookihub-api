@@ -21,16 +21,22 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldParcelCode holds the string denoting the parcel_code field in the database.
 	FieldParcelCode = "parcel_code"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
 	// FieldSenderName holds the string denoting the sender_name field in the database.
 	FieldSenderName = "sender_name"
 	// FieldSenderPhone holds the string denoting the sender_phone field in the database.
 	FieldSenderPhone = "sender_phone"
+	// FieldSenderEmail holds the string denoting the sender_email field in the database.
+	FieldSenderEmail = "sender_email"
 	// FieldRecipientName holds the string denoting the recipient_name field in the database.
 	FieldRecipientName = "recipient_name"
 	// FieldRecipientPhone holds the string denoting the recipient_phone field in the database.
 	FieldRecipientPhone = "recipient_phone"
 	// FieldRecipientLocation holds the string denoting the recipient_location field in the database.
 	FieldRecipientLocation = "recipient_location"
+	// FieldWeight holds the string denoting the weight field in the database.
+	FieldWeight = "weight"
 	// FieldAmount holds the string denoting the amount field in the database.
 	FieldAmount = "amount"
 	// FieldPaidAt holds the string denoting the paid_at field in the database.
@@ -85,11 +91,14 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldParcelCode,
+	FieldType,
 	FieldSenderName,
 	FieldSenderPhone,
+	FieldSenderEmail,
 	FieldRecipientName,
 	FieldRecipientPhone,
 	FieldRecipientLocation,
+	FieldWeight,
 	FieldAmount,
 	FieldPaidAt,
 	FieldTansType,
@@ -128,10 +137,14 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// ParcelCodeValidator is a validator for the "parcel_code" field. It is called by the builders before save.
 	ParcelCodeValidator func(string) error
+	// TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	TypeValidator func(string) error
 	// SenderNameValidator is a validator for the "sender_name" field. It is called by the builders before save.
 	SenderNameValidator func(string) error
 	// SenderPhoneValidator is a validator for the "sender_phone" field. It is called by the builders before save.
 	SenderPhoneValidator func(string) error
+	// SenderEmailValidator is a validator for the "sender_email" field. It is called by the builders before save.
+	SenderEmailValidator func(string) error
 	// RecipientNameValidator is a validator for the "recipient_name" field. It is called by the builders before save.
 	RecipientNameValidator func(string) error
 	// RecipientPhoneValidator is a validator for the "recipient_phone" field. It is called by the builders before save.
@@ -218,6 +231,11 @@ func ByParcelCode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldParcelCode, opts...).ToFunc()
 }
 
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
 // BySenderName orders the results by the sender_name field.
 func BySenderName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSenderName, opts...).ToFunc()
@@ -226,6 +244,11 @@ func BySenderName(opts ...sql.OrderTermOption) OrderOption {
 // BySenderPhone orders the results by the sender_phone field.
 func BySenderPhone(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSenderPhone, opts...).ToFunc()
+}
+
+// BySenderEmail orders the results by the sender_email field.
+func BySenderEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSenderEmail, opts...).ToFunc()
 }
 
 // ByRecipientName orders the results by the recipient_name field.
@@ -241,6 +264,11 @@ func ByRecipientPhone(opts ...sql.OrderTermOption) OrderOption {
 // ByRecipientLocation orders the results by the recipient_location field.
 func ByRecipientLocation(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRecipientLocation, opts...).ToFunc()
+}
+
+// ByWeight orders the results by the weight field.
+func ByWeight(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWeight, opts...).ToFunc()
 }
 
 // ByAmount orders the results by the amount field.

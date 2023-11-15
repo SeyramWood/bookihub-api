@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/bookibususer"
-	"github.com/SeyramWood/ent/user"
+	"github.com/SeyramWood/bookibus/ent/bookibususer"
+	"github.com/SeyramWood/bookibus/ent/user"
 )
 
 // BookibusUser is the model entity for the BookibusUser schema.

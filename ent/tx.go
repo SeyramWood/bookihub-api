@@ -42,6 +42,8 @@ type Tx struct {
 	Route *RouteClient
 	// RouteStop is the client for interacting with the RouteStop builders.
 	RouteStop *RouteStopClient
+	// Terminal is the client for interacting with the Terminal builders.
+	Terminal *TerminalClient
 	// Trip is the client for interacting with the Trip builders.
 	Trip *TripClient
 	// User is the client for interacting with the User builders.
@@ -196,6 +198,7 @@ func (tx *Tx) init() {
 	tx.Passenger = NewPassengerClient(tx.config)
 	tx.Route = NewRouteClient(tx.config)
 	tx.RouteStop = NewRouteStopClient(tx.config)
+	tx.Terminal = NewTerminalClient(tx.config)
 	tx.Trip = NewTripClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.Vehicle = NewVehicleClient(tx.config)

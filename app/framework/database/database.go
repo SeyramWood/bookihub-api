@@ -9,9 +9,9 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 
-	"github.com/SeyramWood/config"
-	"github.com/SeyramWood/ent"
-	"github.com/SeyramWood/utils/env"
+	"github.com/SeyramWood/bookibus/config"
+	"github.com/SeyramWood/bookibus/ent"
+	"github.com/SeyramWood/bookibus/utils/env"
 )
 
 type Adapter struct {

@@ -6,12 +6,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application/incident"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application/incident"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 type incidentHandler struct {
@@ -220,5 +220,21 @@ func (h *incidentHandler) UpdateAudio() fiber.Handler {
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}
 		return c.Status(fiber.StatusOK).JSON(presenters.SuccessResponse(result))
+	}
+}
+func (h *incidentHandler) UpdateStatus() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if c.Query("status") == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
+		}
+		id, _ := c.ParamsInt("id")
+		result, err := h.service.UpdateStatus(id, c.Query("status"))
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("incident note not found")))
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.IncidentResponse(result))
 	}
 }

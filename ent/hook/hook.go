@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 // The BookibusUserFunc type is an adapter to allow the use of ordinary
@@ -187,6 +187,18 @@ func (f RouteStopFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RouteStopMutation", m)
+}
+
+// The TerminalFunc type is an adapter to allow the use of ordinary
+// function as Terminal mutator.
+type TerminalFunc func(context.Context, *ent.TerminalMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TerminalFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TerminalMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TerminalMutation", m)
 }
 
 // The TripFunc type is an adapter to allow the use of ordinary

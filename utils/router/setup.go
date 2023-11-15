@@ -3,8 +3,8 @@ package router
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/SeyramWood/app/framework/http/routes/api"
-	"github.com/SeyramWood/app/framework/http/routes/web"
+	"github.com/SeyramWood/bookibus/app/framework/http/routes/api"
+	"github.com/SeyramWood/bookibus/app/framework/http/routes/web"
 )
 
 type Router interface {

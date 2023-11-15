@@ -49,6 +49,10 @@ const (
 	EdgeCompany = "company"
 	// EdgeDriver holds the string denoting the driver edge name in mutations.
 	EdgeDriver = "driver"
+	// EdgeFromTerminal holds the string denoting the from_terminal edge name in mutations.
+	EdgeFromTerminal = "from_terminal"
+	// EdgeToTerminal holds the string denoting the to_terminal edge name in mutations.
+	EdgeToTerminal = "to_terminal"
 	// EdgeVehicle holds the string denoting the vehicle edge name in mutations.
 	EdgeVehicle = "vehicle"
 	// EdgeRoute holds the string denoting the route edge name in mutations.
@@ -75,6 +79,20 @@ const (
 	DriverInverseTable = "company_users"
 	// DriverColumn is the table column denoting the driver relation/edge.
 	DriverColumn = "company_user_trips"
+	// FromTerminalTable is the table that holds the from_terminal relation/edge.
+	FromTerminalTable = "trips"
+	// FromTerminalInverseTable is the table name for the Terminal entity.
+	// It exists in this package in order to avoid circular dependency with the "terminal" package.
+	FromTerminalInverseTable = "terminals"
+	// FromTerminalColumn is the table column denoting the from_terminal relation/edge.
+	FromTerminalColumn = "terminal_from"
+	// ToTerminalTable is the table that holds the to_terminal relation/edge.
+	ToTerminalTable = "trips"
+	// ToTerminalInverseTable is the table name for the Terminal entity.
+	// It exists in this package in order to avoid circular dependency with the "terminal" package.
+	ToTerminalInverseTable = "terminals"
+	// ToTerminalColumn is the table column denoting the to_terminal relation/edge.
+	ToTerminalColumn = "terminal_to"
 	// VehicleTable is the table that holds the vehicle relation/edge.
 	VehicleTable = "trips"
 	// VehicleInverseTable is the table name for the Vehicle entity.
@@ -138,6 +156,8 @@ var ForeignKeys = []string{
 	"company_trips",
 	"company_user_trips",
 	"route_trips",
+	"terminal_from",
+	"terminal_to",
 	"vehicle_trips",
 }
 
@@ -327,6 +347,20 @@ func ByDriverField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByFromTerminalField orders the results by from_terminal field.
+func ByFromTerminalField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newFromTerminalStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByToTerminalField orders the results by to_terminal field.
+func ByToTerminalField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newToTerminalStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByVehicleField orders the results by vehicle field.
 func ByVehicleField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -394,6 +428,20 @@ func newDriverStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DriverInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, DriverTable, DriverColumn),
+	)
+}
+func newFromTerminalStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(FromTerminalInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, FromTerminalTable, FromTerminalColumn),
+	)
+}
+func newToTerminalStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ToTerminalInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ToTerminalTable, ToTerminalColumn),
 	)
 }
 func newVehicleStep() *sqlgraph.Step {

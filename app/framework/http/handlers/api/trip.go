@@ -5,12 +5,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application/trip"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application/trip"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 type tripHandler struct {
@@ -32,6 +32,9 @@ func (h *tripHandler) Create() fiber.Handler {
 		companyId, _ := c.ParamsInt("id")
 		result, err := h.service.Create(companyId, request)
 		if err != nil {
+			if ent.IsNotFound(err) {
+				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+			}
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}
 		return c.Status(fiber.StatusOK).JSON(presenters.TripResponse(result))

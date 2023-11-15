@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
 )
 
 // RouteStop is the model entity for the RouteStop schema.

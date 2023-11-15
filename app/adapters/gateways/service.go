@@ -4,9 +4,9 @@ import (
 	"mime/multipart"
 	"time"
 
-	"github.com/SeyramWood/app/adapters/presenters"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 type (
@@ -74,6 +74,14 @@ type (
 		Update(id int, request *requeststructs.CompanyUpdateRequest) (*ent.Company, error)
 		Remove(id int) error
 	}
+	TerminalService interface {
+		FetchAll(limit, offset int) (*presenters.PaginationResponse, error)
+		FetchAllByCompany(companyId, limit, offset int) (*presenters.PaginationResponse, error)
+		Fetch(id int) (*ent.Terminal, error)
+		Create(companyId int, request *requeststructs.TerminalRequest) (*ent.Terminal, error)
+		Update(id int, request *requeststructs.TerminalRequest) (*ent.Terminal, error)
+		Remove(id int) error
+	}
 	VehicleService interface {
 		FetchAll(limit, offset int) (*presenters.PaginationResponse, error)
 		FetchAllByCompany(companyId, limit, offset int) (*presenters.PaginationResponse, error)
@@ -126,6 +134,7 @@ type (
 		FetchAll(limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
 		FetchAllByCompany(companyId, limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
 		FetchAllByDriver(driverId, limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
+		FetchByCode(code string) (*ent.Parcel, error)
 		Fetch(id int) (*ent.Parcel, error)
 		Create(companyId int, request *requeststructs.ParcelRequest, transType string) (*ent.Parcel, error)
 		AddImage(id int, request *requeststructs.ParcelImageRequest) (*ent.Parcel, error)
@@ -143,6 +152,7 @@ type (
 		Create(companyId int, request *requeststructs.IncidentRequest) (*ent.Incident, error)
 		AddImage(id int, request *requeststructs.IncidentImageRequest) (*ent.Incident, error)
 		Update(id int, request *requeststructs.IncidentUpdateRequest) (*ent.Incident, error)
+		UpdateStatus(id int, status string) (*ent.Incident, error)
 		UpdateAudio(id int, request *requeststructs.IncidentAudioUpdateRequest) (string, error)
 		UpdateImage(id int, request *requeststructs.IncidentImageUpdateRequest) (*ent.IncidentImage, error)
 		Remove(id int) error

@@ -11,27 +11,28 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/bookibususer"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/customer"
-	"github.com/SeyramWood/ent/customercontact"
-	"github.com/SeyramWood/ent/customerluggage"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/incidentimage"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/parcelimage"
-	"github.com/SeyramWood/ent/passenger"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/routestop"
-	"github.com/SeyramWood/ent/schema"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/user"
-	"github.com/SeyramWood/ent/vehicle"
-	"github.com/SeyramWood/ent/vehicleimage"
+	"github.com/SeyramWood/bookibus/ent/bookibususer"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/customer"
+	"github.com/SeyramWood/bookibus/ent/customercontact"
+	"github.com/SeyramWood/bookibus/ent/customerluggage"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/incidentimage"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/passenger"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/schema"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/user"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/vehicleimage"
 )
 
 const (
@@ -58,6 +59,7 @@ const (
 	TypePassenger       = "Passenger"
 	TypeRoute           = "Route"
 	TypeRouteStop       = "RouteStop"
+	TypeTerminal        = "Terminal"
 	TypeTrip            = "Trip"
 	TypeUser            = "User"
 	TypeVehicle         = "Vehicle"
@@ -2505,6 +2507,9 @@ type CompanyMutation struct {
 	profile              map[int]struct{}
 	removedprofile       map[int]struct{}
 	clearedprofile       bool
+	terminals            map[int]struct{}
+	removedterminals     map[int]struct{}
+	clearedterminals     bool
 	vehicles             map[int]struct{}
 	removedvehicles      map[int]struct{}
 	clearedvehicles      bool
@@ -2910,6 +2915,60 @@ func (m *CompanyMutation) ResetProfile() {
 	m.profile = nil
 	m.clearedprofile = false
 	m.removedprofile = nil
+}
+
+// AddTerminalIDs adds the "terminals" edge to the Terminal entity by ids.
+func (m *CompanyMutation) AddTerminalIDs(ids ...int) {
+	if m.terminals == nil {
+		m.terminals = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.terminals[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTerminals clears the "terminals" edge to the Terminal entity.
+func (m *CompanyMutation) ClearTerminals() {
+	m.clearedterminals = true
+}
+
+// TerminalsCleared reports if the "terminals" edge to the Terminal entity was cleared.
+func (m *CompanyMutation) TerminalsCleared() bool {
+	return m.clearedterminals
+}
+
+// RemoveTerminalIDs removes the "terminals" edge to the Terminal entity by IDs.
+func (m *CompanyMutation) RemoveTerminalIDs(ids ...int) {
+	if m.removedterminals == nil {
+		m.removedterminals = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.terminals, ids[i])
+		m.removedterminals[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTerminals returns the removed IDs of the "terminals" edge to the Terminal entity.
+func (m *CompanyMutation) RemovedTerminalsIDs() (ids []int) {
+	for id := range m.removedterminals {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TerminalsIDs returns the "terminals" edge IDs in the mutation.
+func (m *CompanyMutation) TerminalsIDs() (ids []int) {
+	for id := range m.terminals {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTerminals resets all changes to the "terminals" edge.
+func (m *CompanyMutation) ResetTerminals() {
+	m.terminals = nil
+	m.clearedterminals = false
+	m.removedterminals = nil
 }
 
 // AddVehicleIDs adds the "vehicles" edge to the Vehicle entity by ids.
@@ -3517,9 +3576,12 @@ func (m *CompanyMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *CompanyMutation) AddedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 9)
 	if m.profile != nil {
 		edges = append(edges, company.EdgeProfile)
+	}
+	if m.terminals != nil {
+		edges = append(edges, company.EdgeTerminals)
 	}
 	if m.vehicles != nil {
 		edges = append(edges, company.EdgeVehicles)
@@ -3552,6 +3614,12 @@ func (m *CompanyMutation) AddedIDs(name string) []ent.Value {
 	case company.EdgeProfile:
 		ids := make([]ent.Value, 0, len(m.profile))
 		for id := range m.profile {
+			ids = append(ids, id)
+		}
+		return ids
+	case company.EdgeTerminals:
+		ids := make([]ent.Value, 0, len(m.terminals))
+		for id := range m.terminals {
 			ids = append(ids, id)
 		}
 		return ids
@@ -3603,9 +3671,12 @@ func (m *CompanyMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *CompanyMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 9)
 	if m.removedprofile != nil {
 		edges = append(edges, company.EdgeProfile)
+	}
+	if m.removedterminals != nil {
+		edges = append(edges, company.EdgeTerminals)
 	}
 	if m.removedvehicles != nil {
 		edges = append(edges, company.EdgeVehicles)
@@ -3638,6 +3709,12 @@ func (m *CompanyMutation) RemovedIDs(name string) []ent.Value {
 	case company.EdgeProfile:
 		ids := make([]ent.Value, 0, len(m.removedprofile))
 		for id := range m.removedprofile {
+			ids = append(ids, id)
+		}
+		return ids
+	case company.EdgeTerminals:
+		ids := make([]ent.Value, 0, len(m.removedterminals))
+		for id := range m.removedterminals {
 			ids = append(ids, id)
 		}
 		return ids
@@ -3689,9 +3766,12 @@ func (m *CompanyMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *CompanyMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 9)
 	if m.clearedprofile {
 		edges = append(edges, company.EdgeProfile)
+	}
+	if m.clearedterminals {
+		edges = append(edges, company.EdgeTerminals)
 	}
 	if m.clearedvehicles {
 		edges = append(edges, company.EdgeVehicles)
@@ -3723,6 +3803,8 @@ func (m *CompanyMutation) EdgeCleared(name string) bool {
 	switch name {
 	case company.EdgeProfile:
 		return m.clearedprofile
+	case company.EdgeTerminals:
+		return m.clearedterminals
 	case company.EdgeVehicles:
 		return m.clearedvehicles
 	case company.EdgeRoutes:
@@ -3755,6 +3837,9 @@ func (m *CompanyMutation) ResetEdge(name string) error {
 	switch name {
 	case company.EdgeProfile:
 		m.ResetProfile()
+		return nil
+	case company.EdgeTerminals:
+		m.ResetTerminals()
 		return nil
 	case company.EdgeVehicles:
 		m.ResetVehicles()
@@ -7119,7 +7204,9 @@ type IncidentMutation struct {
 	time           *time.Time
 	location       *string
 	description    *string
+	_type          *string
 	audio          *string
+	status         *incident.Status
 	clearedFields  map[string]struct{}
 	images         map[int]struct{}
 	removedimages  map[int]struct{}
@@ -7426,6 +7513,42 @@ func (m *IncidentMutation) ResetDescription() {
 	m.description = nil
 }
 
+// SetType sets the "type" field.
+func (m *IncidentMutation) SetType(s string) {
+	m._type = &s
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *IncidentMutation) GetType() (r string, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the Incident entity.
+// If the Incident object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *IncidentMutation) OldType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *IncidentMutation) ResetType() {
+	m._type = nil
+}
+
 // SetAudio sets the "audio" field.
 func (m *IncidentMutation) SetAudio(s string) {
 	m.audio = &s
@@ -7473,6 +7596,42 @@ func (m *IncidentMutation) AudioCleared() bool {
 func (m *IncidentMutation) ResetAudio() {
 	m.audio = nil
 	delete(m.clearedFields, incident.FieldAudio)
+}
+
+// SetStatus sets the "status" field.
+func (m *IncidentMutation) SetStatus(i incident.Status) {
+	m.status = &i
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *IncidentMutation) Status() (r incident.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Incident entity.
+// If the Incident object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *IncidentMutation) OldStatus(ctx context.Context) (v incident.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *IncidentMutation) ResetStatus() {
+	m.status = nil
 }
 
 // AddImageIDs adds the "images" edge to the IncidentImage entity by ids.
@@ -7680,7 +7839,7 @@ func (m *IncidentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *IncidentMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, incident.FieldCreatedAt)
 	}
@@ -7696,8 +7855,14 @@ func (m *IncidentMutation) Fields() []string {
 	if m.description != nil {
 		fields = append(fields, incident.FieldDescription)
 	}
+	if m._type != nil {
+		fields = append(fields, incident.FieldType)
+	}
 	if m.audio != nil {
 		fields = append(fields, incident.FieldAudio)
+	}
+	if m.status != nil {
+		fields = append(fields, incident.FieldStatus)
 	}
 	return fields
 }
@@ -7717,8 +7882,12 @@ func (m *IncidentMutation) Field(name string) (ent.Value, bool) {
 		return m.Location()
 	case incident.FieldDescription:
 		return m.Description()
+	case incident.FieldType:
+		return m.GetType()
 	case incident.FieldAudio:
 		return m.Audio()
+	case incident.FieldStatus:
+		return m.Status()
 	}
 	return nil, false
 }
@@ -7738,8 +7907,12 @@ func (m *IncidentMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldLocation(ctx)
 	case incident.FieldDescription:
 		return m.OldDescription(ctx)
+	case incident.FieldType:
+		return m.OldType(ctx)
 	case incident.FieldAudio:
 		return m.OldAudio(ctx)
+	case incident.FieldStatus:
+		return m.OldStatus(ctx)
 	}
 	return nil, fmt.Errorf("unknown Incident field %s", name)
 }
@@ -7784,12 +7957,26 @@ func (m *IncidentMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDescription(v)
 		return nil
+	case incident.FieldType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
 	case incident.FieldAudio:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAudio(v)
+		return nil
+	case incident.FieldStatus:
+		v, ok := value.(incident.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Incident field %s", name)
@@ -7870,8 +8057,14 @@ func (m *IncidentMutation) ResetField(name string) error {
 	case incident.FieldDescription:
 		m.ResetDescription()
 		return nil
+	case incident.FieldType:
+		m.ResetType()
+		return nil
 	case incident.FieldAudio:
 		m.ResetAudio()
+		return nil
+	case incident.FieldStatus:
+		m.ResetStatus()
 		return nil
 	}
 	return fmt.Errorf("unknown Incident field %s", name)
@@ -9963,11 +10156,15 @@ type ParcelMutation struct {
 	created_at         *time.Time
 	updated_at         *time.Time
 	parcel_code        *string
+	_type              *string
 	sender_name        *string
 	sender_phone       *string
+	sender_email       *string
 	recipient_name     *string
 	recipient_phone    *string
 	recipient_location *string
+	weight             *float32
+	addweight          *float32
 	amount             *float64
 	addamount          *float64
 	paid_at            *time.Time
@@ -10194,6 +10391,42 @@ func (m *ParcelMutation) ResetParcelCode() {
 	m.parcel_code = nil
 }
 
+// SetType sets the "type" field.
+func (m *ParcelMutation) SetType(s string) {
+	m._type = &s
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *ParcelMutation) GetType() (r string, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the Parcel entity.
+// If the Parcel object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ParcelMutation) OldType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *ParcelMutation) ResetType() {
+	m._type = nil
+}
+
 // SetSenderName sets the "sender_name" field.
 func (m *ParcelMutation) SetSenderName(s string) {
 	m.sender_name = &s
@@ -10264,6 +10497,42 @@ func (m *ParcelMutation) OldSenderPhone(ctx context.Context) (v string, err erro
 // ResetSenderPhone resets all changes to the "sender_phone" field.
 func (m *ParcelMutation) ResetSenderPhone() {
 	m.sender_phone = nil
+}
+
+// SetSenderEmail sets the "sender_email" field.
+func (m *ParcelMutation) SetSenderEmail(s string) {
+	m.sender_email = &s
+}
+
+// SenderEmail returns the value of the "sender_email" field in the mutation.
+func (m *ParcelMutation) SenderEmail() (r string, exists bool) {
+	v := m.sender_email
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSenderEmail returns the old "sender_email" field's value of the Parcel entity.
+// If the Parcel object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ParcelMutation) OldSenderEmail(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSenderEmail is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSenderEmail requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSenderEmail: %w", err)
+	}
+	return oldValue.SenderEmail, nil
+}
+
+// ResetSenderEmail resets all changes to the "sender_email" field.
+func (m *ParcelMutation) ResetSenderEmail() {
+	m.sender_email = nil
 }
 
 // SetRecipientName sets the "recipient_name" field.
@@ -10372,6 +10641,76 @@ func (m *ParcelMutation) OldRecipientLocation(ctx context.Context) (v string, er
 // ResetRecipientLocation resets all changes to the "recipient_location" field.
 func (m *ParcelMutation) ResetRecipientLocation() {
 	m.recipient_location = nil
+}
+
+// SetWeight sets the "weight" field.
+func (m *ParcelMutation) SetWeight(f float32) {
+	m.weight = &f
+	m.addweight = nil
+}
+
+// Weight returns the value of the "weight" field in the mutation.
+func (m *ParcelMutation) Weight() (r float32, exists bool) {
+	v := m.weight
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWeight returns the old "weight" field's value of the Parcel entity.
+// If the Parcel object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ParcelMutation) OldWeight(ctx context.Context) (v float32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWeight is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWeight requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWeight: %w", err)
+	}
+	return oldValue.Weight, nil
+}
+
+// AddWeight adds f to the "weight" field.
+func (m *ParcelMutation) AddWeight(f float32) {
+	if m.addweight != nil {
+		*m.addweight += f
+	} else {
+		m.addweight = &f
+	}
+}
+
+// AddedWeight returns the value that was added to the "weight" field in this mutation.
+func (m *ParcelMutation) AddedWeight() (r float32, exists bool) {
+	v := m.addweight
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearWeight clears the value of the "weight" field.
+func (m *ParcelMutation) ClearWeight() {
+	m.weight = nil
+	m.addweight = nil
+	m.clearedFields[parcel.FieldWeight] = struct{}{}
+}
+
+// WeightCleared returns if the "weight" field was cleared in this mutation.
+func (m *ParcelMutation) WeightCleared() bool {
+	_, ok := m.clearedFields[parcel.FieldWeight]
+	return ok
+}
+
+// ResetWeight resets all changes to the "weight" field.
+func (m *ParcelMutation) ResetWeight() {
+	m.weight = nil
+	m.addweight = nil
+	delete(m.clearedFields, parcel.FieldWeight)
 }
 
 // SetAmount sets the "amount" field.
@@ -10756,7 +11095,7 @@ func (m *ParcelMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ParcelMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 15)
 	if m.created_at != nil {
 		fields = append(fields, parcel.FieldCreatedAt)
 	}
@@ -10766,11 +11105,17 @@ func (m *ParcelMutation) Fields() []string {
 	if m.parcel_code != nil {
 		fields = append(fields, parcel.FieldParcelCode)
 	}
+	if m._type != nil {
+		fields = append(fields, parcel.FieldType)
+	}
 	if m.sender_name != nil {
 		fields = append(fields, parcel.FieldSenderName)
 	}
 	if m.sender_phone != nil {
 		fields = append(fields, parcel.FieldSenderPhone)
+	}
+	if m.sender_email != nil {
+		fields = append(fields, parcel.FieldSenderEmail)
 	}
 	if m.recipient_name != nil {
 		fields = append(fields, parcel.FieldRecipientName)
@@ -10780,6 +11125,9 @@ func (m *ParcelMutation) Fields() []string {
 	}
 	if m.recipient_location != nil {
 		fields = append(fields, parcel.FieldRecipientLocation)
+	}
+	if m.weight != nil {
+		fields = append(fields, parcel.FieldWeight)
 	}
 	if m.amount != nil {
 		fields = append(fields, parcel.FieldAmount)
@@ -10807,16 +11155,22 @@ func (m *ParcelMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case parcel.FieldParcelCode:
 		return m.ParcelCode()
+	case parcel.FieldType:
+		return m.GetType()
 	case parcel.FieldSenderName:
 		return m.SenderName()
 	case parcel.FieldSenderPhone:
 		return m.SenderPhone()
+	case parcel.FieldSenderEmail:
+		return m.SenderEmail()
 	case parcel.FieldRecipientName:
 		return m.RecipientName()
 	case parcel.FieldRecipientPhone:
 		return m.RecipientPhone()
 	case parcel.FieldRecipientLocation:
 		return m.RecipientLocation()
+	case parcel.FieldWeight:
+		return m.Weight()
 	case parcel.FieldAmount:
 		return m.Amount()
 	case parcel.FieldPaidAt:
@@ -10840,16 +11194,22 @@ func (m *ParcelMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldUpdatedAt(ctx)
 	case parcel.FieldParcelCode:
 		return m.OldParcelCode(ctx)
+	case parcel.FieldType:
+		return m.OldType(ctx)
 	case parcel.FieldSenderName:
 		return m.OldSenderName(ctx)
 	case parcel.FieldSenderPhone:
 		return m.OldSenderPhone(ctx)
+	case parcel.FieldSenderEmail:
+		return m.OldSenderEmail(ctx)
 	case parcel.FieldRecipientName:
 		return m.OldRecipientName(ctx)
 	case parcel.FieldRecipientPhone:
 		return m.OldRecipientPhone(ctx)
 	case parcel.FieldRecipientLocation:
 		return m.OldRecipientLocation(ctx)
+	case parcel.FieldWeight:
+		return m.OldWeight(ctx)
 	case parcel.FieldAmount:
 		return m.OldAmount(ctx)
 	case parcel.FieldPaidAt:
@@ -10888,6 +11248,13 @@ func (m *ParcelMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetParcelCode(v)
 		return nil
+	case parcel.FieldType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
 	case parcel.FieldSenderName:
 		v, ok := value.(string)
 		if !ok {
@@ -10901,6 +11268,13 @@ func (m *ParcelMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSenderPhone(v)
+		return nil
+	case parcel.FieldSenderEmail:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSenderEmail(v)
 		return nil
 	case parcel.FieldRecipientName:
 		v, ok := value.(string)
@@ -10922,6 +11296,13 @@ func (m *ParcelMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRecipientLocation(v)
+		return nil
+	case parcel.FieldWeight:
+		v, ok := value.(float32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWeight(v)
 		return nil
 	case parcel.FieldAmount:
 		v, ok := value.(float64)
@@ -10959,6 +11340,9 @@ func (m *ParcelMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *ParcelMutation) AddedFields() []string {
 	var fields []string
+	if m.addweight != nil {
+		fields = append(fields, parcel.FieldWeight)
+	}
 	if m.addamount != nil {
 		fields = append(fields, parcel.FieldAmount)
 	}
@@ -10970,6 +11354,8 @@ func (m *ParcelMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *ParcelMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case parcel.FieldWeight:
+		return m.AddedWeight()
 	case parcel.FieldAmount:
 		return m.AddedAmount()
 	}
@@ -10981,6 +11367,13 @@ func (m *ParcelMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ParcelMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case parcel.FieldWeight:
+		v, ok := value.(float32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWeight(v)
+		return nil
 	case parcel.FieldAmount:
 		v, ok := value.(float64)
 		if !ok {
@@ -10996,6 +11389,9 @@ func (m *ParcelMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *ParcelMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(parcel.FieldWeight) {
+		fields = append(fields, parcel.FieldWeight)
+	}
 	if m.FieldCleared(parcel.FieldPaidAt) {
 		fields = append(fields, parcel.FieldPaidAt)
 	}
@@ -11013,6 +11409,9 @@ func (m *ParcelMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *ParcelMutation) ClearField(name string) error {
 	switch name {
+	case parcel.FieldWeight:
+		m.ClearWeight()
+		return nil
 	case parcel.FieldPaidAt:
 		m.ClearPaidAt()
 		return nil
@@ -11033,11 +11432,17 @@ func (m *ParcelMutation) ResetField(name string) error {
 	case parcel.FieldParcelCode:
 		m.ResetParcelCode()
 		return nil
+	case parcel.FieldType:
+		m.ResetType()
+		return nil
 	case parcel.FieldSenderName:
 		m.ResetSenderName()
 		return nil
 	case parcel.FieldSenderPhone:
 		m.ResetSenderPhone()
+		return nil
+	case parcel.FieldSenderEmail:
+		m.ResetSenderEmail()
 		return nil
 	case parcel.FieldRecipientName:
 		m.ResetRecipientName()
@@ -11047,6 +11452,9 @@ func (m *ParcelMutation) ResetField(name string) error {
 		return nil
 	case parcel.FieldRecipientLocation:
 		m.ResetRecipientLocation()
+		return nil
+	case parcel.FieldWeight:
+		m.ResetWeight()
 		return nil
 	case parcel.FieldAmount:
 		m.ResetAmount()
@@ -12509,9 +12917,7 @@ type RouteMutation struct {
 	created_at        *time.Time
 	updated_at        *time.Time
 	from_location     *string
-	from_terminal     *string
 	to_location       *string
-	to_terminal       *string
 	from_latitude     *float64
 	addfrom_latitude  *float64
 	from_longitude    *float64
@@ -12746,55 +13152,6 @@ func (m *RouteMutation) ResetFromLocation() {
 	m.from_location = nil
 }
 
-// SetFromTerminal sets the "from_terminal" field.
-func (m *RouteMutation) SetFromTerminal(s string) {
-	m.from_terminal = &s
-}
-
-// FromTerminal returns the value of the "from_terminal" field in the mutation.
-func (m *RouteMutation) FromTerminal() (r string, exists bool) {
-	v := m.from_terminal
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldFromTerminal returns the old "from_terminal" field's value of the Route entity.
-// If the Route object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RouteMutation) OldFromTerminal(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldFromTerminal is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldFromTerminal requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldFromTerminal: %w", err)
-	}
-	return oldValue.FromTerminal, nil
-}
-
-// ClearFromTerminal clears the value of the "from_terminal" field.
-func (m *RouteMutation) ClearFromTerminal() {
-	m.from_terminal = nil
-	m.clearedFields[route.FieldFromTerminal] = struct{}{}
-}
-
-// FromTerminalCleared returns if the "from_terminal" field was cleared in this mutation.
-func (m *RouteMutation) FromTerminalCleared() bool {
-	_, ok := m.clearedFields[route.FieldFromTerminal]
-	return ok
-}
-
-// ResetFromTerminal resets all changes to the "from_terminal" field.
-func (m *RouteMutation) ResetFromTerminal() {
-	m.from_terminal = nil
-	delete(m.clearedFields, route.FieldFromTerminal)
-}
-
 // SetToLocation sets the "to_location" field.
 func (m *RouteMutation) SetToLocation(s string) {
 	m.to_location = &s
@@ -12829,55 +13186,6 @@ func (m *RouteMutation) OldToLocation(ctx context.Context) (v string, err error)
 // ResetToLocation resets all changes to the "to_location" field.
 func (m *RouteMutation) ResetToLocation() {
 	m.to_location = nil
-}
-
-// SetToTerminal sets the "to_terminal" field.
-func (m *RouteMutation) SetToTerminal(s string) {
-	m.to_terminal = &s
-}
-
-// ToTerminal returns the value of the "to_terminal" field in the mutation.
-func (m *RouteMutation) ToTerminal() (r string, exists bool) {
-	v := m.to_terminal
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldToTerminal returns the old "to_terminal" field's value of the Route entity.
-// If the Route object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RouteMutation) OldToTerminal(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldToTerminal is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldToTerminal requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldToTerminal: %w", err)
-	}
-	return oldValue.ToTerminal, nil
-}
-
-// ClearToTerminal clears the value of the "to_terminal" field.
-func (m *RouteMutation) ClearToTerminal() {
-	m.to_terminal = nil
-	m.clearedFields[route.FieldToTerminal] = struct{}{}
-}
-
-// ToTerminalCleared returns if the "to_terminal" field was cleared in this mutation.
-func (m *RouteMutation) ToTerminalCleared() bool {
-	_, ok := m.clearedFields[route.FieldToTerminal]
-	return ok
-}
-
-// ResetToTerminal resets all changes to the "to_terminal" field.
-func (m *RouteMutation) ResetToTerminal() {
-	m.to_terminal = nil
-	delete(m.clearedFields, route.FieldToTerminal)
 }
 
 // SetFromLatitude sets the "from_latitude" field.
@@ -13509,7 +13817,7 @@ func (m *RouteMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RouteMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, route.FieldCreatedAt)
 	}
@@ -13519,14 +13827,8 @@ func (m *RouteMutation) Fields() []string {
 	if m.from_location != nil {
 		fields = append(fields, route.FieldFromLocation)
 	}
-	if m.from_terminal != nil {
-		fields = append(fields, route.FieldFromTerminal)
-	}
 	if m.to_location != nil {
 		fields = append(fields, route.FieldToLocation)
-	}
-	if m.to_terminal != nil {
-		fields = append(fields, route.FieldToTerminal)
 	}
 	if m.from_latitude != nil {
 		fields = append(fields, route.FieldFromLatitude)
@@ -13563,12 +13865,8 @@ func (m *RouteMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case route.FieldFromLocation:
 		return m.FromLocation()
-	case route.FieldFromTerminal:
-		return m.FromTerminal()
 	case route.FieldToLocation:
 		return m.ToLocation()
-	case route.FieldToTerminal:
-		return m.ToTerminal()
 	case route.FieldFromLatitude:
 		return m.FromLatitude()
 	case route.FieldFromLongitude:
@@ -13598,12 +13896,8 @@ func (m *RouteMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldUpdatedAt(ctx)
 	case route.FieldFromLocation:
 		return m.OldFromLocation(ctx)
-	case route.FieldFromTerminal:
-		return m.OldFromTerminal(ctx)
 	case route.FieldToLocation:
 		return m.OldToLocation(ctx)
-	case route.FieldToTerminal:
-		return m.OldToTerminal(ctx)
 	case route.FieldFromLatitude:
 		return m.OldFromLatitude(ctx)
 	case route.FieldFromLongitude:
@@ -13648,26 +13942,12 @@ func (m *RouteMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetFromLocation(v)
 		return nil
-	case route.FieldFromTerminal:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetFromTerminal(v)
-		return nil
 	case route.FieldToLocation:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetToLocation(v)
-		return nil
-	case route.FieldToTerminal:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetToTerminal(v)
 		return nil
 	case route.FieldFromLatitude:
 		v, ok := value.(float64)
@@ -13835,12 +14115,6 @@ func (m *RouteMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *RouteMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(route.FieldFromTerminal) {
-		fields = append(fields, route.FieldFromTerminal)
-	}
-	if m.FieldCleared(route.FieldToTerminal) {
-		fields = append(fields, route.FieldToTerminal)
-	}
 	if m.FieldCleared(route.FieldFromLatitude) {
 		fields = append(fields, route.FieldFromLatitude)
 	}
@@ -13867,12 +14141,6 @@ func (m *RouteMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *RouteMutation) ClearField(name string) error {
 	switch name {
-	case route.FieldFromTerminal:
-		m.ClearFromTerminal()
-		return nil
-	case route.FieldToTerminal:
-		m.ClearToTerminal()
-		return nil
 	case route.FieldFromLatitude:
 		m.ClearFromLatitude()
 		return nil
@@ -13902,14 +14170,8 @@ func (m *RouteMutation) ResetField(name string) error {
 	case route.FieldFromLocation:
 		m.ResetFromLocation()
 		return nil
-	case route.FieldFromTerminal:
-		m.ResetFromTerminal()
-		return nil
 	case route.FieldToLocation:
 		m.ResetToLocation()
-		return nil
-	case route.FieldToTerminal:
-		m.ResetToTerminal()
 		return nil
 	case route.FieldFromLatitude:
 		m.ResetFromLatitude()
@@ -14731,6 +14993,675 @@ func (m *RouteStopMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown RouteStop edge %s", name)
 }
 
+// TerminalMutation represents an operation that mutates the Terminal nodes in the graph.
+type TerminalMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *int
+	created_at     *time.Time
+	updated_at     *time.Time
+	name           *string
+	clearedFields  map[string]struct{}
+	company        *int
+	clearedcompany bool
+	from           map[int]struct{}
+	removedfrom    map[int]struct{}
+	clearedfrom    bool
+	to             map[int]struct{}
+	removedto      map[int]struct{}
+	clearedto      bool
+	done           bool
+	oldValue       func(context.Context) (*Terminal, error)
+	predicates     []predicate.Terminal
+}
+
+var _ ent.Mutation = (*TerminalMutation)(nil)
+
+// terminalOption allows management of the mutation configuration using functional options.
+type terminalOption func(*TerminalMutation)
+
+// newTerminalMutation creates new mutation for the Terminal entity.
+func newTerminalMutation(c config, op Op, opts ...terminalOption) *TerminalMutation {
+	m := &TerminalMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeTerminal,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withTerminalID sets the ID field of the mutation.
+func withTerminalID(id int) terminalOption {
+	return func(m *TerminalMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Terminal
+		)
+		m.oldValue = func(ctx context.Context) (*Terminal, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Terminal.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withTerminal sets the old Terminal of the mutation.
+func withTerminal(node *Terminal) terminalOption {
+	return func(m *TerminalMutation) {
+		m.oldValue = func(context.Context) (*Terminal, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m TerminalMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m TerminalMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *TerminalMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *TerminalMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Terminal.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *TerminalMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *TerminalMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Terminal entity.
+// If the Terminal object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TerminalMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *TerminalMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *TerminalMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *TerminalMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Terminal entity.
+// If the Terminal object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TerminalMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *TerminalMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetName sets the "name" field.
+func (m *TerminalMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *TerminalMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Terminal entity.
+// If the Terminal object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TerminalMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *TerminalMutation) ResetName() {
+	m.name = nil
+}
+
+// SetCompanyID sets the "company" edge to the Company entity by id.
+func (m *TerminalMutation) SetCompanyID(id int) {
+	m.company = &id
+}
+
+// ClearCompany clears the "company" edge to the Company entity.
+func (m *TerminalMutation) ClearCompany() {
+	m.clearedcompany = true
+}
+
+// CompanyCleared reports if the "company" edge to the Company entity was cleared.
+func (m *TerminalMutation) CompanyCleared() bool {
+	return m.clearedcompany
+}
+
+// CompanyID returns the "company" edge ID in the mutation.
+func (m *TerminalMutation) CompanyID() (id int, exists bool) {
+	if m.company != nil {
+		return *m.company, true
+	}
+	return
+}
+
+// CompanyIDs returns the "company" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CompanyID instead. It exists only for internal usage by the builders.
+func (m *TerminalMutation) CompanyIDs() (ids []int) {
+	if id := m.company; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCompany resets all changes to the "company" edge.
+func (m *TerminalMutation) ResetCompany() {
+	m.company = nil
+	m.clearedcompany = false
+}
+
+// AddFromIDs adds the "from" edge to the Trip entity by ids.
+func (m *TerminalMutation) AddFromIDs(ids ...int) {
+	if m.from == nil {
+		m.from = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.from[ids[i]] = struct{}{}
+	}
+}
+
+// ClearFrom clears the "from" edge to the Trip entity.
+func (m *TerminalMutation) ClearFrom() {
+	m.clearedfrom = true
+}
+
+// FromCleared reports if the "from" edge to the Trip entity was cleared.
+func (m *TerminalMutation) FromCleared() bool {
+	return m.clearedfrom
+}
+
+// RemoveFromIDs removes the "from" edge to the Trip entity by IDs.
+func (m *TerminalMutation) RemoveFromIDs(ids ...int) {
+	if m.removedfrom == nil {
+		m.removedfrom = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.from, ids[i])
+		m.removedfrom[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedFrom returns the removed IDs of the "from" edge to the Trip entity.
+func (m *TerminalMutation) RemovedFromIDs() (ids []int) {
+	for id := range m.removedfrom {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// FromIDs returns the "from" edge IDs in the mutation.
+func (m *TerminalMutation) FromIDs() (ids []int) {
+	for id := range m.from {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetFrom resets all changes to the "from" edge.
+func (m *TerminalMutation) ResetFrom() {
+	m.from = nil
+	m.clearedfrom = false
+	m.removedfrom = nil
+}
+
+// AddToIDs adds the "to" edge to the Trip entity by ids.
+func (m *TerminalMutation) AddToIDs(ids ...int) {
+	if m.to == nil {
+		m.to = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.to[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTo clears the "to" edge to the Trip entity.
+func (m *TerminalMutation) ClearTo() {
+	m.clearedto = true
+}
+
+// ToCleared reports if the "to" edge to the Trip entity was cleared.
+func (m *TerminalMutation) ToCleared() bool {
+	return m.clearedto
+}
+
+// RemoveToIDs removes the "to" edge to the Trip entity by IDs.
+func (m *TerminalMutation) RemoveToIDs(ids ...int) {
+	if m.removedto == nil {
+		m.removedto = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.to, ids[i])
+		m.removedto[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTo returns the removed IDs of the "to" edge to the Trip entity.
+func (m *TerminalMutation) RemovedToIDs() (ids []int) {
+	for id := range m.removedto {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ToIDs returns the "to" edge IDs in the mutation.
+func (m *TerminalMutation) ToIDs() (ids []int) {
+	for id := range m.to {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTo resets all changes to the "to" edge.
+func (m *TerminalMutation) ResetTo() {
+	m.to = nil
+	m.clearedto = false
+	m.removedto = nil
+}
+
+// Where appends a list predicates to the TerminalMutation builder.
+func (m *TerminalMutation) Where(ps ...predicate.Terminal) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the TerminalMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *TerminalMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Terminal, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *TerminalMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *TerminalMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Terminal).
+func (m *TerminalMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *TerminalMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.created_at != nil {
+		fields = append(fields, terminal.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, terminal.FieldUpdatedAt)
+	}
+	if m.name != nil {
+		fields = append(fields, terminal.FieldName)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *TerminalMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case terminal.FieldCreatedAt:
+		return m.CreatedAt()
+	case terminal.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case terminal.FieldName:
+		return m.Name()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *TerminalMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case terminal.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case terminal.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case terminal.FieldName:
+		return m.OldName(ctx)
+	}
+	return nil, fmt.Errorf("unknown Terminal field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TerminalMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case terminal.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case terminal.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case terminal.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Terminal field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *TerminalMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *TerminalMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TerminalMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Terminal numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *TerminalMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *TerminalMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *TerminalMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Terminal nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *TerminalMutation) ResetField(name string) error {
+	switch name {
+	case terminal.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case terminal.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case terminal.FieldName:
+		m.ResetName()
+		return nil
+	}
+	return fmt.Errorf("unknown Terminal field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *TerminalMutation) AddedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.company != nil {
+		edges = append(edges, terminal.EdgeCompany)
+	}
+	if m.from != nil {
+		edges = append(edges, terminal.EdgeFrom)
+	}
+	if m.to != nil {
+		edges = append(edges, terminal.EdgeTo)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *TerminalMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case terminal.EdgeCompany:
+		if id := m.company; id != nil {
+			return []ent.Value{*id}
+		}
+	case terminal.EdgeFrom:
+		ids := make([]ent.Value, 0, len(m.from))
+		for id := range m.from {
+			ids = append(ids, id)
+		}
+		return ids
+	case terminal.EdgeTo:
+		ids := make([]ent.Value, 0, len(m.to))
+		for id := range m.to {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *TerminalMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.removedfrom != nil {
+		edges = append(edges, terminal.EdgeFrom)
+	}
+	if m.removedto != nil {
+		edges = append(edges, terminal.EdgeTo)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *TerminalMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case terminal.EdgeFrom:
+		ids := make([]ent.Value, 0, len(m.removedfrom))
+		for id := range m.removedfrom {
+			ids = append(ids, id)
+		}
+		return ids
+	case terminal.EdgeTo:
+		ids := make([]ent.Value, 0, len(m.removedto))
+		for id := range m.removedto {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *TerminalMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.clearedcompany {
+		edges = append(edges, terminal.EdgeCompany)
+	}
+	if m.clearedfrom {
+		edges = append(edges, terminal.EdgeFrom)
+	}
+	if m.clearedto {
+		edges = append(edges, terminal.EdgeTo)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *TerminalMutation) EdgeCleared(name string) bool {
+	switch name {
+	case terminal.EdgeCompany:
+		return m.clearedcompany
+	case terminal.EdgeFrom:
+		return m.clearedfrom
+	case terminal.EdgeTo:
+		return m.clearedto
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *TerminalMutation) ClearEdge(name string) error {
+	switch name {
+	case terminal.EdgeCompany:
+		m.ClearCompany()
+		return nil
+	}
+	return fmt.Errorf("unknown Terminal unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *TerminalMutation) ResetEdge(name string) error {
+	switch name {
+	case terminal.EdgeCompany:
+		m.ResetCompany()
+		return nil
+	case terminal.EdgeFrom:
+		m.ResetFrom()
+		return nil
+	case terminal.EdgeTo:
+		m.ResetTo()
+		return nil
+	}
+	return fmt.Errorf("unknown Terminal edge %s", name)
+}
+
 // TripMutation represents an operation that mutates the Trip nodes in the graph.
 type TripMutation struct {
 	config
@@ -14758,6 +15689,10 @@ type TripMutation struct {
 	clearedcompany                bool
 	_driver                       *int
 	cleared_driver                bool
+	from_terminal                 *int
+	clearedfrom_terminal          bool
+	to_terminal                   *int
+	clearedto_terminal            bool
 	vehicle                       *int
 	clearedvehicle                bool
 	route                         *int
@@ -15564,6 +16499,84 @@ func (m *TripMutation) ResetDriver() {
 	m.cleared_driver = false
 }
 
+// SetFromTerminalID sets the "from_terminal" edge to the Terminal entity by id.
+func (m *TripMutation) SetFromTerminalID(id int) {
+	m.from_terminal = &id
+}
+
+// ClearFromTerminal clears the "from_terminal" edge to the Terminal entity.
+func (m *TripMutation) ClearFromTerminal() {
+	m.clearedfrom_terminal = true
+}
+
+// FromTerminalCleared reports if the "from_terminal" edge to the Terminal entity was cleared.
+func (m *TripMutation) FromTerminalCleared() bool {
+	return m.clearedfrom_terminal
+}
+
+// FromTerminalID returns the "from_terminal" edge ID in the mutation.
+func (m *TripMutation) FromTerminalID() (id int, exists bool) {
+	if m.from_terminal != nil {
+		return *m.from_terminal, true
+	}
+	return
+}
+
+// FromTerminalIDs returns the "from_terminal" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// FromTerminalID instead. It exists only for internal usage by the builders.
+func (m *TripMutation) FromTerminalIDs() (ids []int) {
+	if id := m.from_terminal; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetFromTerminal resets all changes to the "from_terminal" edge.
+func (m *TripMutation) ResetFromTerminal() {
+	m.from_terminal = nil
+	m.clearedfrom_terminal = false
+}
+
+// SetToTerminalID sets the "to_terminal" edge to the Terminal entity by id.
+func (m *TripMutation) SetToTerminalID(id int) {
+	m.to_terminal = &id
+}
+
+// ClearToTerminal clears the "to_terminal" edge to the Terminal entity.
+func (m *TripMutation) ClearToTerminal() {
+	m.clearedto_terminal = true
+}
+
+// ToTerminalCleared reports if the "to_terminal" edge to the Terminal entity was cleared.
+func (m *TripMutation) ToTerminalCleared() bool {
+	return m.clearedto_terminal
+}
+
+// ToTerminalID returns the "to_terminal" edge ID in the mutation.
+func (m *TripMutation) ToTerminalID() (id int, exists bool) {
+	if m.to_terminal != nil {
+		return *m.to_terminal, true
+	}
+	return
+}
+
+// ToTerminalIDs returns the "to_terminal" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ToTerminalID instead. It exists only for internal usage by the builders.
+func (m *TripMutation) ToTerminalIDs() (ids []int) {
+	if id := m.to_terminal; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetToTerminal resets all changes to the "to_terminal" edge.
+func (m *TripMutation) ResetToTerminal() {
+	m.to_terminal = nil
+	m.clearedto_terminal = false
+}
+
 // SetVehicleID sets the "vehicle" edge to the Vehicle entity by id.
 func (m *TripMutation) SetVehicleID(id int) {
 	m.vehicle = &id
@@ -16217,12 +17230,18 @@ func (m *TripMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TripMutation) AddedEdges() []string {
-	edges := make([]string, 0, 7)
+	edges := make([]string, 0, 9)
 	if m.company != nil {
 		edges = append(edges, trip.EdgeCompany)
 	}
 	if m._driver != nil {
 		edges = append(edges, trip.EdgeDriver)
+	}
+	if m.from_terminal != nil {
+		edges = append(edges, trip.EdgeFromTerminal)
+	}
+	if m.to_terminal != nil {
+		edges = append(edges, trip.EdgeToTerminal)
 	}
 	if m.vehicle != nil {
 		edges = append(edges, trip.EdgeVehicle)
@@ -16252,6 +17271,14 @@ func (m *TripMutation) AddedIDs(name string) []ent.Value {
 		}
 	case trip.EdgeDriver:
 		if id := m._driver; id != nil {
+			return []ent.Value{*id}
+		}
+	case trip.EdgeFromTerminal:
+		if id := m.from_terminal; id != nil {
+			return []ent.Value{*id}
+		}
+	case trip.EdgeToTerminal:
+		if id := m.to_terminal; id != nil {
 			return []ent.Value{*id}
 		}
 	case trip.EdgeVehicle:
@@ -16286,7 +17313,7 @@ func (m *TripMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TripMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 7)
+	edges := make([]string, 0, 9)
 	if m.removedbookings != nil {
 		edges = append(edges, trip.EdgeBookings)
 	}
@@ -16327,12 +17354,18 @@ func (m *TripMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TripMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 7)
+	edges := make([]string, 0, 9)
 	if m.clearedcompany {
 		edges = append(edges, trip.EdgeCompany)
 	}
 	if m.cleared_driver {
 		edges = append(edges, trip.EdgeDriver)
+	}
+	if m.clearedfrom_terminal {
+		edges = append(edges, trip.EdgeFromTerminal)
+	}
+	if m.clearedto_terminal {
+		edges = append(edges, trip.EdgeToTerminal)
 	}
 	if m.clearedvehicle {
 		edges = append(edges, trip.EdgeVehicle)
@@ -16360,6 +17393,10 @@ func (m *TripMutation) EdgeCleared(name string) bool {
 		return m.clearedcompany
 	case trip.EdgeDriver:
 		return m.cleared_driver
+	case trip.EdgeFromTerminal:
+		return m.clearedfrom_terminal
+	case trip.EdgeToTerminal:
+		return m.clearedto_terminal
 	case trip.EdgeVehicle:
 		return m.clearedvehicle
 	case trip.EdgeRoute:
@@ -16384,6 +17421,12 @@ func (m *TripMutation) ClearEdge(name string) error {
 	case trip.EdgeDriver:
 		m.ClearDriver()
 		return nil
+	case trip.EdgeFromTerminal:
+		m.ClearFromTerminal()
+		return nil
+	case trip.EdgeToTerminal:
+		m.ClearToTerminal()
+		return nil
 	case trip.EdgeVehicle:
 		m.ClearVehicle()
 		return nil
@@ -16403,6 +17446,12 @@ func (m *TripMutation) ResetEdge(name string) error {
 		return nil
 	case trip.EdgeDriver:
 		m.ResetDriver()
+		return nil
+	case trip.EdgeFromTerminal:
+		m.ResetFromTerminal()
+		return nil
+	case trip.EdgeToTerminal:
+		m.ResetToTerminal()
 		return nil
 	case trip.EdgeVehicle:
 		m.ResetVehicle()

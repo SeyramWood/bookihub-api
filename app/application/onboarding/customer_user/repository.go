@@ -7,14 +7,14 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/ent"
-	"github.com/SeyramWood/ent/customer"
-	"github.com/SeyramWood/ent/user"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/ent"
+	"github.com/SeyramWood/bookibus/ent/customer"
+	"github.com/SeyramWood/bookibus/ent/user"
 )
 
 type repository struct {
@@ -44,7 +44,6 @@ func (r *repository) Insert(request *requeststructs.CustomerRequest) (*ent.Custo
 		SetLastName(request.LastName).
 		SetOtherName(request.OtherName).
 		SetPhone(request.Phone).
-		SetOtherPhone(request.OtherPhone).
 		Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed creating customer: %w", err))
@@ -95,7 +94,6 @@ func (r *repository) Update(id int, request *requeststructs.CustomerUpdateReques
 		SetLastName(request.LastName).
 		SetOtherName(request.OtherName).
 		SetPhone(request.Phone).
-		SetOtherPhone(request.OtherPhone).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err

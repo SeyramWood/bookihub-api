@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/company"
+	"github.com/SeyramWood/bookibus/ent/company"
 )
 
 // Company is the model entity for the Company schema.
@@ -39,6 +39,8 @@ type Company struct {
 type CompanyEdges struct {
 	// Profile holds the value of the profile edge.
 	Profile []*CompanyUser `json:"profile,omitempty"`
+	// Terminals holds the value of the terminals edge.
+	Terminals []*Terminal `json:"terminals,omitempty"`
 	// Vehicles holds the value of the vehicles edge.
 	Vehicles []*Vehicle `json:"vehicles,omitempty"`
 	// Routes holds the value of the routes edge.
@@ -55,7 +57,7 @@ type CompanyEdges struct {
 	Notifications []*Notification `json:"notifications,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [9]bool
 }
 
 // ProfileOrErr returns the Profile value or an error if the edge
@@ -67,10 +69,19 @@ func (e CompanyEdges) ProfileOrErr() ([]*CompanyUser, error) {
 	return nil, &NotLoadedError{edge: "profile"}
 }
 
+// TerminalsOrErr returns the Terminals value or an error if the edge
+// was not loaded in eager-loading.
+func (e CompanyEdges) TerminalsOrErr() ([]*Terminal, error) {
+	if e.loadedTypes[1] {
+		return e.Terminals, nil
+	}
+	return nil, &NotLoadedError{edge: "terminals"}
+}
+
 // VehiclesOrErr returns the Vehicles value or an error if the edge
 // was not loaded in eager-loading.
 func (e CompanyEdges) VehiclesOrErr() ([]*Vehicle, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.Vehicles, nil
 	}
 	return nil, &NotLoadedError{edge: "vehicles"}
@@ -79,7 +90,7 @@ func (e CompanyEdges) VehiclesOrErr() ([]*Vehicle, error) {
 // RoutesOrErr returns the Routes value or an error if the edge
 // was not loaded in eager-loading.
 func (e CompanyEdges) RoutesOrErr() ([]*Route, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.Routes, nil
 	}
 	return nil, &NotLoadedError{edge: "routes"}
@@ -88,7 +99,7 @@ func (e CompanyEdges) RoutesOrErr() ([]*Route, error) {
 // TripsOrErr returns the Trips value or an error if the edge
 // was not loaded in eager-loading.
 func (e CompanyEdges) TripsOrErr() ([]*Trip, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		return e.Trips, nil
 	}
 	return nil, &NotLoadedError{edge: "trips"}
@@ -97,7 +108,7 @@ func (e CompanyEdges) TripsOrErr() ([]*Trip, error) {
 // BookingsOrErr returns the Bookings value or an error if the edge
 // was not loaded in eager-loading.
 func (e CompanyEdges) BookingsOrErr() ([]*Booking, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[5] {
 		return e.Bookings, nil
 	}
 	return nil, &NotLoadedError{edge: "bookings"}
@@ -106,7 +117,7 @@ func (e CompanyEdges) BookingsOrErr() ([]*Booking, error) {
 // IncidentsOrErr returns the Incidents value or an error if the edge
 // was not loaded in eager-loading.
 func (e CompanyEdges) IncidentsOrErr() ([]*Incident, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[6] {
 		return e.Incidents, nil
 	}
 	return nil, &NotLoadedError{edge: "incidents"}
@@ -115,7 +126,7 @@ func (e CompanyEdges) IncidentsOrErr() ([]*Incident, error) {
 // ParcelsOrErr returns the Parcels value or an error if the edge
 // was not loaded in eager-loading.
 func (e CompanyEdges) ParcelsOrErr() ([]*Parcel, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[7] {
 		return e.Parcels, nil
 	}
 	return nil, &NotLoadedError{edge: "parcels"}
@@ -124,7 +135,7 @@ func (e CompanyEdges) ParcelsOrErr() ([]*Parcel, error) {
 // NotificationsOrErr returns the Notifications value or an error if the edge
 // was not loaded in eager-loading.
 func (e CompanyEdges) NotificationsOrErr() ([]*Notification, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[8] {
 		return e.Notifications, nil
 	}
 	return nil, &NotLoadedError{edge: "notifications"}
@@ -214,6 +225,11 @@ func (c *Company) Value(name string) (ent.Value, error) {
 // QueryProfile queries the "profile" edge of the Company entity.
 func (c *Company) QueryProfile() *CompanyUserQuery {
 	return NewCompanyClient(c.config).QueryProfile(c)
+}
+
+// QueryTerminals queries the "terminals" edge of the Company entity.
+func (c *Company) QueryTerminals() *TerminalQuery {
+	return NewCompanyClient(c.config).QueryTerminals(c)
 }
 
 // QueryVehicles queries the "vehicles" edge of the Company entity.

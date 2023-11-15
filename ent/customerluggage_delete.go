@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/customerluggage"
-	"github.com/SeyramWood/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/customerluggage"
+	"github.com/SeyramWood/bookibus/ent/predicate"
 )
 
 // CustomerLuggageDelete is the builder for deleting a CustomerLuggage entity.

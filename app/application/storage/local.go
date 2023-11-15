@@ -16,7 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/noelyahan/mergi"
 
-	"github.com/SeyramWood/config"
+	"github.com/SeyramWood/bookibus/config"
 )
 
 type local struct {

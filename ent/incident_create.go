@@ -10,11 +10,11 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/incidentimage"
-	"github.com/SeyramWood/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/incidentimage"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // IncidentCreate is the builder for creating a Incident entity.
@@ -78,6 +78,12 @@ func (ic *IncidentCreate) SetDescription(s string) *IncidentCreate {
 	return ic
 }
 
+// SetType sets the "type" field.
+func (ic *IncidentCreate) SetType(s string) *IncidentCreate {
+	ic.mutation.SetType(s)
+	return ic
+}
+
 // SetAudio sets the "audio" field.
 func (ic *IncidentCreate) SetAudio(s string) *IncidentCreate {
 	ic.mutation.SetAudio(s)
@@ -88,6 +94,20 @@ func (ic *IncidentCreate) SetAudio(s string) *IncidentCreate {
 func (ic *IncidentCreate) SetNillableAudio(s *string) *IncidentCreate {
 	if s != nil {
 		ic.SetAudio(*s)
+	}
+	return ic
+}
+
+// SetStatus sets the "status" field.
+func (ic *IncidentCreate) SetStatus(i incident.Status) *IncidentCreate {
+	ic.mutation.SetStatus(i)
+	return ic
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ic *IncidentCreate) SetNillableStatus(i *incident.Status) *IncidentCreate {
+	if i != nil {
+		ic.SetStatus(*i)
 	}
 	return ic
 }
@@ -207,6 +227,10 @@ func (ic *IncidentCreate) defaults() {
 		v := incident.DefaultUpdatedAt()
 		ic.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := ic.mutation.Status(); !ok {
+		v := incident.DefaultStatus
+		ic.mutation.SetStatus(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -231,6 +255,22 @@ func (ic *IncidentCreate) check() error {
 	if v, ok := ic.mutation.Description(); ok {
 		if err := incident.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Incident.description": %w`, err)}
+		}
+	}
+	if _, ok := ic.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Incident.type"`)}
+	}
+	if v, ok := ic.mutation.GetType(); ok {
+		if err := incident.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Incident.type": %w`, err)}
+		}
+	}
+	if _, ok := ic.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Incident.status"`)}
+	}
+	if v, ok := ic.mutation.Status(); ok {
+		if err := incident.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Incident.status": %w`, err)}
 		}
 	}
 	return nil
@@ -279,9 +319,17 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 		_spec.SetField(incident.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
+	if value, ok := ic.mutation.GetType(); ok {
+		_spec.SetField(incident.FieldType, field.TypeString, value)
+		_node.Type = value
+	}
 	if value, ok := ic.mutation.Audio(); ok {
 		_spec.SetField(incident.FieldAudio, field.TypeString, value)
 		_node.Audio = value
+	}
+	if value, ok := ic.mutation.Status(); ok {
+		_spec.SetField(incident.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
 	if nodes := ic.mutation.ImagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

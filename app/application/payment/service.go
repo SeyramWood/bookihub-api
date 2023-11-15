@@ -1,8 +1,8 @@
 package payment
 
 import (
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/config"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/config"
 )
 
 func NewPaymentService() gateways.PaymentService {

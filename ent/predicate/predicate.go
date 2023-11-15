@@ -51,6 +51,9 @@ type Route func(*sql.Selector)
 // RouteStop is the predicate function for routestop builders.
 type RouteStop func(*sql.Selector)
 
+// Terminal is the predicate function for terminal builders.
+type Terminal func(*sql.Selector)
+
 // Trip is the predicate function for trip builders.
 type Trip func(*sql.Selector)
 

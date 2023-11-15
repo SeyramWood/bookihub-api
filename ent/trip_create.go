@@ -10,14 +10,15 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
 
 // TripCreate is the builder for creating a Trip entity.
@@ -273,6 +274,44 @@ func (tc *TripCreate) SetNillableDriverID(id *int) *TripCreate {
 // SetDriver sets the "driver" edge to the CompanyUser entity.
 func (tc *TripCreate) SetDriver(c *CompanyUser) *TripCreate {
 	return tc.SetDriverID(c.ID)
+}
+
+// SetFromTerminalID sets the "from_terminal" edge to the Terminal entity by ID.
+func (tc *TripCreate) SetFromTerminalID(id int) *TripCreate {
+	tc.mutation.SetFromTerminalID(id)
+	return tc
+}
+
+// SetNillableFromTerminalID sets the "from_terminal" edge to the Terminal entity by ID if the given value is not nil.
+func (tc *TripCreate) SetNillableFromTerminalID(id *int) *TripCreate {
+	if id != nil {
+		tc = tc.SetFromTerminalID(*id)
+	}
+	return tc
+}
+
+// SetFromTerminal sets the "from_terminal" edge to the Terminal entity.
+func (tc *TripCreate) SetFromTerminal(t *Terminal) *TripCreate {
+	return tc.SetFromTerminalID(t.ID)
+}
+
+// SetToTerminalID sets the "to_terminal" edge to the Terminal entity by ID.
+func (tc *TripCreate) SetToTerminalID(id int) *TripCreate {
+	tc.mutation.SetToTerminalID(id)
+	return tc
+}
+
+// SetNillableToTerminalID sets the "to_terminal" edge to the Terminal entity by ID if the given value is not nil.
+func (tc *TripCreate) SetNillableToTerminalID(id *int) *TripCreate {
+	if id != nil {
+		tc = tc.SetToTerminalID(*id)
+	}
+	return tc
+}
+
+// SetToTerminal sets the "to_terminal" edge to the Terminal entity.
+func (tc *TripCreate) SetToTerminal(t *Terminal) *TripCreate {
+	return tc.SetToTerminalID(t.ID)
 }
 
 // SetVehicleID sets the "vehicle" edge to the Vehicle entity by ID.
@@ -602,6 +641,40 @@ func (tc *TripCreate) createSpec() (*Trip, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.company_user_trips = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tc.mutation.FromTerminalIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trip.FromTerminalTable,
+			Columns: []string{trip.FromTerminalColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.terminal_from = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tc.mutation.ToTerminalIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trip.ToTerminalTable,
+			Columns: []string{trip.ToTerminalColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.terminal_to = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := tc.mutation.VehicleIDs(); len(nodes) > 0 {

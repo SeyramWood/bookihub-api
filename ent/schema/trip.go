@@ -47,6 +47,12 @@ func (Trip) Edges() []ent.Edge {
 		edge.From("driver", CompanyUser.Type).
 			Ref("trips").
 			Unique(),
+		edge.From("from_terminal", Terminal.Type).
+			Ref("from").
+			Unique(),
+		edge.From("to_terminal", Terminal.Type).
+			Ref("to").
+			Unique(),
 		edge.From("vehicle", Vehicle.Type).
 			Ref("trips").
 			Unique(),

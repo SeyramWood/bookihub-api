@@ -11,15 +11,16 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
 
 // TripUpdate is the builder for updating Trip entities.
@@ -293,6 +294,44 @@ func (tu *TripUpdate) SetDriver(c *CompanyUser) *TripUpdate {
 	return tu.SetDriverID(c.ID)
 }
 
+// SetFromTerminalID sets the "from_terminal" edge to the Terminal entity by ID.
+func (tu *TripUpdate) SetFromTerminalID(id int) *TripUpdate {
+	tu.mutation.SetFromTerminalID(id)
+	return tu
+}
+
+// SetNillableFromTerminalID sets the "from_terminal" edge to the Terminal entity by ID if the given value is not nil.
+func (tu *TripUpdate) SetNillableFromTerminalID(id *int) *TripUpdate {
+	if id != nil {
+		tu = tu.SetFromTerminalID(*id)
+	}
+	return tu
+}
+
+// SetFromTerminal sets the "from_terminal" edge to the Terminal entity.
+func (tu *TripUpdate) SetFromTerminal(t *Terminal) *TripUpdate {
+	return tu.SetFromTerminalID(t.ID)
+}
+
+// SetToTerminalID sets the "to_terminal" edge to the Terminal entity by ID.
+func (tu *TripUpdate) SetToTerminalID(id int) *TripUpdate {
+	tu.mutation.SetToTerminalID(id)
+	return tu
+}
+
+// SetNillableToTerminalID sets the "to_terminal" edge to the Terminal entity by ID if the given value is not nil.
+func (tu *TripUpdate) SetNillableToTerminalID(id *int) *TripUpdate {
+	if id != nil {
+		tu = tu.SetToTerminalID(*id)
+	}
+	return tu
+}
+
+// SetToTerminal sets the "to_terminal" edge to the Terminal entity.
+func (tu *TripUpdate) SetToTerminal(t *Terminal) *TripUpdate {
+	return tu.SetToTerminalID(t.ID)
+}
+
 // SetVehicleID sets the "vehicle" edge to the Vehicle entity by ID.
 func (tu *TripUpdate) SetVehicleID(id int) *TripUpdate {
 	tu.mutation.SetVehicleID(id)
@@ -390,6 +429,18 @@ func (tu *TripUpdate) ClearCompany() *TripUpdate {
 // ClearDriver clears the "driver" edge to the CompanyUser entity.
 func (tu *TripUpdate) ClearDriver() *TripUpdate {
 	tu.mutation.ClearDriver()
+	return tu
+}
+
+// ClearFromTerminal clears the "from_terminal" edge to the Terminal entity.
+func (tu *TripUpdate) ClearFromTerminal() *TripUpdate {
+	tu.mutation.ClearFromTerminal()
+	return tu
+}
+
+// ClearToTerminal clears the "to_terminal" edge to the Terminal entity.
+func (tu *TripUpdate) ClearToTerminal() *TripUpdate {
+	tu.mutation.ClearToTerminal()
 	return tu
 }
 
@@ -645,6 +696,64 @@ func (tu *TripUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(companyuser.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tu.mutation.FromTerminalCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trip.FromTerminalTable,
+			Columns: []string{trip.FromTerminalColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.FromTerminalIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trip.FromTerminalTable,
+			Columns: []string{trip.FromTerminalColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tu.mutation.ToTerminalCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trip.ToTerminalTable,
+			Columns: []string{trip.ToTerminalColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.ToTerminalIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trip.ToTerminalTable,
+			Columns: []string{trip.ToTerminalColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1124,6 +1233,44 @@ func (tuo *TripUpdateOne) SetDriver(c *CompanyUser) *TripUpdateOne {
 	return tuo.SetDriverID(c.ID)
 }
 
+// SetFromTerminalID sets the "from_terminal" edge to the Terminal entity by ID.
+func (tuo *TripUpdateOne) SetFromTerminalID(id int) *TripUpdateOne {
+	tuo.mutation.SetFromTerminalID(id)
+	return tuo
+}
+
+// SetNillableFromTerminalID sets the "from_terminal" edge to the Terminal entity by ID if the given value is not nil.
+func (tuo *TripUpdateOne) SetNillableFromTerminalID(id *int) *TripUpdateOne {
+	if id != nil {
+		tuo = tuo.SetFromTerminalID(*id)
+	}
+	return tuo
+}
+
+// SetFromTerminal sets the "from_terminal" edge to the Terminal entity.
+func (tuo *TripUpdateOne) SetFromTerminal(t *Terminal) *TripUpdateOne {
+	return tuo.SetFromTerminalID(t.ID)
+}
+
+// SetToTerminalID sets the "to_terminal" edge to the Terminal entity by ID.
+func (tuo *TripUpdateOne) SetToTerminalID(id int) *TripUpdateOne {
+	tuo.mutation.SetToTerminalID(id)
+	return tuo
+}
+
+// SetNillableToTerminalID sets the "to_terminal" edge to the Terminal entity by ID if the given value is not nil.
+func (tuo *TripUpdateOne) SetNillableToTerminalID(id *int) *TripUpdateOne {
+	if id != nil {
+		tuo = tuo.SetToTerminalID(*id)
+	}
+	return tuo
+}
+
+// SetToTerminal sets the "to_terminal" edge to the Terminal entity.
+func (tuo *TripUpdateOne) SetToTerminal(t *Terminal) *TripUpdateOne {
+	return tuo.SetToTerminalID(t.ID)
+}
+
 // SetVehicleID sets the "vehicle" edge to the Vehicle entity by ID.
 func (tuo *TripUpdateOne) SetVehicleID(id int) *TripUpdateOne {
 	tuo.mutation.SetVehicleID(id)
@@ -1221,6 +1368,18 @@ func (tuo *TripUpdateOne) ClearCompany() *TripUpdateOne {
 // ClearDriver clears the "driver" edge to the CompanyUser entity.
 func (tuo *TripUpdateOne) ClearDriver() *TripUpdateOne {
 	tuo.mutation.ClearDriver()
+	return tuo
+}
+
+// ClearFromTerminal clears the "from_terminal" edge to the Terminal entity.
+func (tuo *TripUpdateOne) ClearFromTerminal() *TripUpdateOne {
+	tuo.mutation.ClearFromTerminal()
+	return tuo
+}
+
+// ClearToTerminal clears the "to_terminal" edge to the Terminal entity.
+func (tuo *TripUpdateOne) ClearToTerminal() *TripUpdateOne {
+	tuo.mutation.ClearToTerminal()
 	return tuo
 }
 
@@ -1506,6 +1665,64 @@ func (tuo *TripUpdateOne) sqlSave(ctx context.Context) (_node *Trip, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(companyuser.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.FromTerminalCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trip.FromTerminalTable,
+			Columns: []string{trip.FromTerminalColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.FromTerminalIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trip.FromTerminalTable,
+			Columns: []string{trip.FromTerminalColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.ToTerminalCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trip.ToTerminalTable,
+			Columns: []string{trip.ToTerminalColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.ToTerminalIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   trip.ToTerminalTable,
+			Columns: []string{trip.ToTerminalColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

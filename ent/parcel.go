@@ -9,10 +9,10 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // Parcel is the model entity for the Parcel schema.
@@ -26,16 +26,22 @@ type Parcel struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// ParcelCode holds the value of the "parcel_code" field.
 	ParcelCode string `json:"parcel_code,omitempty"`
+	// Type holds the value of the "type" field.
+	Type string `json:"type,omitempty"`
 	// SenderName holds the value of the "sender_name" field.
 	SenderName string `json:"sender_name,omitempty"`
 	// SenderPhone holds the value of the "sender_phone" field.
 	SenderPhone string `json:"sender_phone,omitempty"`
+	// SenderEmail holds the value of the "sender_email" field.
+	SenderEmail string `json:"sender_email,omitempty"`
 	// RecipientName holds the value of the "recipient_name" field.
 	RecipientName string `json:"recipient_name,omitempty"`
 	// RecipientPhone holds the value of the "recipient_phone" field.
 	RecipientPhone string `json:"recipient_phone,omitempty"`
 	// RecipientLocation holds the value of the "recipient_location" field.
 	RecipientLocation string `json:"recipient_location,omitempty"`
+	// Weight holds the value of the "weight" field.
+	Weight float32 `json:"weight,omitempty"`
 	// Amount holds the value of the "amount" field.
 	Amount float64 `json:"amount,omitempty"`
 	// PaidAt holds the value of the "paid_at" field.
@@ -121,11 +127,11 @@ func (*Parcel) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case parcel.FieldAmount:
+		case parcel.FieldWeight, parcel.FieldAmount:
 			values[i] = new(sql.NullFloat64)
 		case parcel.FieldID:
 			values[i] = new(sql.NullInt64)
-		case parcel.FieldParcelCode, parcel.FieldSenderName, parcel.FieldSenderPhone, parcel.FieldRecipientName, parcel.FieldRecipientPhone, parcel.FieldRecipientLocation, parcel.FieldTansType, parcel.FieldStatus:
+		case parcel.FieldParcelCode, parcel.FieldType, parcel.FieldSenderName, parcel.FieldSenderPhone, parcel.FieldSenderEmail, parcel.FieldRecipientName, parcel.FieldRecipientPhone, parcel.FieldRecipientLocation, parcel.FieldTansType, parcel.FieldStatus:
 			values[i] = new(sql.NullString)
 		case parcel.FieldCreatedAt, parcel.FieldUpdatedAt, parcel.FieldPaidAt:
 			values[i] = new(sql.NullTime)
@@ -174,6 +180,12 @@ func (pa *Parcel) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pa.ParcelCode = value.String
 			}
+		case parcel.FieldType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				pa.Type = value.String
+			}
 		case parcel.FieldSenderName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field sender_name", values[i])
@@ -185,6 +197,12 @@ func (pa *Parcel) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field sender_phone", values[i])
 			} else if value.Valid {
 				pa.SenderPhone = value.String
+			}
+		case parcel.FieldSenderEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field sender_email", values[i])
+			} else if value.Valid {
+				pa.SenderEmail = value.String
 			}
 		case parcel.FieldRecipientName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -203,6 +221,12 @@ func (pa *Parcel) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field recipient_location", values[i])
 			} else if value.Valid {
 				pa.RecipientLocation = value.String
+			}
+		case parcel.FieldWeight:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field weight", values[i])
+			} else if value.Valid {
+				pa.Weight = float32(value.Float64)
 			}
 		case parcel.FieldAmount:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
@@ -314,11 +338,17 @@ func (pa *Parcel) String() string {
 	builder.WriteString("parcel_code=")
 	builder.WriteString(pa.ParcelCode)
 	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(pa.Type)
+	builder.WriteString(", ")
 	builder.WriteString("sender_name=")
 	builder.WriteString(pa.SenderName)
 	builder.WriteString(", ")
 	builder.WriteString("sender_phone=")
 	builder.WriteString(pa.SenderPhone)
+	builder.WriteString(", ")
+	builder.WriteString("sender_email=")
+	builder.WriteString(pa.SenderEmail)
 	builder.WriteString(", ")
 	builder.WriteString("recipient_name=")
 	builder.WriteString(pa.RecipientName)
@@ -328,6 +358,9 @@ func (pa *Parcel) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("recipient_location=")
 	builder.WriteString(pa.RecipientLocation)
+	builder.WriteString(", ")
+	builder.WriteString("weight=")
+	builder.WriteString(fmt.Sprintf("%v", pa.Weight))
 	builder.WriteString(", ")
 	builder.WriteString("amount=")
 	builder.WriteString(fmt.Sprintf("%v", pa.Amount))

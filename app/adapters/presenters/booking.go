@@ -3,7 +3,7 @@ package presenters
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 type (
@@ -161,8 +161,6 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 								ID:            r.ID,
 								From:          r.FromLocation,
 								To:            r.ToLocation,
-								FromTerminal:  r.FromTerminal,
-								ToTerminal:    r.ToTerminal,
 								FromLatitude:  r.FromLatitude,
 								FromLongitude: r.FromLongitude,
 								ToLatitude:    r.ToLatitude,
@@ -333,8 +331,6 @@ func BookingsResponse(data *PaginationResponse) *fiber.Map {
 									ID:            r.ID,
 									From:          r.FromLocation,
 									To:            r.ToLocation,
-									FromTerminal:  r.FromTerminal,
-									ToTerminal:    r.ToTerminal,
 									FromLatitude:  r.FromLatitude,
 									FromLongitude: r.FromLongitude,
 									ToLatitude:    r.ToLatitude,

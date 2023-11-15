@@ -6,13 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/adapters/presenters"
-	"github.com/SeyramWood/app/application/payment"
-	"github.com/SeyramWood/app/domain"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/config"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application/payment"
+	"github.com/SeyramWood/bookibus/app/domain"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/config"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 var (
@@ -106,6 +106,11 @@ func (s *service) Create(companyId int, request *requeststructs.ParcelRequest, t
 // Fetch implements gateways.ParcelService.
 func (s *service) Fetch(id int) (*ent.Parcel, error) {
 	return s.repo.Read(id)
+}
+
+// FetchByCode implements gateways.ParcelService.
+func (s *service) FetchByCode(code string) (*ent.Parcel, error) {
+	return s.repo.ReadByCode(code)
 }
 
 // FetchAll implements gateways.ParcelService.

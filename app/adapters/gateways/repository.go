@@ -1,9 +1,9 @@
 package gateways
 
 import (
-	"github.com/SeyramWood/app/adapters/presenters"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 type (
@@ -40,6 +40,14 @@ type (
 		Read(id int) (*ent.Company, error)
 		Insert(request *requeststructs.CompanyRequest) (*ent.Company, error)
 		Update(id int, request *requeststructs.CompanyUpdateRequest) (*ent.Company, error)
+		Delete(id int) error
+	}
+	TerminalRepo interface {
+		ReadAll(limit, offset int) (*presenters.PaginationResponse, error)
+		ReadAllByCompany(companyId, limit, offset int) (*presenters.PaginationResponse, error)
+		Read(id int) (*ent.Terminal, error)
+		Insert(companyId int, request *requeststructs.TerminalRequest) (*ent.Terminal, error)
+		Update(id int, request *requeststructs.TerminalRequest) (*ent.Terminal, error)
 		Delete(id int) error
 	}
 	VehicleRepo interface {
@@ -95,6 +103,7 @@ type (
 		ReadAll(limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
 		ReadAllByCompany(companyId, limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
 		ReadAllByDriver(driverId, limit, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error)
+		ReadByCode(code string) (*ent.Parcel, error)
 		Read(id int) (*ent.Parcel, error)
 		ReadImage(id int) (*ent.ParcelImage, error)
 		Insert(companyId int, request *requeststructs.ParcelRequest, refResponse *requeststructs.PaymentReferenceResponse, images []string) (*ent.Parcel, error)
@@ -114,6 +123,7 @@ type (
 		Insert(companyId int, request *requeststructs.IncidentRequest, images []string, audio ...string) (*ent.Incident, error)
 		InsertImage(id int, request []string) (*ent.Incident, error)
 		Update(id int, request *requeststructs.IncidentUpdateRequest) (*ent.Incident, error)
+		UpdateStatus(id int, status string) (*ent.Incident, error)
 		UpdateAudio(id int, request string) (*ent.Incident, error)
 		UpdateImage(id int, request string) (*ent.IncidentImage, error)
 		Delete(id int) error

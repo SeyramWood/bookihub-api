@@ -11,11 +11,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/routestop"
-	"github.com/SeyramWood/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // RouteUpdate is the builder for updating Route entities.
@@ -44,49 +44,9 @@ func (ru *RouteUpdate) SetFromLocation(s string) *RouteUpdate {
 	return ru
 }
 
-// SetFromTerminal sets the "from_terminal" field.
-func (ru *RouteUpdate) SetFromTerminal(s string) *RouteUpdate {
-	ru.mutation.SetFromTerminal(s)
-	return ru
-}
-
-// SetNillableFromTerminal sets the "from_terminal" field if the given value is not nil.
-func (ru *RouteUpdate) SetNillableFromTerminal(s *string) *RouteUpdate {
-	if s != nil {
-		ru.SetFromTerminal(*s)
-	}
-	return ru
-}
-
-// ClearFromTerminal clears the value of the "from_terminal" field.
-func (ru *RouteUpdate) ClearFromTerminal() *RouteUpdate {
-	ru.mutation.ClearFromTerminal()
-	return ru
-}
-
 // SetToLocation sets the "to_location" field.
 func (ru *RouteUpdate) SetToLocation(s string) *RouteUpdate {
 	ru.mutation.SetToLocation(s)
-	return ru
-}
-
-// SetToTerminal sets the "to_terminal" field.
-func (ru *RouteUpdate) SetToTerminal(s string) *RouteUpdate {
-	ru.mutation.SetToTerminal(s)
-	return ru
-}
-
-// SetNillableToTerminal sets the "to_terminal" field if the given value is not nil.
-func (ru *RouteUpdate) SetNillableToTerminal(s *string) *RouteUpdate {
-	if s != nil {
-		ru.SetToTerminal(*s)
-	}
-	return ru
-}
-
-// ClearToTerminal clears the value of the "to_terminal" field.
-func (ru *RouteUpdate) ClearToTerminal() *RouteUpdate {
-	ru.mutation.ClearToTerminal()
 	return ru
 }
 
@@ -438,20 +398,8 @@ func (ru *RouteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ru.mutation.FromLocation(); ok {
 		_spec.SetField(route.FieldFromLocation, field.TypeString, value)
 	}
-	if value, ok := ru.mutation.FromTerminal(); ok {
-		_spec.SetField(route.FieldFromTerminal, field.TypeString, value)
-	}
-	if ru.mutation.FromTerminalCleared() {
-		_spec.ClearField(route.FieldFromTerminal, field.TypeString)
-	}
 	if value, ok := ru.mutation.ToLocation(); ok {
 		_spec.SetField(route.FieldToLocation, field.TypeString, value)
-	}
-	if value, ok := ru.mutation.ToTerminal(); ok {
-		_spec.SetField(route.FieldToTerminal, field.TypeString, value)
-	}
-	if ru.mutation.ToTerminalCleared() {
-		_spec.ClearField(route.FieldToTerminal, field.TypeString)
 	}
 	if value, ok := ru.mutation.FromLatitude(); ok {
 		_spec.SetField(route.FieldFromLatitude, field.TypeFloat64, value)
@@ -660,49 +608,9 @@ func (ruo *RouteUpdateOne) SetFromLocation(s string) *RouteUpdateOne {
 	return ruo
 }
 
-// SetFromTerminal sets the "from_terminal" field.
-func (ruo *RouteUpdateOne) SetFromTerminal(s string) *RouteUpdateOne {
-	ruo.mutation.SetFromTerminal(s)
-	return ruo
-}
-
-// SetNillableFromTerminal sets the "from_terminal" field if the given value is not nil.
-func (ruo *RouteUpdateOne) SetNillableFromTerminal(s *string) *RouteUpdateOne {
-	if s != nil {
-		ruo.SetFromTerminal(*s)
-	}
-	return ruo
-}
-
-// ClearFromTerminal clears the value of the "from_terminal" field.
-func (ruo *RouteUpdateOne) ClearFromTerminal() *RouteUpdateOne {
-	ruo.mutation.ClearFromTerminal()
-	return ruo
-}
-
 // SetToLocation sets the "to_location" field.
 func (ruo *RouteUpdateOne) SetToLocation(s string) *RouteUpdateOne {
 	ruo.mutation.SetToLocation(s)
-	return ruo
-}
-
-// SetToTerminal sets the "to_terminal" field.
-func (ruo *RouteUpdateOne) SetToTerminal(s string) *RouteUpdateOne {
-	ruo.mutation.SetToTerminal(s)
-	return ruo
-}
-
-// SetNillableToTerminal sets the "to_terminal" field if the given value is not nil.
-func (ruo *RouteUpdateOne) SetNillableToTerminal(s *string) *RouteUpdateOne {
-	if s != nil {
-		ruo.SetToTerminal(*s)
-	}
-	return ruo
-}
-
-// ClearToTerminal clears the value of the "to_terminal" field.
-func (ruo *RouteUpdateOne) ClearToTerminal() *RouteUpdateOne {
-	ruo.mutation.ClearToTerminal()
 	return ruo
 }
 
@@ -1084,20 +992,8 @@ func (ruo *RouteUpdateOne) sqlSave(ctx context.Context) (_node *Route, err error
 	if value, ok := ruo.mutation.FromLocation(); ok {
 		_spec.SetField(route.FieldFromLocation, field.TypeString, value)
 	}
-	if value, ok := ruo.mutation.FromTerminal(); ok {
-		_spec.SetField(route.FieldFromTerminal, field.TypeString, value)
-	}
-	if ruo.mutation.FromTerminalCleared() {
-		_spec.ClearField(route.FieldFromTerminal, field.TypeString)
-	}
 	if value, ok := ruo.mutation.ToLocation(); ok {
 		_spec.SetField(route.FieldToLocation, field.TypeString, value)
-	}
-	if value, ok := ruo.mutation.ToTerminal(); ok {
-		_spec.SetField(route.FieldToTerminal, field.TypeString, value)
-	}
-	if ruo.mutation.ToTerminalCleared() {
-		_spec.ClearField(route.FieldToTerminal, field.TypeString)
 	}
 	if value, ok := ruo.mutation.FromLatitude(); ok {
 		_spec.SetField(route.FieldFromLatitude, field.TypeFloat64, value)

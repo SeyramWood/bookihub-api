@@ -5,26 +5,27 @@ package ent
 import (
 	"time"
 
-	"github.com/SeyramWood/ent/bookibususer"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/customer"
-	"github.com/SeyramWood/ent/customercontact"
-	"github.com/SeyramWood/ent/customerluggage"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/incidentimage"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/parcelimage"
-	"github.com/SeyramWood/ent/passenger"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/routestop"
-	"github.com/SeyramWood/ent/schema"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/user"
-	"github.com/SeyramWood/ent/vehicle"
-	"github.com/SeyramWood/ent/vehicleimage"
+	"github.com/SeyramWood/bookibus/ent/bookibususer"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/customer"
+	"github.com/SeyramWood/bookibus/ent/customercontact"
+	"github.com/SeyramWood/bookibus/ent/customerluggage"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/incidentimage"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/passenger"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/schema"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/user"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/vehicleimage"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -235,6 +236,10 @@ func init() {
 	incidentDescDescription := incidentFields[2].Descriptor()
 	// incident.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	incident.DescriptionValidator = incidentDescDescription.Validators[0].(func(string) error)
+	// incidentDescType is the schema descriptor for type field.
+	incidentDescType := incidentFields[3].Descriptor()
+	// incident.TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	incident.TypeValidator = incidentDescType.Validators[0].(func(string) error)
 	incidentimageMixin := schema.IncidentImage{}.Mixin()
 	incidentimageMixinFields0 := incidentimageMixin[0].Fields()
 	_ = incidentimageMixinFields0
@@ -291,28 +296,36 @@ func init() {
 	parcelDescParcelCode := parcelFields[0].Descriptor()
 	// parcel.ParcelCodeValidator is a validator for the "parcel_code" field. It is called by the builders before save.
 	parcel.ParcelCodeValidator = parcelDescParcelCode.Validators[0].(func(string) error)
+	// parcelDescType is the schema descriptor for type field.
+	parcelDescType := parcelFields[1].Descriptor()
+	// parcel.TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	parcel.TypeValidator = parcelDescType.Validators[0].(func(string) error)
 	// parcelDescSenderName is the schema descriptor for sender_name field.
-	parcelDescSenderName := parcelFields[1].Descriptor()
+	parcelDescSenderName := parcelFields[2].Descriptor()
 	// parcel.SenderNameValidator is a validator for the "sender_name" field. It is called by the builders before save.
 	parcel.SenderNameValidator = parcelDescSenderName.Validators[0].(func(string) error)
 	// parcelDescSenderPhone is the schema descriptor for sender_phone field.
-	parcelDescSenderPhone := parcelFields[2].Descriptor()
+	parcelDescSenderPhone := parcelFields[3].Descriptor()
 	// parcel.SenderPhoneValidator is a validator for the "sender_phone" field. It is called by the builders before save.
 	parcel.SenderPhoneValidator = parcelDescSenderPhone.Validators[0].(func(string) error)
+	// parcelDescSenderEmail is the schema descriptor for sender_email field.
+	parcelDescSenderEmail := parcelFields[4].Descriptor()
+	// parcel.SenderEmailValidator is a validator for the "sender_email" field. It is called by the builders before save.
+	parcel.SenderEmailValidator = parcelDescSenderEmail.Validators[0].(func(string) error)
 	// parcelDescRecipientName is the schema descriptor for recipient_name field.
-	parcelDescRecipientName := parcelFields[3].Descriptor()
+	parcelDescRecipientName := parcelFields[5].Descriptor()
 	// parcel.RecipientNameValidator is a validator for the "recipient_name" field. It is called by the builders before save.
 	parcel.RecipientNameValidator = parcelDescRecipientName.Validators[0].(func(string) error)
 	// parcelDescRecipientPhone is the schema descriptor for recipient_phone field.
-	parcelDescRecipientPhone := parcelFields[4].Descriptor()
+	parcelDescRecipientPhone := parcelFields[6].Descriptor()
 	// parcel.RecipientPhoneValidator is a validator for the "recipient_phone" field. It is called by the builders before save.
 	parcel.RecipientPhoneValidator = parcelDescRecipientPhone.Validators[0].(func(string) error)
 	// parcelDescRecipientLocation is the schema descriptor for recipient_location field.
-	parcelDescRecipientLocation := parcelFields[5].Descriptor()
+	parcelDescRecipientLocation := parcelFields[7].Descriptor()
 	// parcel.RecipientLocationValidator is a validator for the "recipient_location" field. It is called by the builders before save.
 	parcel.RecipientLocationValidator = parcelDescRecipientLocation.Validators[0].(func(string) error)
 	// parcelDescAmount is the schema descriptor for amount field.
-	parcelDescAmount := parcelFields[6].Descriptor()
+	parcelDescAmount := parcelFields[9].Descriptor()
 	// parcel.DefaultAmount holds the default value on creation for the amount field.
 	parcel.DefaultAmount = parcelDescAmount.Default.(float64)
 	parcelimageMixin := schema.ParcelImage{}.Mixin()
@@ -373,19 +386,19 @@ func init() {
 	// route.FromLocationValidator is a validator for the "from_location" field. It is called by the builders before save.
 	route.FromLocationValidator = routeDescFromLocation.Validators[0].(func(string) error)
 	// routeDescToLocation is the schema descriptor for to_location field.
-	routeDescToLocation := routeFields[2].Descriptor()
+	routeDescToLocation := routeFields[1].Descriptor()
 	// route.ToLocationValidator is a validator for the "to_location" field. It is called by the builders before save.
 	route.ToLocationValidator = routeDescToLocation.Validators[0].(func(string) error)
 	// routeDescRate is the schema descriptor for rate field.
-	routeDescRate := routeFields[8].Descriptor()
+	routeDescRate := routeFields[6].Descriptor()
 	// route.DefaultRate holds the default value on creation for the rate field.
 	route.DefaultRate = routeDescRate.Default.(float64)
 	// routeDescDiscount is the schema descriptor for discount field.
-	routeDescDiscount := routeFields[9].Descriptor()
+	routeDescDiscount := routeFields[7].Descriptor()
 	// route.DefaultDiscount holds the default value on creation for the discount field.
 	route.DefaultDiscount = routeDescDiscount.Default.(float32)
 	// routeDescPopularity is the schema descriptor for popularity field.
-	routeDescPopularity := routeFields[10].Descriptor()
+	routeDescPopularity := routeFields[8].Descriptor()
 	// route.DefaultPopularity holds the default value on creation for the popularity field.
 	route.DefaultPopularity = routeDescPopularity.Default.(int)
 	routestopMixin := schema.RouteStop{}.Mixin()
@@ -403,6 +416,25 @@ func init() {
 	routestop.DefaultUpdatedAt = routestopDescUpdatedAt.Default.(func() time.Time)
 	// routestop.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	routestop.UpdateDefaultUpdatedAt = routestopDescUpdatedAt.UpdateDefault.(func() time.Time)
+	terminalMixin := schema.Terminal{}.Mixin()
+	terminalMixinFields0 := terminalMixin[0].Fields()
+	_ = terminalMixinFields0
+	terminalFields := schema.Terminal{}.Fields()
+	_ = terminalFields
+	// terminalDescCreatedAt is the schema descriptor for created_at field.
+	terminalDescCreatedAt := terminalMixinFields0[0].Descriptor()
+	// terminal.DefaultCreatedAt holds the default value on creation for the created_at field.
+	terminal.DefaultCreatedAt = terminalDescCreatedAt.Default.(func() time.Time)
+	// terminalDescUpdatedAt is the schema descriptor for updated_at field.
+	terminalDescUpdatedAt := terminalMixinFields0[1].Descriptor()
+	// terminal.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	terminal.DefaultUpdatedAt = terminalDescUpdatedAt.Default.(func() time.Time)
+	// terminal.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	terminal.UpdateDefaultUpdatedAt = terminalDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// terminalDescName is the schema descriptor for name field.
+	terminalDescName := terminalFields[0].Descriptor()
+	// terminal.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	terminal.NameValidator = terminalDescName.Validators[0].(func(string) error)
 	tripMixin := schema.Trip{}.Mixin()
 	tripMixinFields0 := tripMixin[0].Fields()
 	_ = tripMixinFields0

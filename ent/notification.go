@@ -9,9 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/schema"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/schema"
 )
 
 // Notification is the model entity for the Notification schema.

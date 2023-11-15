@@ -31,14 +31,15 @@ func NewServer() *server {
 	return &server{
 		HTTP: fiber.New(
 			fiber.Config{
-				Prefork:       Server().Prefork,
-				CaseSensitive: Server().CaseSensitive,
-				StrictRouting: Server().StrictRouting,
-				ServerHeader:  Server().ServerHeader,
-				AppName:       App().Name,
-				BodyLimit:     10485760,
-				JSONEncoder:   json.Marshal,
-				JSONDecoder:   json.Unmarshal,
+				Prefork:           Server().Prefork,
+				CaseSensitive:     Server().CaseSensitive,
+				StrictRouting:     Server().StrictRouting,
+				ServerHeader:      Server().ServerHeader,
+				AppName:           App().Name,
+				BodyLimit:         10485760,
+				StreamRequestBody: true,
+				JSONEncoder:       json.Marshal,
+				JSONDecoder:       json.Unmarshal,
 			},
 		),
 		WG:     &wg,

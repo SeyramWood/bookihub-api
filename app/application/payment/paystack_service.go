@@ -6,10 +6,10 @@ import (
 
 	"github.com/Jeffail/gabs"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	requeststructs "github.com/SeyramWood/app/domain/request_structs"
-	"github.com/SeyramWood/config"
-	"github.com/SeyramWood/utils/forwardhttp"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/config"
+	"github.com/SeyramWood/bookibus/utils/forwardhttp"
 )
 
 const (

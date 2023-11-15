@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/SeyramWood/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
@@ -70,6 +70,11 @@ func ParcelCode(v string) predicate.Parcel {
 	return predicate.Parcel(sql.FieldEQ(FieldParcelCode, v))
 }
 
+// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
+func Type(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldEQ(FieldType, v))
+}
+
 // SenderName applies equality check predicate on the "sender_name" field. It's identical to SenderNameEQ.
 func SenderName(v string) predicate.Parcel {
 	return predicate.Parcel(sql.FieldEQ(FieldSenderName, v))
@@ -78,6 +83,11 @@ func SenderName(v string) predicate.Parcel {
 // SenderPhone applies equality check predicate on the "sender_phone" field. It's identical to SenderPhoneEQ.
 func SenderPhone(v string) predicate.Parcel {
 	return predicate.Parcel(sql.FieldEQ(FieldSenderPhone, v))
+}
+
+// SenderEmail applies equality check predicate on the "sender_email" field. It's identical to SenderEmailEQ.
+func SenderEmail(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldEQ(FieldSenderEmail, v))
 }
 
 // RecipientName applies equality check predicate on the "recipient_name" field. It's identical to RecipientNameEQ.
@@ -93,6 +103,11 @@ func RecipientPhone(v string) predicate.Parcel {
 // RecipientLocation applies equality check predicate on the "recipient_location" field. It's identical to RecipientLocationEQ.
 func RecipientLocation(v string) predicate.Parcel {
 	return predicate.Parcel(sql.FieldEQ(FieldRecipientLocation, v))
+}
+
+// Weight applies equality check predicate on the "weight" field. It's identical to WeightEQ.
+func Weight(v float32) predicate.Parcel {
+	return predicate.Parcel(sql.FieldEQ(FieldWeight, v))
 }
 
 // Amount applies equality check predicate on the "amount" field. It's identical to AmountEQ.
@@ -250,6 +265,71 @@ func ParcelCodeContainsFold(v string) predicate.Parcel {
 	return predicate.Parcel(sql.FieldContainsFold(FieldParcelCode, v))
 }
 
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldEQ(FieldType, v))
+}
+
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldNEQ(FieldType, v))
+}
+
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldIn(FieldType, vs...))
+}
+
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldNotIn(FieldType, vs...))
+}
+
+// TypeGT applies the GT predicate on the "type" field.
+func TypeGT(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldGT(FieldType, v))
+}
+
+// TypeGTE applies the GTE predicate on the "type" field.
+func TypeGTE(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldGTE(FieldType, v))
+}
+
+// TypeLT applies the LT predicate on the "type" field.
+func TypeLT(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldLT(FieldType, v))
+}
+
+// TypeLTE applies the LTE predicate on the "type" field.
+func TypeLTE(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldLTE(FieldType, v))
+}
+
+// TypeContains applies the Contains predicate on the "type" field.
+func TypeContains(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldContains(FieldType, v))
+}
+
+// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
+func TypeHasPrefix(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldHasPrefix(FieldType, v))
+}
+
+// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
+func TypeHasSuffix(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldHasSuffix(FieldType, v))
+}
+
+// TypeEqualFold applies the EqualFold predicate on the "type" field.
+func TypeEqualFold(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldEqualFold(FieldType, v))
+}
+
+// TypeContainsFold applies the ContainsFold predicate on the "type" field.
+func TypeContainsFold(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldContainsFold(FieldType, v))
+}
+
 // SenderNameEQ applies the EQ predicate on the "sender_name" field.
 func SenderNameEQ(v string) predicate.Parcel {
 	return predicate.Parcel(sql.FieldEQ(FieldSenderName, v))
@@ -378,6 +458,71 @@ func SenderPhoneEqualFold(v string) predicate.Parcel {
 // SenderPhoneContainsFold applies the ContainsFold predicate on the "sender_phone" field.
 func SenderPhoneContainsFold(v string) predicate.Parcel {
 	return predicate.Parcel(sql.FieldContainsFold(FieldSenderPhone, v))
+}
+
+// SenderEmailEQ applies the EQ predicate on the "sender_email" field.
+func SenderEmailEQ(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldEQ(FieldSenderEmail, v))
+}
+
+// SenderEmailNEQ applies the NEQ predicate on the "sender_email" field.
+func SenderEmailNEQ(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldNEQ(FieldSenderEmail, v))
+}
+
+// SenderEmailIn applies the In predicate on the "sender_email" field.
+func SenderEmailIn(vs ...string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldIn(FieldSenderEmail, vs...))
+}
+
+// SenderEmailNotIn applies the NotIn predicate on the "sender_email" field.
+func SenderEmailNotIn(vs ...string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldNotIn(FieldSenderEmail, vs...))
+}
+
+// SenderEmailGT applies the GT predicate on the "sender_email" field.
+func SenderEmailGT(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldGT(FieldSenderEmail, v))
+}
+
+// SenderEmailGTE applies the GTE predicate on the "sender_email" field.
+func SenderEmailGTE(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldGTE(FieldSenderEmail, v))
+}
+
+// SenderEmailLT applies the LT predicate on the "sender_email" field.
+func SenderEmailLT(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldLT(FieldSenderEmail, v))
+}
+
+// SenderEmailLTE applies the LTE predicate on the "sender_email" field.
+func SenderEmailLTE(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldLTE(FieldSenderEmail, v))
+}
+
+// SenderEmailContains applies the Contains predicate on the "sender_email" field.
+func SenderEmailContains(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldContains(FieldSenderEmail, v))
+}
+
+// SenderEmailHasPrefix applies the HasPrefix predicate on the "sender_email" field.
+func SenderEmailHasPrefix(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldHasPrefix(FieldSenderEmail, v))
+}
+
+// SenderEmailHasSuffix applies the HasSuffix predicate on the "sender_email" field.
+func SenderEmailHasSuffix(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldHasSuffix(FieldSenderEmail, v))
+}
+
+// SenderEmailEqualFold applies the EqualFold predicate on the "sender_email" field.
+func SenderEmailEqualFold(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldEqualFold(FieldSenderEmail, v))
+}
+
+// SenderEmailContainsFold applies the ContainsFold predicate on the "sender_email" field.
+func SenderEmailContainsFold(v string) predicate.Parcel {
+	return predicate.Parcel(sql.FieldContainsFold(FieldSenderEmail, v))
 }
 
 // RecipientNameEQ applies the EQ predicate on the "recipient_name" field.
@@ -573,6 +718,56 @@ func RecipientLocationEqualFold(v string) predicate.Parcel {
 // RecipientLocationContainsFold applies the ContainsFold predicate on the "recipient_location" field.
 func RecipientLocationContainsFold(v string) predicate.Parcel {
 	return predicate.Parcel(sql.FieldContainsFold(FieldRecipientLocation, v))
+}
+
+// WeightEQ applies the EQ predicate on the "weight" field.
+func WeightEQ(v float32) predicate.Parcel {
+	return predicate.Parcel(sql.FieldEQ(FieldWeight, v))
+}
+
+// WeightNEQ applies the NEQ predicate on the "weight" field.
+func WeightNEQ(v float32) predicate.Parcel {
+	return predicate.Parcel(sql.FieldNEQ(FieldWeight, v))
+}
+
+// WeightIn applies the In predicate on the "weight" field.
+func WeightIn(vs ...float32) predicate.Parcel {
+	return predicate.Parcel(sql.FieldIn(FieldWeight, vs...))
+}
+
+// WeightNotIn applies the NotIn predicate on the "weight" field.
+func WeightNotIn(vs ...float32) predicate.Parcel {
+	return predicate.Parcel(sql.FieldNotIn(FieldWeight, vs...))
+}
+
+// WeightGT applies the GT predicate on the "weight" field.
+func WeightGT(v float32) predicate.Parcel {
+	return predicate.Parcel(sql.FieldGT(FieldWeight, v))
+}
+
+// WeightGTE applies the GTE predicate on the "weight" field.
+func WeightGTE(v float32) predicate.Parcel {
+	return predicate.Parcel(sql.FieldGTE(FieldWeight, v))
+}
+
+// WeightLT applies the LT predicate on the "weight" field.
+func WeightLT(v float32) predicate.Parcel {
+	return predicate.Parcel(sql.FieldLT(FieldWeight, v))
+}
+
+// WeightLTE applies the LTE predicate on the "weight" field.
+func WeightLTE(v float32) predicate.Parcel {
+	return predicate.Parcel(sql.FieldLTE(FieldWeight, v))
+}
+
+// WeightIsNil applies the IsNil predicate on the "weight" field.
+func WeightIsNil() predicate.Parcel {
+	return predicate.Parcel(sql.FieldIsNull(FieldWeight))
+}
+
+// WeightNotNil applies the NotNil predicate on the "weight" field.
+func WeightNotNil() predicate.Parcel {
+	return predicate.Parcel(sql.FieldNotNull(FieldWeight))
 }
 
 // AmountEQ applies the EQ predicate on the "amount" field.

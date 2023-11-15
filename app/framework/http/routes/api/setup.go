@@ -3,10 +3,10 @@ package api
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/SeyramWood/app/adapters/gateways"
-	"github.com/SeyramWood/app/application/payment"
-	"github.com/SeyramWood/app/framework/database"
-	"github.com/SeyramWood/utils/jwt"
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/application/payment"
+	"github.com/SeyramWood/bookibus/app/framework/database"
+	"github.com/SeyramWood/bookibus/utils/jwt"
 )
 
 type apiRouter struct {

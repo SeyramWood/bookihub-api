@@ -10,15 +10,16 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/notification"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/notification"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
 
 // CompanyCreate is the builder for creating a Company entity.
@@ -101,6 +102,21 @@ func (cc *CompanyCreate) AddProfile(c ...*CompanyUser) *CompanyCreate {
 		ids[i] = c[i].ID
 	}
 	return cc.AddProfileIDs(ids...)
+}
+
+// AddTerminalIDs adds the "terminals" edge to the Terminal entity by IDs.
+func (cc *CompanyCreate) AddTerminalIDs(ids ...int) *CompanyCreate {
+	cc.mutation.AddTerminalIDs(ids...)
+	return cc
+}
+
+// AddTerminals adds the "terminals" edges to the Terminal entity.
+func (cc *CompanyCreate) AddTerminals(t ...*Terminal) *CompanyCreate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return cc.AddTerminalIDs(ids...)
 }
 
 // AddVehicleIDs adds the "vehicles" edge to the Vehicle entity by IDs.
@@ -344,6 +360,22 @@ func (cc *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(companyuser.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.TerminalsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TerminalsTable,
+			Columns: []string{company.TerminalsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -11,33 +11,36 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/booking"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/companyuser"
-	"github.com/SeyramWood/ent/incident"
-	"github.com/SeyramWood/ent/parcel"
-	"github.com/SeyramWood/ent/predicate"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/trip"
-	"github.com/SeyramWood/ent/vehicle"
+	"github.com/SeyramWood/bookibus/ent/booking"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/incident"
+	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
 
 // TripQuery is the builder for querying Trip entities.
 type TripQuery struct {
 	config
-	ctx           *QueryContext
-	order         []trip.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.Trip
-	withCompany   *CompanyQuery
-	withDriver    *CompanyUserQuery
-	withVehicle   *VehicleQuery
-	withRoute     *RouteQuery
-	withBookings  *BookingQuery
-	withIncidents *IncidentQuery
-	withParcels   *ParcelQuery
-	withFKs       bool
-	modifiers     []func(*sql.Selector)
+	ctx              *QueryContext
+	order            []trip.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.Trip
+	withCompany      *CompanyQuery
+	withDriver       *CompanyUserQuery
+	withFromTerminal *TerminalQuery
+	withToTerminal   *TerminalQuery
+	withVehicle      *VehicleQuery
+	withRoute        *RouteQuery
+	withBookings     *BookingQuery
+	withIncidents    *IncidentQuery
+	withParcels      *ParcelQuery
+	withFKs          bool
+	modifiers        []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -111,6 +114,50 @@ func (tq *TripQuery) QueryDriver() *CompanyUserQuery {
 			sqlgraph.From(trip.Table, trip.FieldID, selector),
 			sqlgraph.To(companyuser.Table, companyuser.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, trip.DriverTable, trip.DriverColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFromTerminal chains the current query on the "from_terminal" edge.
+func (tq *TripQuery) QueryFromTerminal() *TerminalQuery {
+	query := (&TerminalClient{config: tq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trip.Table, trip.FieldID, selector),
+			sqlgraph.To(terminal.Table, terminal.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, trip.FromTerminalTable, trip.FromTerminalColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryToTerminal chains the current query on the "to_terminal" edge.
+func (tq *TripQuery) QueryToTerminal() *TerminalQuery {
+	query := (&TerminalClient{config: tq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trip.Table, trip.FieldID, selector),
+			sqlgraph.To(terminal.Table, terminal.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, trip.ToTerminalTable, trip.ToTerminalColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -415,18 +462,20 @@ func (tq *TripQuery) Clone() *TripQuery {
 		return nil
 	}
 	return &TripQuery{
-		config:        tq.config,
-		ctx:           tq.ctx.Clone(),
-		order:         append([]trip.OrderOption{}, tq.order...),
-		inters:        append([]Interceptor{}, tq.inters...),
-		predicates:    append([]predicate.Trip{}, tq.predicates...),
-		withCompany:   tq.withCompany.Clone(),
-		withDriver:    tq.withDriver.Clone(),
-		withVehicle:   tq.withVehicle.Clone(),
-		withRoute:     tq.withRoute.Clone(),
-		withBookings:  tq.withBookings.Clone(),
-		withIncidents: tq.withIncidents.Clone(),
-		withParcels:   tq.withParcels.Clone(),
+		config:           tq.config,
+		ctx:              tq.ctx.Clone(),
+		order:            append([]trip.OrderOption{}, tq.order...),
+		inters:           append([]Interceptor{}, tq.inters...),
+		predicates:       append([]predicate.Trip{}, tq.predicates...),
+		withCompany:      tq.withCompany.Clone(),
+		withDriver:       tq.withDriver.Clone(),
+		withFromTerminal: tq.withFromTerminal.Clone(),
+		withToTerminal:   tq.withToTerminal.Clone(),
+		withVehicle:      tq.withVehicle.Clone(),
+		withRoute:        tq.withRoute.Clone(),
+		withBookings:     tq.withBookings.Clone(),
+		withIncidents:    tq.withIncidents.Clone(),
+		withParcels:      tq.withParcels.Clone(),
 		// clone intermediate query.
 		sql:  tq.sql.Clone(),
 		path: tq.path,
@@ -452,6 +501,28 @@ func (tq *TripQuery) WithDriver(opts ...func(*CompanyUserQuery)) *TripQuery {
 		opt(query)
 	}
 	tq.withDriver = query
+	return tq
+}
+
+// WithFromTerminal tells the query-builder to eager-load the nodes that are connected to
+// the "from_terminal" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TripQuery) WithFromTerminal(opts ...func(*TerminalQuery)) *TripQuery {
+	query := (&TerminalClient{config: tq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	tq.withFromTerminal = query
+	return tq
+}
+
+// WithToTerminal tells the query-builder to eager-load the nodes that are connected to
+// the "to_terminal" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TripQuery) WithToTerminal(opts ...func(*TerminalQuery)) *TripQuery {
+	query := (&TerminalClient{config: tq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	tq.withToTerminal = query
 	return tq
 }
 
@@ -589,9 +660,11 @@ func (tq *TripQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trip, e
 		nodes       = []*Trip{}
 		withFKs     = tq.withFKs
 		_spec       = tq.querySpec()
-		loadedTypes = [7]bool{
+		loadedTypes = [9]bool{
 			tq.withCompany != nil,
 			tq.withDriver != nil,
+			tq.withFromTerminal != nil,
+			tq.withToTerminal != nil,
 			tq.withVehicle != nil,
 			tq.withRoute != nil,
 			tq.withBookings != nil,
@@ -599,7 +672,7 @@ func (tq *TripQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trip, e
 			tq.withParcels != nil,
 		}
 	)
-	if tq.withCompany != nil || tq.withDriver != nil || tq.withVehicle != nil || tq.withRoute != nil {
+	if tq.withCompany != nil || tq.withDriver != nil || tq.withFromTerminal != nil || tq.withToTerminal != nil || tq.withVehicle != nil || tq.withRoute != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -635,6 +708,18 @@ func (tq *TripQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trip, e
 	if query := tq.withDriver; query != nil {
 		if err := tq.loadDriver(ctx, query, nodes, nil,
 			func(n *Trip, e *CompanyUser) { n.Edges.Driver = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := tq.withFromTerminal; query != nil {
+		if err := tq.loadFromTerminal(ctx, query, nodes, nil,
+			func(n *Trip, e *Terminal) { n.Edges.FromTerminal = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := tq.withToTerminal; query != nil {
+		if err := tq.loadToTerminal(ctx, query, nodes, nil,
+			func(n *Trip, e *Terminal) { n.Edges.ToTerminal = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -731,6 +816,70 @@ func (tq *TripQuery) loadDriver(ctx context.Context, query *CompanyUserQuery, no
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "company_user_trips" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (tq *TripQuery) loadFromTerminal(ctx context.Context, query *TerminalQuery, nodes []*Trip, init func(*Trip), assign func(*Trip, *Terminal)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Trip)
+	for i := range nodes {
+		if nodes[i].terminal_from == nil {
+			continue
+		}
+		fk := *nodes[i].terminal_from
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(terminal.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "terminal_from" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (tq *TripQuery) loadToTerminal(ctx context.Context, query *TerminalQuery, nodes []*Trip, init func(*Trip), assign func(*Trip, *Terminal)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Trip)
+	for i := range nodes {
+		if nodes[i].terminal_to == nil {
+			continue
+		}
+		fk := *nodes[i].terminal_to
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(terminal.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "terminal_to" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

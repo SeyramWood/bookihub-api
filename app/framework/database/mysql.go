@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/SeyramWood/config"
-	"github.com/SeyramWood/ent"
+	"github.com/SeyramWood/bookibus/config"
+	"github.com/SeyramWood/bookibus/ent"
 )
 
 func mysqlConnector(dBDriver string) *ent.Client {

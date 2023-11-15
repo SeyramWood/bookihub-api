@@ -10,10 +10,10 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/ent/company"
-	"github.com/SeyramWood/ent/route"
-	"github.com/SeyramWood/ent/routestop"
-	"github.com/SeyramWood/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // RouteCreate is the builder for creating a Route entity.
@@ -57,37 +57,9 @@ func (rc *RouteCreate) SetFromLocation(s string) *RouteCreate {
 	return rc
 }
 
-// SetFromTerminal sets the "from_terminal" field.
-func (rc *RouteCreate) SetFromTerminal(s string) *RouteCreate {
-	rc.mutation.SetFromTerminal(s)
-	return rc
-}
-
-// SetNillableFromTerminal sets the "from_terminal" field if the given value is not nil.
-func (rc *RouteCreate) SetNillableFromTerminal(s *string) *RouteCreate {
-	if s != nil {
-		rc.SetFromTerminal(*s)
-	}
-	return rc
-}
-
 // SetToLocation sets the "to_location" field.
 func (rc *RouteCreate) SetToLocation(s string) *RouteCreate {
 	rc.mutation.SetToLocation(s)
-	return rc
-}
-
-// SetToTerminal sets the "to_terminal" field.
-func (rc *RouteCreate) SetToTerminal(s string) *RouteCreate {
-	rc.mutation.SetToTerminal(s)
-	return rc
-}
-
-// SetNillableToTerminal sets the "to_terminal" field if the given value is not nil.
-func (rc *RouteCreate) SetNillableToTerminal(s *string) *RouteCreate {
-	if s != nil {
-		rc.SetToTerminal(*s)
-	}
 	return rc
 }
 
@@ -366,17 +338,9 @@ func (rc *RouteCreate) createSpec() (*Route, *sqlgraph.CreateSpec) {
 		_spec.SetField(route.FieldFromLocation, field.TypeString, value)
 		_node.FromLocation = value
 	}
-	if value, ok := rc.mutation.FromTerminal(); ok {
-		_spec.SetField(route.FieldFromTerminal, field.TypeString, value)
-		_node.FromTerminal = value
-	}
 	if value, ok := rc.mutation.ToLocation(); ok {
 		_spec.SetField(route.FieldToLocation, field.TypeString, value)
 		_node.ToLocation = value
-	}
-	if value, ok := rc.mutation.ToTerminal(); ok {
-		_spec.SetField(route.FieldToTerminal, field.TypeString, value)
-		_node.ToTerminal = value
 	}
 	if value, ok := rc.mutation.FromLatitude(); ok {
 		_spec.SetField(route.FieldFromLatitude, field.TypeFloat64, value)
