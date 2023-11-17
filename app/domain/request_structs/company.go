@@ -35,18 +35,18 @@ type (
 	}
 
 	VehicleRequest struct {
-		RegistrationNumber string                  `json:"registrationNumber" validate:"required|ascii|unique:vehicles.registration_number"`
+		RegistrationNumber string                  `json:"registrationNumber" validate:"required|ascii"`
 		Model              string                  `json:"model" validate:"required|ascii"`
 		Seat               int                     `json:"seat" validate:"required|int"`
 		Image              []*multipart.FileHeader `json:"image" form:"image" validate:"required|slice:max:3|image|size:1MB"`
 	}
 	VehicleUpdateRequest struct {
-		RegistrationNumber string `json:"registrationNumber" validate:"required|ascii|unique:vehicles.registration_number"`
+		RegistrationNumber string `json:"registrationNumber" validate:"required|ascii"`
 		Model              string `json:"model" validate:"required|ascii"`
 		Seat               int    `json:"seat" validate:"required|int"`
 	}
 	VehicleFormattedRequest struct {
-		RegistrationNumber string   `json:"registrationNumber" validate:"required|ascii|unique:vehicles.registration_number"`
+		RegistrationNumber string   `json:"registrationNumber" validate:"required|ascii"`
 		Model              string   `json:"model" validate:"required|ascii"`
 		Seat               int      `json:"seat" validate:"required"`
 		Image              []string `json:"image" form:"image" validate:"required|image|size:1MB"`
