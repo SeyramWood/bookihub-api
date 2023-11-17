@@ -24,7 +24,7 @@ require (
 
 require (
 	ariga.io/atlas v0.14.1-0.20230918065911-83ad451a4935 // indirect
-	github.com/SeyramWood/valid v1.0.0 // indirect
+	github.com/SeyramWood/valid v1.0.1 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
