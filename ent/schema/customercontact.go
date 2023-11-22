@@ -22,8 +22,8 @@ func (CustomerContact) Mixin() []ent.Mixin {
 func (CustomerContact) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("full_name").NotEmpty(),
-		field.String("email").NotEmpty(),
-		field.String("phone").NotEmpty(),
+		field.String("email").Optional(),
+		field.String("phone").Optional(),
 	}
 
 }

@@ -61,9 +61,25 @@ func (ccc *CustomerContactCreate) SetEmail(s string) *CustomerContactCreate {
 	return ccc
 }
 
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (ccc *CustomerContactCreate) SetNillableEmail(s *string) *CustomerContactCreate {
+	if s != nil {
+		ccc.SetEmail(*s)
+	}
+	return ccc
+}
+
 // SetPhone sets the "phone" field.
 func (ccc *CustomerContactCreate) SetPhone(s string) *CustomerContactCreate {
 	ccc.mutation.SetPhone(s)
+	return ccc
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (ccc *CustomerContactCreate) SetNillablePhone(s *string) *CustomerContactCreate {
+	if s != nil {
+		ccc.SetPhone(*s)
+	}
 	return ccc
 }
 
@@ -145,22 +161,6 @@ func (ccc *CustomerContactCreate) check() error {
 	if v, ok := ccc.mutation.FullName(); ok {
 		if err := customercontact.FullNameValidator(v); err != nil {
 			return &ValidationError{Name: "full_name", err: fmt.Errorf(`ent: validator failed for field "CustomerContact.full_name": %w`, err)}
-		}
-	}
-	if _, ok := ccc.mutation.Email(); !ok {
-		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "CustomerContact.email"`)}
-	}
-	if v, ok := ccc.mutation.Email(); ok {
-		if err := customercontact.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "CustomerContact.email": %w`, err)}
-		}
-	}
-	if _, ok := ccc.mutation.Phone(); !ok {
-		return &ValidationError{Name: "phone", err: errors.New(`ent: missing required field "CustomerContact.phone"`)}
-	}
-	if v, ok := ccc.mutation.Phone(); ok {
-		if err := customercontact.PhoneValidator(v); err != nil {
-			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "CustomerContact.phone": %w`, err)}
 		}
 	}
 	return nil

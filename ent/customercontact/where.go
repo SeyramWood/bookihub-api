@@ -280,6 +280,16 @@ func EmailHasSuffix(v string) predicate.CustomerContact {
 	return predicate.CustomerContact(sql.FieldHasSuffix(FieldEmail, v))
 }
 
+// EmailIsNil applies the IsNil predicate on the "email" field.
+func EmailIsNil() predicate.CustomerContact {
+	return predicate.CustomerContact(sql.FieldIsNull(FieldEmail))
+}
+
+// EmailNotNil applies the NotNil predicate on the "email" field.
+func EmailNotNil() predicate.CustomerContact {
+	return predicate.CustomerContact(sql.FieldNotNull(FieldEmail))
+}
+
 // EmailEqualFold applies the EqualFold predicate on the "email" field.
 func EmailEqualFold(v string) predicate.CustomerContact {
 	return predicate.CustomerContact(sql.FieldEqualFold(FieldEmail, v))
@@ -343,6 +353,16 @@ func PhoneHasPrefix(v string) predicate.CustomerContact {
 // PhoneHasSuffix applies the HasSuffix predicate on the "phone" field.
 func PhoneHasSuffix(v string) predicate.CustomerContact {
 	return predicate.CustomerContact(sql.FieldHasSuffix(FieldPhone, v))
+}
+
+// PhoneIsNil applies the IsNil predicate on the "phone" field.
+func PhoneIsNil() predicate.CustomerContact {
+	return predicate.CustomerContact(sql.FieldIsNull(FieldPhone))
+}
+
+// PhoneNotNil applies the NotNil predicate on the "phone" field.
+func PhoneNotNil() predicate.CustomerContact {
+	return predicate.CustomerContact(sql.FieldNotNull(FieldPhone))
 }
 
 // PhoneEqualFold applies the EqualFold predicate on the "phone" field.

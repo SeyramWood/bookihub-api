@@ -48,9 +48,37 @@ func (ccu *CustomerContactUpdate) SetEmail(s string) *CustomerContactUpdate {
 	return ccu
 }
 
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (ccu *CustomerContactUpdate) SetNillableEmail(s *string) *CustomerContactUpdate {
+	if s != nil {
+		ccu.SetEmail(*s)
+	}
+	return ccu
+}
+
+// ClearEmail clears the value of the "email" field.
+func (ccu *CustomerContactUpdate) ClearEmail() *CustomerContactUpdate {
+	ccu.mutation.ClearEmail()
+	return ccu
+}
+
 // SetPhone sets the "phone" field.
 func (ccu *CustomerContactUpdate) SetPhone(s string) *CustomerContactUpdate {
 	ccu.mutation.SetPhone(s)
+	return ccu
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (ccu *CustomerContactUpdate) SetNillablePhone(s *string) *CustomerContactUpdate {
+	if s != nil {
+		ccu.SetPhone(*s)
+	}
+	return ccu
+}
+
+// ClearPhone clears the value of the "phone" field.
+func (ccu *CustomerContactUpdate) ClearPhone() *CustomerContactUpdate {
+	ccu.mutation.ClearPhone()
 	return ccu
 }
 
@@ -127,16 +155,6 @@ func (ccu *CustomerContactUpdate) check() error {
 			return &ValidationError{Name: "full_name", err: fmt.Errorf(`ent: validator failed for field "CustomerContact.full_name": %w`, err)}
 		}
 	}
-	if v, ok := ccu.mutation.Email(); ok {
-		if err := customercontact.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "CustomerContact.email": %w`, err)}
-		}
-	}
-	if v, ok := ccu.mutation.Phone(); ok {
-		if err := customercontact.PhoneValidator(v); err != nil {
-			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "CustomerContact.phone": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -167,8 +185,14 @@ func (ccu *CustomerContactUpdate) sqlSave(ctx context.Context) (n int, err error
 	if value, ok := ccu.mutation.Email(); ok {
 		_spec.SetField(customercontact.FieldEmail, field.TypeString, value)
 	}
+	if ccu.mutation.EmailCleared() {
+		_spec.ClearField(customercontact.FieldEmail, field.TypeString)
+	}
 	if value, ok := ccu.mutation.Phone(); ok {
 		_spec.SetField(customercontact.FieldPhone, field.TypeString, value)
+	}
+	if ccu.mutation.PhoneCleared() {
+		_spec.ClearField(customercontact.FieldPhone, field.TypeString)
 	}
 	if ccu.mutation.BookingCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -239,9 +263,37 @@ func (ccuo *CustomerContactUpdateOne) SetEmail(s string) *CustomerContactUpdateO
 	return ccuo
 }
 
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (ccuo *CustomerContactUpdateOne) SetNillableEmail(s *string) *CustomerContactUpdateOne {
+	if s != nil {
+		ccuo.SetEmail(*s)
+	}
+	return ccuo
+}
+
+// ClearEmail clears the value of the "email" field.
+func (ccuo *CustomerContactUpdateOne) ClearEmail() *CustomerContactUpdateOne {
+	ccuo.mutation.ClearEmail()
+	return ccuo
+}
+
 // SetPhone sets the "phone" field.
 func (ccuo *CustomerContactUpdateOne) SetPhone(s string) *CustomerContactUpdateOne {
 	ccuo.mutation.SetPhone(s)
+	return ccuo
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (ccuo *CustomerContactUpdateOne) SetNillablePhone(s *string) *CustomerContactUpdateOne {
+	if s != nil {
+		ccuo.SetPhone(*s)
+	}
+	return ccuo
+}
+
+// ClearPhone clears the value of the "phone" field.
+func (ccuo *CustomerContactUpdateOne) ClearPhone() *CustomerContactUpdateOne {
+	ccuo.mutation.ClearPhone()
 	return ccuo
 }
 
@@ -331,16 +383,6 @@ func (ccuo *CustomerContactUpdateOne) check() error {
 			return &ValidationError{Name: "full_name", err: fmt.Errorf(`ent: validator failed for field "CustomerContact.full_name": %w`, err)}
 		}
 	}
-	if v, ok := ccuo.mutation.Email(); ok {
-		if err := customercontact.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "CustomerContact.email": %w`, err)}
-		}
-	}
-	if v, ok := ccuo.mutation.Phone(); ok {
-		if err := customercontact.PhoneValidator(v); err != nil {
-			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "CustomerContact.phone": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -388,8 +430,14 @@ func (ccuo *CustomerContactUpdateOne) sqlSave(ctx context.Context) (_node *Custo
 	if value, ok := ccuo.mutation.Email(); ok {
 		_spec.SetField(customercontact.FieldEmail, field.TypeString, value)
 	}
+	if ccuo.mutation.EmailCleared() {
+		_spec.ClearField(customercontact.FieldEmail, field.TypeString)
+	}
 	if value, ok := ccuo.mutation.Phone(); ok {
 		_spec.SetField(customercontact.FieldPhone, field.TypeString, value)
+	}
+	if ccuo.mutation.PhoneCleared() {
+		_spec.ClearField(customercontact.FieldPhone, field.TypeString)
 	}
 	if ccuo.mutation.BookingCleared() {
 		edge := &sqlgraph.EdgeSpec{

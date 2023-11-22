@@ -80,6 +80,7 @@ var (
 		{Name: "phone", Type: field.TypeString},
 		{Name: "other_phone", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"unverified", "verified"}, Default: "unverified"},
 	}
 	// CompaniesTable holds the schema information for the "companies" table.
 	CompaniesTable = &schema.Table{
@@ -135,8 +136,8 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "full_name", Type: field.TypeString},
-		{Name: "email", Type: field.TypeString},
-		{Name: "phone", Type: field.TypeString},
+		{Name: "email", Type: field.TypeString, Nullable: true},
+		{Name: "phone", Type: field.TypeString, Nullable: true},
 		{Name: "booking_contact", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// CustomerContactsTable holds the schema information for the "customer_contacts" table.
@@ -518,6 +519,7 @@ var (
 		{Name: "username", Type: field.TypeString, Unique: true},
 		{Name: "password", Type: field.TypeBytes},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"bookibus", "company", "customer"}},
+		{Name: "avatar", Type: field.TypeString, Nullable: true},
 		{Name: "bookibus_user_profile", Type: field.TypeInt, Unique: true, Nullable: true},
 		{Name: "company_user_profile", Type: field.TypeInt, Unique: true, Nullable: true},
 		{Name: "customer_profile", Type: field.TypeInt, Unique: true, Nullable: true},
@@ -530,19 +532,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_bookibus_users_profile",
-				Columns:    []*schema.Column{UsersColumns[6]},
+				Columns:    []*schema.Column{UsersColumns[7]},
 				RefColumns: []*schema.Column{BookibusUsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "users_company_users_profile",
-				Columns:    []*schema.Column{UsersColumns[7]},
+				Columns:    []*schema.Column{UsersColumns[8]},
 				RefColumns: []*schema.Column{CompanyUsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "users_customers_profile",
-				Columns:    []*schema.Column{UsersColumns[8]},
+				Columns:    []*schema.Column{UsersColumns[9]},
 				RefColumns: []*schema.Column{CustomersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},

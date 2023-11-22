@@ -56,6 +56,26 @@ func (uu *UserUpdate) SetType(u user.Type) *UserUpdate {
 	return uu
 }
 
+// SetAvatar sets the "avatar" field.
+func (uu *UserUpdate) SetAvatar(s string) *UserUpdate {
+	uu.mutation.SetAvatar(s)
+	return uu
+}
+
+// SetNillableAvatar sets the "avatar" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAvatar(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetAvatar(*s)
+	}
+	return uu
+}
+
+// ClearAvatar clears the value of the "avatar" field.
+func (uu *UserUpdate) ClearAvatar() *UserUpdate {
+	uu.mutation.ClearAvatar()
+	return uu
+}
+
 // SetBookibusUserID sets the "bookibus_user" edge to the BookibusUser entity by ID.
 func (uu *UserUpdate) SetBookibusUserID(id int) *UserUpdate {
 	uu.mutation.SetBookibusUserID(id)
@@ -222,6 +242,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.GetType(); ok {
 		_spec.SetField(user.FieldType, field.TypeEnum, value)
 	}
+	if value, ok := uu.mutation.Avatar(); ok {
+		_spec.SetField(user.FieldAvatar, field.TypeString, value)
+	}
+	if uu.mutation.AvatarCleared() {
+		_spec.ClearField(user.FieldAvatar, field.TypeString)
+	}
 	if uu.mutation.BookibusUserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -352,6 +378,26 @@ func (uuo *UserUpdateOne) SetPassword(b []byte) *UserUpdateOne {
 // SetType sets the "type" field.
 func (uuo *UserUpdateOne) SetType(u user.Type) *UserUpdateOne {
 	uuo.mutation.SetType(u)
+	return uuo
+}
+
+// SetAvatar sets the "avatar" field.
+func (uuo *UserUpdateOne) SetAvatar(s string) *UserUpdateOne {
+	uuo.mutation.SetAvatar(s)
+	return uuo
+}
+
+// SetNillableAvatar sets the "avatar" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAvatar(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetAvatar(*s)
+	}
+	return uuo
+}
+
+// ClearAvatar clears the value of the "avatar" field.
+func (uuo *UserUpdateOne) ClearAvatar() *UserUpdateOne {
+	uuo.mutation.ClearAvatar()
 	return uuo
 }
 
@@ -550,6 +596,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.GetType(); ok {
 		_spec.SetField(user.FieldType, field.TypeEnum, value)
+	}
+	if value, ok := uuo.mutation.Avatar(); ok {
+		_spec.SetField(user.FieldAvatar, field.TypeString, value)
+	}
+	if uuo.mutation.AvatarCleared() {
+		_spec.ClearField(user.FieldAvatar, field.TypeString)
 	}
 	if uuo.mutation.BookibusUserCleared() {
 		edge := &sqlgraph.EdgeSpec{

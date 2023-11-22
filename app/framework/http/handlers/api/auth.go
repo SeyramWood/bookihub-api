@@ -21,9 +21,9 @@ type authHandler struct {
 	jwt      *jwt.JWT
 }
 
-func NewAuthHandler(db *database.Adapter, cacheSrv gateways.CacheService, jwt *jwt.JWT, producer gateways.EventProducer) *authHandler {
+func NewAuthHandler(db *database.Adapter, cacheSrv gateways.CacheService, jwt *jwt.JWT, producer gateways.EventProducer, storage gateways.StorageService) *authHandler {
 	return &authHandler{
-		service:  auth.NewService(auth.NewRepository(db), cacheSrv, jwt, producer),
+		service:  auth.NewService(auth.NewRepository(db), cacheSrv, jwt, producer, storage),
 		producer: producer,
 		jwt:      jwt,
 	}
@@ -48,6 +48,28 @@ func (h *authHandler) Login() fiber.Handler {
 func (h *authHandler) GetSession() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(presenters.SuccessResponse(c.Locals("user")))
+	}
+}
+func (h *authHandler) UpdateAvatar() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.AvatarUpdateRequest)
+		if c.BodyParser(request) != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(auth.ErrBadRequest))
+		}
+		avatarFile, err := c.FormFile("avatar")
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		request.Avatar = avatarFile
+		userID, _ := c.ParamsInt("id")
+		avatar, err := h.service.UpdateAvatar(userID, request)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.SuccessResponse(avatar))
 	}
 }
 func (h *authHandler) RefreshToken() fiber.Handler {

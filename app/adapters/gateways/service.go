@@ -43,6 +43,7 @@ type (
 		Logout() error
 		SendPasswordResetCode(request *requeststructs.UsernameRequest) (string, error)
 		UpdatePassword(sessionID int, request *requeststructs.UpdatePasswordRequest) (*ent.User, error)
+		UpdateAvatar(userID int, request *requeststructs.AvatarUpdateRequest) (string, error)
 		ResetPassword(request *requeststructs.ResetPasswordRequest) (*ent.User, error)
 	}
 	BookibusUserService interface {
@@ -111,6 +112,8 @@ type (
 		FetchAllByDriver(driverId, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
 		FetchAllCustomer(limit, offset int, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error)
 		FetchAllPopular(limit, offset int) (*presenters.PaginationResponse, error)
+		FetchAllSearch(searchKey string, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
+		FetchAllSearchByCompany(searchKey string, companyId, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
 		Fetch(id int) (*ent.Trip, error)
 		Create(companyId int, request *requeststructs.TripRequest) (*ent.Trip, error)
 		Update(id int, request *requeststructs.TripUpdateRequest) (*ent.Trip, error)

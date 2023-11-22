@@ -29,6 +29,8 @@ type Company struct {
 	OtherPhone string `json:"other_phone,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
+	// Status holds the value of the "status" field.
+	Status company.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CompanyQuery when eager-loading is set.
 	Edges        CompanyEdges `json:"edges"`
@@ -148,7 +150,7 @@ func (*Company) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case company.FieldID:
 			values[i] = new(sql.NullInt64)
-		case company.FieldName, company.FieldPhone, company.FieldOtherPhone, company.FieldEmail:
+		case company.FieldName, company.FieldPhone, company.FieldOtherPhone, company.FieldEmail, company.FieldStatus:
 			values[i] = new(sql.NullString)
 		case company.FieldCreatedAt, company.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -208,6 +210,12 @@ func (c *Company) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
 				c.Email = value.String
+			}
+		case company.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				c.Status = company.Status(value.String)
 			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
@@ -307,6 +315,9 @@ func (c *Company) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(c.Email)
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", c.Status))
 	builder.WriteByte(')')
 	return builder.String()
 }

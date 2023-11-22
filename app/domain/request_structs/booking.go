@@ -37,7 +37,7 @@ type (
 	}
 	BookingContactRequest struct {
 		FullName string `json:"fullName" validate:"required|ascii"`
-		Email    string `json:"email" validate:"required|email"`
+		Email    string `json:"email" validate:"email"`
 		Phone    string `json:"phone" validate:"required|phone"`
 	}
 	BookingPassengerUpdateRequest struct {

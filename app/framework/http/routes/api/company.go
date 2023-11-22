@@ -65,7 +65,9 @@ func CompanyRoutes(r fiber.Router, router *apiRouter) {
 
 	tripGroup := r.Group("/trips")
 	tripGroup.Get("", tripHandler.FetchAll())
+	tripGroup.Get("/search", tripHandler.FetchAllSearch())
 	tripGroup.Get("/company/:id", tripHandler.FetchAllByCompany())
+	tripGroup.Get("/company/:id/search", tripHandler.FetchAllSearchByCompany())
 	tripGroup.Get("/driver/:id", tripHandler.FetchAllByDriver())
 	tripGroup.Get("/:id", tripHandler.Fetch())
 	tripGroup.Post("/company/:id", adaptor.HTTPMiddleware(requests.ValidateTrip), tripHandler.Create())

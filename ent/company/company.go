@@ -3,6 +3,7 @@
 package company
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -26,6 +27,8 @@ const (
 	FieldOtherPhone = "other_phone"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
 	// EdgeProfile holds the string denoting the profile edge name in mutations.
 	EdgeProfile = "profile"
 	// EdgeTerminals holds the string denoting the terminals edge name in mutations.
@@ -120,6 +123,7 @@ var Columns = []string{
 	FieldPhone,
 	FieldOtherPhone,
 	FieldEmail,
+	FieldStatus,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -146,6 +150,32 @@ var (
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
 )
+
+// Status defines the type for the "status" enum field.
+type Status string
+
+// StatusUnverified is the default value of the Status enum.
+const DefaultStatus = StatusUnverified
+
+// Status values.
+const (
+	StatusUnverified Status = "unverified"
+	StatusVerified   Status = "verified"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusUnverified, StatusVerified:
+		return nil
+	default:
+		return fmt.Errorf("company: invalid enum value for status field: %q", s)
+	}
+}
 
 // OrderOption defines the ordering options for the Company queries.
 type OrderOption func(*sql.Selector)
@@ -183,6 +213,11 @@ func ByOtherPhone(opts ...sql.OrderTermOption) OrderOption {
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
 // ByProfileCount orders the results by profile count.

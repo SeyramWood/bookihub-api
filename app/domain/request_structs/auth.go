@@ -1,5 +1,7 @@
 package requeststructs
 
+import "mime/multipart"
+
 type (
 	UserLoginRequest struct {
 		Username string `json:"username" validate:"required|username"`
@@ -18,5 +20,8 @@ type (
 		CurrentPassword    string `json:"currentPassword" validate:"required|min:8"`
 		NewPassword        string `json:"newPassword" validate:"required|min:8"`
 		ConfirmNewPassword string `json:"confirmNewPassword" validate:"required|min:8|match:newPassword"`
+	}
+	AvatarUpdateRequest struct {
+		Avatar *multipart.FileHeader `json:"avatar" form:"avatar" validate:"required|image|size:2MB"`
 	}
 )

@@ -435,6 +435,26 @@ func EmailContainsFold(v string) predicate.Company {
 	return predicate.Company(sql.FieldContainsFold(FieldEmail, v))
 }
 
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v Status) predicate.Company {
+	return predicate.Company(sql.FieldEQ(FieldStatus, v))
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v Status) predicate.Company {
+	return predicate.Company(sql.FieldNEQ(FieldStatus, v))
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...Status) predicate.Company {
+	return predicate.Company(sql.FieldIn(FieldStatus, vs...))
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...Status) predicate.Company {
+	return predicate.Company(sql.FieldNotIn(FieldStatus, vs...))
+}
+
 // HasProfile applies the HasEdge predicate on the "profile" edge.
 func HasProfile() predicate.Company {
 	return predicate.Company(func(s *sql.Selector) {

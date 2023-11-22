@@ -77,10 +77,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// FullNameValidator is a validator for the "full_name" field. It is called by the builders before save.
 	FullNameValidator func(string) error
-	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	EmailValidator func(string) error
-	// PhoneValidator is a validator for the "phone" field. It is called by the builders before save.
-	PhoneValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the CustomerContact queries.

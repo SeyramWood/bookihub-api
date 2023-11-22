@@ -69,6 +69,17 @@ func (r *repository) ResetPassword(request *requeststructs.ResetPasswordRequest)
 	return r.ReadByUsername(request.Username)
 }
 
+// UpdateAvatar implements gateways.AuthRepo.
+func (r *repository) UpdateAvatar(userID int, avatar string) error {
+	_, err := r.db.User.UpdateOneID(userID).
+		SetAvatar(avatar).
+		Save(r.ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // UpdatePassword implements gateways.AuthRepo.
 func (r *repository) UpdatePassword(sessionID int, request *requeststructs.UpdatePasswordRequest) (*ent.User, error) {
 	password, _ := bcrypt.GenerateFromPassword([]byte(strings.TrimSpace(request.NewPassword)), 16)

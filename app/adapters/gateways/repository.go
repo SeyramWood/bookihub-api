@@ -11,6 +11,7 @@ type (
 		ReadByID(id int) (*ent.User, error)
 		ReadByUsername(username string) (*ent.User, error)
 		UpdatePassword(sessionID int, request *requeststructs.UpdatePasswordRequest) (*ent.User, error)
+		UpdateAvatar(userID int, avatar string) error
 		ResetPassword(request *requeststructs.ResetPasswordRequest) (*ent.User, error)
 	}
 	BookibusUserRepo interface {
@@ -80,6 +81,8 @@ type (
 		ReadAllByDriver(driverId, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
 		ReadAllCustomer(limit, offset int, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error)
 		ReadAllPopular(limit, offset int) (*presenters.PaginationResponse, error)
+		ReadAllSearch(searchKey string, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
+		ReadAllSearchByCompany(searchKey string, companyId, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
 		Read(id int) (*ent.Trip, error)
 		Insert(companyId int, request *requeststructs.TripRequest) (*ent.Trip, error)
 		Update(id int, request *requeststructs.TripUpdateRequest) (*ent.Trip, error)

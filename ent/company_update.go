@@ -82,6 +82,20 @@ func (cu *CompanyUpdate) SetEmail(s string) *CompanyUpdate {
 	return cu
 }
 
+// SetStatus sets the "status" field.
+func (cu *CompanyUpdate) SetStatus(c company.Status) *CompanyUpdate {
+	cu.mutation.SetStatus(c)
+	return cu
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (cu *CompanyUpdate) SetNillableStatus(c *company.Status) *CompanyUpdate {
+	if c != nil {
+		cu.SetStatus(*c)
+	}
+	return cu
+}
+
 // AddProfileIDs adds the "profile" edge to the CompanyUser entity by IDs.
 func (cu *CompanyUpdate) AddProfileIDs(ids ...int) *CompanyUpdate {
 	cu.mutation.AddProfileIDs(ids...)
@@ -464,6 +478,11 @@ func (cu *CompanyUpdate) check() error {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Company.email": %w`, err)}
 		}
 	}
+	if v, ok := cu.mutation.Status(); ok {
+		if err := company.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Company.status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -502,6 +521,9 @@ func (cu *CompanyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := cu.mutation.Email(); ok {
 		_spec.SetField(company.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := cu.mutation.Status(); ok {
+		_spec.SetField(company.FieldStatus, field.TypeEnum, value)
 	}
 	if cu.mutation.ProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -974,6 +996,20 @@ func (cuo *CompanyUpdateOne) SetEmail(s string) *CompanyUpdateOne {
 	return cuo
 }
 
+// SetStatus sets the "status" field.
+func (cuo *CompanyUpdateOne) SetStatus(c company.Status) *CompanyUpdateOne {
+	cuo.mutation.SetStatus(c)
+	return cuo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (cuo *CompanyUpdateOne) SetNillableStatus(c *company.Status) *CompanyUpdateOne {
+	if c != nil {
+		cuo.SetStatus(*c)
+	}
+	return cuo
+}
+
 // AddProfileIDs adds the "profile" edge to the CompanyUser entity by IDs.
 func (cuo *CompanyUpdateOne) AddProfileIDs(ids ...int) *CompanyUpdateOne {
 	cuo.mutation.AddProfileIDs(ids...)
@@ -1369,6 +1405,11 @@ func (cuo *CompanyUpdateOne) check() error {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Company.email": %w`, err)}
 		}
 	}
+	if v, ok := cuo.mutation.Status(); ok {
+		if err := company.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Company.status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -1424,6 +1465,9 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 	}
 	if value, ok := cuo.mutation.Email(); ok {
 		_spec.SetField(company.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := cuo.mutation.Status(); ok {
+		_spec.SetField(company.FieldStatus, field.TypeEnum, value)
 	}
 	if cuo.mutation.ProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -29,7 +29,7 @@ type (
 	}
 	ParcelDeliveredRequest struct {
 		PackageCode string                  `json:"packageCode" validate:"required"`
-		Image       []*multipart.FileHeader `json:"image" form:"image" validate:"required|slice:min:2|slice:max:2|image|size:6MB"`
+		Image       []*multipart.FileHeader `json:"image" form:"image" validate:"slice:min:2|slice:max:2|image|size:6MB"`
 	}
 	ParcelImageRequest struct {
 		Image []*multipart.FileHeader `json:"image" form:"image" validate:"required|slice:max:3|image|size:6MB"`

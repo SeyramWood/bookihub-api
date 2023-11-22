@@ -2503,6 +2503,7 @@ type CompanyMutation struct {
 	phone                *string
 	other_phone          *string
 	email                *string
+	status               *company.Status
 	clearedFields        map[string]struct{}
 	profile              map[int]struct{}
 	removedprofile       map[int]struct{}
@@ -2861,6 +2862,42 @@ func (m *CompanyMutation) OldEmail(ctx context.Context) (v string, err error) {
 // ResetEmail resets all changes to the "email" field.
 func (m *CompanyMutation) ResetEmail() {
 	m.email = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *CompanyMutation) SetStatus(c company.Status) {
+	m.status = &c
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *CompanyMutation) Status() (r company.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Company entity.
+// If the Company object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompanyMutation) OldStatus(ctx context.Context) (v company.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *CompanyMutation) ResetStatus() {
+	m.status = nil
 }
 
 // AddProfileIDs adds the "profile" edge to the CompanyUser entity by ids.
@@ -3383,7 +3420,7 @@ func (m *CompanyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CompanyMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, company.FieldCreatedAt)
 	}
@@ -3401,6 +3438,9 @@ func (m *CompanyMutation) Fields() []string {
 	}
 	if m.email != nil {
 		fields = append(fields, company.FieldEmail)
+	}
+	if m.status != nil {
+		fields = append(fields, company.FieldStatus)
 	}
 	return fields
 }
@@ -3422,6 +3462,8 @@ func (m *CompanyMutation) Field(name string) (ent.Value, bool) {
 		return m.OtherPhone()
 	case company.FieldEmail:
 		return m.Email()
+	case company.FieldStatus:
+		return m.Status()
 	}
 	return nil, false
 }
@@ -3443,6 +3485,8 @@ func (m *CompanyMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldOtherPhone(ctx)
 	case company.FieldEmail:
 		return m.OldEmail(ctx)
+	case company.FieldStatus:
+		return m.OldStatus(ctx)
 	}
 	return nil, fmt.Errorf("unknown Company field %s", name)
 }
@@ -3493,6 +3537,13 @@ func (m *CompanyMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEmail(v)
+		return nil
+	case company.FieldStatus:
+		v, ok := value.(company.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Company field %s", name)
@@ -3569,6 +3620,9 @@ func (m *CompanyMutation) ResetField(name string) error {
 		return nil
 	case company.FieldEmail:
 		m.ResetEmail()
+		return nil
+	case company.FieldStatus:
+		m.ResetStatus()
 		return nil
 	}
 	return fmt.Errorf("unknown Company field %s", name)
@@ -6140,9 +6194,22 @@ func (m *CustomerContactMutation) OldEmail(ctx context.Context) (v string, err e
 	return oldValue.Email, nil
 }
 
+// ClearEmail clears the value of the "email" field.
+func (m *CustomerContactMutation) ClearEmail() {
+	m.email = nil
+	m.clearedFields[customercontact.FieldEmail] = struct{}{}
+}
+
+// EmailCleared returns if the "email" field was cleared in this mutation.
+func (m *CustomerContactMutation) EmailCleared() bool {
+	_, ok := m.clearedFields[customercontact.FieldEmail]
+	return ok
+}
+
 // ResetEmail resets all changes to the "email" field.
 func (m *CustomerContactMutation) ResetEmail() {
 	m.email = nil
+	delete(m.clearedFields, customercontact.FieldEmail)
 }
 
 // SetPhone sets the "phone" field.
@@ -6176,9 +6243,22 @@ func (m *CustomerContactMutation) OldPhone(ctx context.Context) (v string, err e
 	return oldValue.Phone, nil
 }
 
+// ClearPhone clears the value of the "phone" field.
+func (m *CustomerContactMutation) ClearPhone() {
+	m.phone = nil
+	m.clearedFields[customercontact.FieldPhone] = struct{}{}
+}
+
+// PhoneCleared returns if the "phone" field was cleared in this mutation.
+func (m *CustomerContactMutation) PhoneCleared() bool {
+	_, ok := m.clearedFields[customercontact.FieldPhone]
+	return ok
+}
+
 // ResetPhone resets all changes to the "phone" field.
 func (m *CustomerContactMutation) ResetPhone() {
 	m.phone = nil
+	delete(m.clearedFields, customercontact.FieldPhone)
 }
 
 // SetBookingID sets the "booking" edge to the Booking entity by id.
@@ -6380,7 +6460,14 @@ func (m *CustomerContactMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *CustomerContactMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(customercontact.FieldEmail) {
+		fields = append(fields, customercontact.FieldEmail)
+	}
+	if m.FieldCleared(customercontact.FieldPhone) {
+		fields = append(fields, customercontact.FieldPhone)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -6393,6 +6480,14 @@ func (m *CustomerContactMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *CustomerContactMutation) ClearField(name string) error {
+	switch name {
+	case customercontact.FieldEmail:
+		m.ClearEmail()
+		return nil
+	case customercontact.FieldPhone:
+		m.ClearPhone()
+		return nil
+	}
 	return fmt.Errorf("unknown CustomerContact nullable field %s", name)
 }
 
@@ -17483,6 +17578,7 @@ type UserMutation struct {
 	username             *string
 	password             *[]byte
 	_type                *user.Type
+	avatar               *string
 	clearedFields        map[string]struct{}
 	bookibus_user        *int
 	clearedbookibus_user bool
@@ -17773,6 +17869,55 @@ func (m *UserMutation) ResetType() {
 	m._type = nil
 }
 
+// SetAvatar sets the "avatar" field.
+func (m *UserMutation) SetAvatar(s string) {
+	m.avatar = &s
+}
+
+// Avatar returns the value of the "avatar" field in the mutation.
+func (m *UserMutation) Avatar() (r string, exists bool) {
+	v := m.avatar
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAvatar returns the old "avatar" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldAvatar(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAvatar is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAvatar requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAvatar: %w", err)
+	}
+	return oldValue.Avatar, nil
+}
+
+// ClearAvatar clears the value of the "avatar" field.
+func (m *UserMutation) ClearAvatar() {
+	m.avatar = nil
+	m.clearedFields[user.FieldAvatar] = struct{}{}
+}
+
+// AvatarCleared returns if the "avatar" field was cleared in this mutation.
+func (m *UserMutation) AvatarCleared() bool {
+	_, ok := m.clearedFields[user.FieldAvatar]
+	return ok
+}
+
+// ResetAvatar resets all changes to the "avatar" field.
+func (m *UserMutation) ResetAvatar() {
+	m.avatar = nil
+	delete(m.clearedFields, user.FieldAvatar)
+}
+
 // SetBookibusUserID sets the "bookibus_user" edge to the BookibusUser entity by id.
 func (m *UserMutation) SetBookibusUserID(id int) {
 	m.bookibus_user = &id
@@ -17924,7 +18069,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -17939,6 +18084,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m._type != nil {
 		fields = append(fields, user.FieldType)
+	}
+	if m.avatar != nil {
+		fields = append(fields, user.FieldAvatar)
 	}
 	return fields
 }
@@ -17958,6 +18106,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Password()
 	case user.FieldType:
 		return m.GetType()
+	case user.FieldAvatar:
+		return m.Avatar()
 	}
 	return nil, false
 }
@@ -17977,6 +18127,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPassword(ctx)
 	case user.FieldType:
 		return m.OldType(ctx)
+	case user.FieldAvatar:
+		return m.OldAvatar(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -18021,6 +18173,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetType(v)
 		return nil
+	case user.FieldAvatar:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAvatar(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -18050,7 +18209,11 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(user.FieldAvatar) {
+		fields = append(fields, user.FieldAvatar)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -18063,6 +18226,11 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
+	switch name {
+	case user.FieldAvatar:
+		m.ClearAvatar()
+		return nil
+	}
 	return fmt.Errorf("unknown User nullable field %s", name)
 }
 
@@ -18084,6 +18252,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldType:
 		m.ResetType()
+		return nil
+	case user.FieldAvatar:
+		m.ResetAvatar()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

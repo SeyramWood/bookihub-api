@@ -89,6 +89,20 @@ func (cc *CompanyCreate) SetEmail(s string) *CompanyCreate {
 	return cc
 }
 
+// SetStatus sets the "status" field.
+func (cc *CompanyCreate) SetStatus(c company.Status) *CompanyCreate {
+	cc.mutation.SetStatus(c)
+	return cc
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (cc *CompanyCreate) SetNillableStatus(c *company.Status) *CompanyCreate {
+	if c != nil {
+		cc.SetStatus(*c)
+	}
+	return cc
+}
+
 // AddProfileIDs adds the "profile" edge to the CompanyUser entity by IDs.
 func (cc *CompanyCreate) AddProfileIDs(ids ...int) *CompanyCreate {
 	cc.mutation.AddProfileIDs(ids...)
@@ -267,6 +281,10 @@ func (cc *CompanyCreate) defaults() {
 		v := company.DefaultUpdatedAt()
 		cc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := cc.mutation.Status(); !ok {
+		v := company.DefaultStatus
+		cc.mutation.SetStatus(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -299,6 +317,14 @@ func (cc *CompanyCreate) check() error {
 	if v, ok := cc.mutation.Email(); ok {
 		if err := company.EmailValidator(v); err != nil {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Company.email": %w`, err)}
+		}
+	}
+	if _, ok := cc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Company.status"`)}
+	}
+	if v, ok := cc.mutation.Status(); ok {
+		if err := company.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Company.status": %w`, err)}
 		}
 	}
 	return nil
@@ -350,6 +376,10 @@ func (cc *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 	if value, ok := cc.mutation.Email(); ok {
 		_spec.SetField(company.FieldEmail, field.TypeString, value)
 		_node.Email = value
+	}
+	if value, ok := cc.mutation.Status(); ok {
+		_spec.SetField(company.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
 	if nodes := cc.mutation.ProfileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

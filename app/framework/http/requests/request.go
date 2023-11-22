@@ -35,6 +35,9 @@ func ValidateAuthUser(next http.Handler) http.Handler {
 func ValidateUsername(next http.Handler) http.Handler {
 	return valid.New(validConfig()).RequestStruct(new(requeststructs.UsernameRequest)).ValidateRequest(next)
 }
+func ValidateAvatarUpdate(next http.Handler) http.Handler {
+	return valid.New(validConfig()).RequestStruct(new(requeststructs.AvatarUpdateRequest)).ValidateRequest(next)
+}
 func ValidateBookibusUser(next http.Handler) http.Handler {
 	return valid.New(validConfig()).RequestStruct(new(requeststructs.BookibusUserRequest)).ValidateRequest(next)
 }

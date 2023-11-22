@@ -25,6 +25,8 @@ const (
 	FieldPassword = "password"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
+	// FieldAvatar holds the string denoting the avatar field in the database.
+	FieldAvatar = "avatar"
 	// EdgeBookibusUser holds the string denoting the bookibus_user edge name in mutations.
 	EdgeBookibusUser = "bookibus_user"
 	// EdgeCompanyUser holds the string denoting the company_user edge name in mutations.
@@ -64,6 +66,7 @@ var Columns = []string{
 	FieldUsername,
 	FieldPassword,
 	FieldType,
+	FieldAvatar,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "users"
@@ -152,6 +155,11 @@ func ByUsername(opts ...sql.OrderTermOption) OrderOption {
 // ByType orders the results by the type field.
 func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
+// ByAvatar orders the results by the avatar field.
+func ByAvatar(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAvatar, opts...).ToFunc()
 }
 
 // ByBookibusUserField orders the results by bookibus_user field.

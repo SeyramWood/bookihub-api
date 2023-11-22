@@ -7,6 +7,7 @@ import (
 
 	"github.com/SeyramWood/bookibus/app/adapters/gateways"
 	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application"
 	"github.com/SeyramWood/bookibus/app/application/trip"
 	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
 	"github.com/SeyramWood/bookibus/app/framework/database"
@@ -56,7 +57,13 @@ func (h *tripHandler) Fetch() fiber.Handler {
 }
 func (h *tripHandler) FetchAll() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		if c.Query("datetime") != "" && !application.IsRFC3339Datetime(c.Query("datetime")) {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("datetime is invalid")))
+		}
 		results, err := h.service.FetchAll(c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.TripFilterRequest{
+			From:      c.Query("from"),
+			To:        c.Query("to"),
+			Datetime:  c.Query("datetime"),
 			Today:     c.QueryBool("today"),
 			Scheduled: c.QueryBool("scheduled"),
 			Completed: c.QueryBool("completed"),
@@ -67,11 +74,58 @@ func (h *tripHandler) FetchAll() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(presenters.TripsResponse(results))
 	}
 }
-
+func (h *tripHandler) FetchAllSearch() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if c.Query("datetime") != "" && !application.IsRFC3339Datetime(c.Query("datetime")) {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("datetime is invalid")))
+		}
+		results, err := h.service.FetchAllSearch(c.Query("searchKey"), c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.TripFilterRequest{
+			From:      c.Query("from"),
+			To:        c.Query("to"),
+			Datetime:  c.Query("datetime"),
+			Today:     c.QueryBool("today"),
+			Scheduled: c.QueryBool("scheduled"),
+			Completed: c.QueryBool("completed"),
+		})
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.TripsResponse(results))
+	}
+}
 func (h *tripHandler) FetchAllByCompany() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		if c.Query("datetime") != "" && !application.IsRFC3339Datetime(c.Query("datetime")) {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("datetime is invalid")))
+		}
 		id, _ := c.ParamsInt("id")
 		results, err := h.service.FetchAllByCompany(id, c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.TripFilterRequest{
+			From:      c.Query("from"),
+			To:        c.Query("to"),
+			Datetime:  c.Query("datetime"),
+			Today:     c.QueryBool("today"),
+			Scheduled: c.QueryBool("scheduled"),
+			Completed: c.QueryBool("completed"),
+		})
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("company not found")))
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.TripsResponse(results))
+	}
+}
+func (h *tripHandler) FetchAllSearchByCompany() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if c.Query("datetime") != "" && !application.IsRFC3339Datetime(c.Query("datetime")) {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("datetime is invalid")))
+		}
+		id, _ := c.ParamsInt("id")
+		results, err := h.service.FetchAllSearchByCompany(c.Query("searchKey"), id, c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.TripFilterRequest{
+			From:      c.Query("from"),
+			To:        c.Query("to"),
+			Datetime:  c.Query("datetime"),
 			Today:     c.QueryBool("today"),
 			Scheduled: c.QueryBool("scheduled"),
 			Completed: c.QueryBool("completed"),

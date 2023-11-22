@@ -13,11 +13,13 @@ import (
 	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
 	"github.com/SeyramWood/bookibus/app/framework/database"
 	"github.com/SeyramWood/bookibus/ent"
+	"github.com/SeyramWood/bookibus/ent/booking"
 	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/companyuser"
 	"github.com/SeyramWood/bookibus/ent/predicate"
 	"github.com/SeyramWood/bookibus/ent/route"
 	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
 
 const (
@@ -129,155 +131,377 @@ func (r *repository) Read(id int) (*ent.Trip, error) {
 
 // ReadAll implements gateways.TripRepo.
 func (r *repository) ReadAll(limit int, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error) {
-	if filter.Today {
-		query := r.db.Trip.Query().Where(trip.And(
-			trip.Scheduled(false),
-			func(s *sql.Selector) {
-				s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) = CURDATE()", trip.FieldDepartureDate)))
-			},
-		))
+	fm := application.ConvertStructToMap(*(filter))
+	for _, com := range application.FilterCombinations(r.filterKeys()) {
+		if len(com) == len(r.filterKeys()) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
+				query := r.db.Trip.Query().Where(trip.And(r.filterPredicate(fm, com)...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 1) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
+				query := r.db.Trip.Query().Where(
+					trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 2) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
+				query := r.db.Trip.Query().Where(
+					trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
 
-		return r.filterTrip(query, limit, offset)
+		}
+		if len(com) == (len(r.filterKeys()) - 3) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+				query := r.db.Trip.Query().Where(
+					trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 4) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) {
+				query := r.db.Trip.Query().Where(
+					trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 5) {
+			if r.compareFilter(fm[com[0]]) {
+				query := r.db.Trip.Query().Where(
+					trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
 	}
-	if filter.Scheduled {
-		query := r.db.Trip.Query().Where(trip.And(
-			trip.Scheduled(true),
-			func(s *sql.Selector) {
-				s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) = CURDATE()", trip.FieldDepartureDate)))
-			},
-		))
-		return r.filterTrip(query, limit, offset)
+	if filter.From == "" && filter.To == "" && filter.Datetime == "" && !filter.Today && !filter.Scheduled && !filter.Completed {
+		return r.filterTrip(r.db.Trip.Query(), limit, offset)
 	}
-	if filter.Completed {
-		query := r.db.Trip.Query().Where(trip.And(
-			trip.StatusEQ(trip.StatusEnded),
-		))
-		return r.filterTrip(query, limit, offset)
+	return application.Paginate(0, []*ent.Trip{})
+}
+
+// ReadAllSearch implements gateways.TripRepo.
+func (r *repository) ReadAllSearch(searchKey string, limit int, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error) {
+	searchPredicate := trip.Or(
+		trip.HasBookingsWith(func(s *sql.Selector) {
+			s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) LIKE ?", booking.FieldBookingNumber), "%"+strings.ToLower(searchKey)+"%"))
+		}),
+		trip.HasVehicleWith(func(s *sql.Selector) {
+			s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) LIKE ?", vehicle.FieldRegistrationNumber), "%"+strings.ToLower(searchKey)+"%"))
+		}),
+		trip.HasDriverWith(func(s *sql.Selector) {
+			s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) LIKE ? OR LOWER(%s) LIKE ?", companyuser.FieldOtherName, companyuser.FieldLastName), "%"+strings.ToLower(searchKey)+"%", "%"+strings.ToLower(searchKey)+"%"))
+		}),
+	)
+	fm := application.ConvertStructToMap(*(filter))
+	for _, com := range application.FilterCombinations(r.filterKeys()) {
+		if len(com) == len(r.filterKeys()) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
+				query := r.db.Trip.Query().Where(searchPredicate, trip.And(r.filterPredicate(fm, com)...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 1) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
+				query := r.db.Trip.Query().Where(
+					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 2) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
+				query := r.db.Trip.Query().Where(
+					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+
+		}
+		if len(com) == (len(r.filterKeys()) - 3) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+				query := r.db.Trip.Query().Where(
+					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 4) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) {
+				query := r.db.Trip.Query().Where(
+					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 5) {
+			if r.compareFilter(fm[com[0]]) {
+				query := r.db.Trip.Query().Where(
+					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+	}
+	if filter.From == "" && filter.To == "" && filter.Datetime == "" && !filter.Today && !filter.Scheduled && !filter.Completed {
+		return r.filterTrip(r.db.Trip.Query().Where(searchPredicate), limit, offset)
 	}
 
-	return r.filterTrip(r.db.Trip.Query(), limit, offset)
+	return application.Paginate(0, []*ent.Trip{})
 }
 
 // ReadAllByCompany implements gateways.TripRepo.
 func (r *repository) ReadAllByCompany(companyId int, limit int, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error) {
+	fm := application.ConvertStructToMap(*(filter))
+	for _, com := range application.FilterCombinations(r.filterKeys()) {
+		if len(com) == len(r.filterKeys()) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 1) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 2) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
 
-	if filter.Today {
-		query := r.db.Trip.Query().Where(trip.And(
-			trip.HasCompanyWith(company.ID(companyId)),
-			trip.Scheduled(false),
-			func(s *sql.Selector) {
-				s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) = CURDATE()", trip.FieldDepartureDate)))
-			},
-		))
+		}
+		if len(com) == (len(r.filterKeys()) - 3) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 4) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 5) {
+			if r.compareFilter(fm[com[0]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+	}
+	if filter.From == "" && filter.To == "" && filter.Datetime == "" && !filter.Today && !filter.Scheduled && !filter.Completed {
+		return r.filterTrip(r.db.Trip.Query().Where(trip.And(trip.HasCompanyWith(company.ID(companyId)))), limit, offset)
+	}
+	return application.Paginate(0, []*ent.Trip{})
+}
 
-		return r.filterTrip(query, limit, offset)
-	}
-	if filter.Scheduled {
-		query := r.db.Trip.Query().Where(trip.And(
-			trip.HasCompanyWith(company.ID(companyId)),
-			trip.Scheduled(true),
-			func(s *sql.Selector) {
-				s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) = CURDATE()", trip.FieldDepartureDate)))
-			},
-		))
-		return r.filterTrip(query, limit, offset)
-	}
-	if filter.Completed {
-		query := r.db.Trip.Query().Where(trip.And(
-			trip.HasCompanyWith(company.ID(companyId)),
-			trip.StatusEQ(trip.StatusEnded),
-		))
-		return r.filterTrip(query, limit, offset)
-	}
+// ReadAllSearchByCompany implements gateways.TripRepo.
+func (r *repository) ReadAllSearchByCompany(searchKey string, companyId int, limit int, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error) {
+	searchPredicate := trip.Or(
+		trip.HasBookingsWith(func(s *sql.Selector) {
+			s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) LIKE ?", booking.FieldBookingNumber), "%"+strings.ToLower(searchKey)+"%"))
+		}),
+		trip.HasVehicleWith(func(s *sql.Selector) {
+			s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) LIKE ?", vehicle.FieldRegistrationNumber), "%"+strings.ToLower(searchKey)+"%"))
+		}),
+		trip.HasDriverWith(func(s *sql.Selector) {
+			s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) LIKE ? OR LOWER(%s) LIKE ?", companyuser.FieldOtherName, companyuser.FieldLastName), "%"+strings.ToLower(searchKey)+"%", "%"+strings.ToLower(searchKey)+"%"))
+		}),
+	)
+	fm := application.ConvertStructToMap(*(filter))
+	for _, com := range application.FilterCombinations(r.filterKeys()) {
+		if len(com) == len(r.filterKeys()) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(searchPredicate, trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 1) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(searchPredicate, trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 2) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(searchPredicate, trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
 
-	return r.filterTrip(r.db.Trip.Query().Where(trip.HasCompanyWith(company.ID(companyId))), limit, offset)
+		}
+		if len(com) == (len(r.filterKeys()) - 3) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(searchPredicate, trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 4) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(searchPredicate, trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 5) {
+			if r.compareFilter(fm[com[0]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasCompanyWith(company.ID(companyId)))
+				query := r.db.Trip.Query().Where(searchPredicate, trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+	}
+	if filter.From == "" && filter.To == "" && filter.Datetime == "" && !filter.Today && !filter.Scheduled && !filter.Completed {
+		return r.filterTrip(r.db.Trip.Query().Where(searchPredicate, trip.And(trip.HasCompanyWith(company.ID(companyId)))), limit, offset)
+	}
+	return application.Paginate(0, []*ent.Trip{})
 }
 
 // ReadAllByDriver implements gateways.TripRepo.
 func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error) {
-	if filter.Today {
-		query := r.db.Trip.Query().Where(trip.And(
-			trip.HasDriverWith(companyuser.ID(driverId)),
-			trip.Scheduled(false),
-			func(s *sql.Selector) {
-				s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) = CURDATE()", trip.FieldDepartureDate)))
-			},
-		))
-		return r.filterTrip(query, limit, offset)
+	fm := application.ConvertStructToMap(*(filter))
+	for _, com := range application.FilterCombinations(r.filterKeys()) {
+		if len(com) == len(r.filterKeys()) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 1) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 2) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+
+		}
+		if len(com) == (len(r.filterKeys()) - 3) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 4) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 5) {
+			if r.compareFilter(fm[com[0]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
 	}
-	if filter.Scheduled {
-		query := r.db.Trip.Query().Where(trip.And(
-			trip.HasDriverWith(companyuser.ID(driverId)),
-			trip.Scheduled(true),
-			func(s *sql.Selector) {
-				s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) = CURDATE()", trip.FieldDepartureDate)))
-			},
-		))
-		return r.filterTrip(query, limit, offset)
-	}
-	query := r.db.Trip.Query().Where(trip.And(
-		trip.HasDriverWith(companyuser.ID(driverId)),
-		trip.StatusEQ(trip.StatusEnded),
-	))
-	return r.filterTrip(query, limit, offset)
+
+	return application.Paginate(0, []*ent.Trip{})
 }
 
 // ReadAllCustomer implements gateways.TripRepo.
 func (r *repository) ReadAllCustomer(limit int, offset int, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error) {
 	fm := application.ConvertStructToMap(*(filter))
-	for _, com := range application.FilterCombinations(r.filterKeys()) {
-		if len(com) == len(r.filterKeys()) {
+	for _, com := range application.FilterCombinations(r.customerFilterKeys()) {
+		if len(com) == len(r.customerFilterKeys()) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.filterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys()) - 1) {
+		if len(com) == (len(r.customerFilterKeys()) - 1) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.filterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys()) - 2) {
+		if len(com) == (len(r.customerFilterKeys()) - 2) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.filterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys()) - 3) {
+		if len(com) == (len(r.customerFilterKeys()) - 3) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.filterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys()) - 4) {
+		if len(com) == (len(r.customerFilterKeys()) - 4) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.filterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys()) - 5) {
+		if len(com) == (len(r.customerFilterKeys()) - 5) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.filterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys()) - 6) {
+		if len(com) == (len(r.customerFilterKeys()) - 6) {
 			if r.compareFilter(fm[com[0]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.filterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
@@ -351,6 +575,13 @@ func (r *repository) UpdateSchedule(id int, status bool) (*ent.Trip, error) {
 
 // UpdateStatus implements gateways.TripRepo.
 func (r *repository) UpdateStatus(id int, status string) (*ent.Trip, error) {
+	t := r.db.Trip.GetX(r.ctx, id)
+	if trip.Status(status) == trip.StatusStarted && !t.Scheduled {
+		return nil, fmt.Errorf("can not start trip")
+	}
+	if trip.Status(status) == trip.StatusEnded && !t.Scheduled {
+		return nil, fmt.Errorf("can not end trip")
+	}
 	result, err := r.db.Trip.UpdateOneID(id).
 		SetStatus(trip.Status(status)).
 		Save(r.ctx)
@@ -374,7 +605,7 @@ func (r *repository) filterTrip(query *ent.TripQuery, limit, offset int) (*prese
 	results, err := query.
 		Limit(limit).
 		Offset(offset).
-		Order(ent.Desc(trip.FieldCreatedAt)).
+		Order(ent.Desc(trip.FieldDepartureDate)).
 		WithFromTerminal().
 		WithToTerminal().
 		WithVehicle(func(vq *ent.VehicleQuery) {
@@ -412,7 +643,8 @@ func (r *repository) filterTripByPopularity(query *ent.TripQuery, limit, offset 
 		Limit(limit).
 		Offset(offset).
 		Order(
-			trip.ByRouteField(route.FieldPopularity,
+			trip.ByRouteField(
+				route.FieldPopularity,
 				sql.OrderDesc(),
 			),
 		).
@@ -457,13 +689,17 @@ func (r *repository) compareFilter(value any) bool {
 		if value != "" {
 			return true
 		}
+	case bool:
+		if value == true {
+			return true
+		}
 	}
 	return false
 }
-func (r *repository) filterKeys() []string {
+func (r *repository) customerFilterKeys() []string {
 	return []string{"CompanyID", "TripType", "From", "To", "DepartureDate", "ReturnDate", "Passengers"}
 }
-func (r *repository) filterPredicate(data map[string]any, combinations []string) []predicate.Trip {
+func (r *repository) customerFilterPredicate(data map[string]any, combinations []string) []predicate.Trip {
 	results := make([]predicate.Trip, 0, len(combinations))
 	for _, combination := range combinations {
 		for k, v := range data {
@@ -499,6 +735,62 @@ func (r *repository) filterPredicate(data map[string]any, combinations []string)
 			}
 			if combination == k && combination == "Passengers" {
 				results = append(results, trip.SeatLeftGTE(v.(int)))
+				break
+			}
+		}
+	}
+	return results
+}
+
+func (r *repository) filterKeys() []string {
+	return []string{"From", "To", "Datetime", "Today", "Scheduled", "Completed"}
+}
+func (r *repository) filterPredicate(data map[string]any, combinations []string) []predicate.Trip {
+	results := make([]predicate.Trip, 0, len(combinations))
+	for _, combination := range combinations {
+		for k, v := range data {
+			if combination == k && combination == "From" {
+				results = append(results, trip.HasRouteWith(
+					func(s *sql.Selector) {
+						s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) = ?", route.FieldFromLocation), strings.ToLower(v.(string))))
+					}))
+				break
+			}
+			if combination == k && combination == "To" {
+				results = append(results, trip.HasRouteWith(
+					func(s *sql.Selector) {
+						s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) = ?", route.FieldToLocation), strings.ToLower(v.(string))))
+					}))
+				break
+			}
+			if combination == k && combination == "Datetime" {
+				results = append(results, trip.DepartureDate(application.ParseRFC3339Datetime(v.(string))))
+				break
+			}
+			if combination == k && combination == "Today" {
+				results = append(results, trip.And(
+					trip.Scheduled(false),
+					func(s *sql.Selector) {
+						s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) = CURDATE()", trip.FieldDepartureDate)))
+					},
+				))
+				break
+			}
+			if combination == k && combination == "Scheduled" {
+				results = append(results, trip.And(
+					trip.StatusNotIn(trip.StatusEnded),
+					trip.Scheduled(true),
+					func(s *sql.Selector) {
+						s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) = CURDATE()", trip.FieldDepartureDate)))
+					},
+				))
+				break
+			}
+			if combination == k && combination == "Completed" {
+				results = append(results, trip.And(
+					trip.Scheduled(true),
+					trip.StatusEQ(trip.StatusEnded),
+				))
 				break
 			}
 		}

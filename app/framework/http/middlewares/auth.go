@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"golang.org/x/exp/slices"
 
 	"github.com/SeyramWood/bookibus/utils/jwt"
 )
@@ -29,9 +28,6 @@ func ValidateOAuthToken() fiber.Handler {
 
 func Authenticate(jwt *jwt.JWT) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		if isService(c.Request().Host()) && strings.SplitN(c.Get("User-Agent"), "/", 2)[0] == "Go-http-client" {
-			return c.Next()
-		}
 		token, err := bearerToken(c.Get("Authorization"))
 		if err != nil {
 			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"status": false, "message": "Forbidden"})
@@ -53,35 +49,4 @@ func bearerToken(rawToken string) (string, error) {
 	}
 	token := strings.TrimSpace(pieces[1])
 	return token, nil
-}
-func isService(host []byte) bool {
-	services := []string{
-		"broker-service",
-		"producer-service",
-		"listener-service",
-		"logger-service",
-		"notification-service",
-		"authentication-service",
-		"user-service",
-		"vehicle-service",
-		"booking-service",
-		"payment-service",
-		"review-service",
-		"report-service",
-		"support-service",
-		"devbroker-service",
-		"devproducer-service",
-		"devlistener-service",
-		"devlogger-service",
-		"devnotification-service",
-		"devauthentication-service",
-		"devuser-service",
-		"devvehicle-service",
-		"devbooking-service",
-		"devpayment-service",
-		"devreview-service",
-		"devreport-service",
-		"devsupport-service",
-	}
-	return slices.Contains(services, string(host))
 }

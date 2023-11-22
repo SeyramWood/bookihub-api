@@ -24,6 +24,7 @@ func (User) Fields() []ent.Field {
 		field.String("username").NotEmpty().Unique(),
 		field.Bytes("password").NotEmpty().Sensitive(),
 		field.Enum("type").Values("bookibus", "company", "customer"),
+		field.String("avatar").Optional(),
 	}
 }
 

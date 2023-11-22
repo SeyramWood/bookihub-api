@@ -182,14 +182,6 @@ func init() {
 	customercontactDescFullName := customercontactFields[0].Descriptor()
 	// customercontact.FullNameValidator is a validator for the "full_name" field. It is called by the builders before save.
 	customercontact.FullNameValidator = customercontactDescFullName.Validators[0].(func(string) error)
-	// customercontactDescEmail is the schema descriptor for email field.
-	customercontactDescEmail := customercontactFields[1].Descriptor()
-	// customercontact.EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	customercontact.EmailValidator = customercontactDescEmail.Validators[0].(func(string) error)
-	// customercontactDescPhone is the schema descriptor for phone field.
-	customercontactDescPhone := customercontactFields[2].Descriptor()
-	// customercontact.PhoneValidator is a validator for the "phone" field. It is called by the builders before save.
-	customercontact.PhoneValidator = customercontactDescPhone.Validators[0].(func(string) error)
 	customerluggageMixin := schema.CustomerLuggage{}.Mixin()
 	customerluggageMixinFields0 := customerluggageMixin[0].Fields()
 	_ = customerluggageMixinFields0

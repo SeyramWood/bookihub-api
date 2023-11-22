@@ -26,6 +26,7 @@ func (Company) Fields() []ent.Field {
 		field.String("phone").NotEmpty(),
 		field.String("other_phone").Optional(),
 		field.String("email").NotEmpty(),
+		field.Enum("status").Values("unverified", "verified").Default("unverified"),
 	}
 }
 

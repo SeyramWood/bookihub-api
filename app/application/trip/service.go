@@ -52,6 +52,16 @@ func (s *service) FetchAllPopular(limit int, offset int) (*presenters.Pagination
 	return s.repo.ReadAllPopular(limit, offset)
 }
 
+// FetchAllSearch implements gateways.TripService.
+func (s *service) FetchAllSearch(searchKey string, limit int, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error) {
+	return s.repo.ReadAllSearch(searchKey, limit, offset, filter)
+}
+
+// FetchAllSearchByCompany implements gateways.TripService.
+func (s *service) FetchAllSearchByCompany(searchKey string, companyId int, limit int, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error) {
+	return s.repo.ReadAllSearchByCompany(searchKey, companyId, limit, offset, filter)
+}
+
 // Remove implements gateways.TripService.
 func (s *service) Remove(id int) error {
 	return s.repo.Delete(id)

@@ -69,6 +69,20 @@ func (uc *UserCreate) SetType(u user.Type) *UserCreate {
 	return uc
 }
 
+// SetAvatar sets the "avatar" field.
+func (uc *UserCreate) SetAvatar(s string) *UserCreate {
+	uc.mutation.SetAvatar(s)
+	return uc
+}
+
+// SetNillableAvatar sets the "avatar" field if the given value is not nil.
+func (uc *UserCreate) SetNillableAvatar(s *string) *UserCreate {
+	if s != nil {
+		uc.SetAvatar(*s)
+	}
+	return uc
+}
+
 // SetBookibusUserID sets the "bookibus_user" edge to the BookibusUser entity by ID.
 func (uc *UserCreate) SetBookibusUserID(id int) *UserCreate {
 	uc.mutation.SetBookibusUserID(id)
@@ -248,6 +262,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.GetType(); ok {
 		_spec.SetField(user.FieldType, field.TypeEnum, value)
 		_node.Type = value
+	}
+	if value, ok := uc.mutation.Avatar(); ok {
+		_spec.SetField(user.FieldAvatar, field.TypeString, value)
+		_node.Avatar = value
 	}
 	if nodes := uc.mutation.BookibusUserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

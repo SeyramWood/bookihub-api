@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -13,6 +14,7 @@ import (
 	"github.com/SeyramWood/bookibus/app/application"
 	"github.com/SeyramWood/bookibus/app/domain"
 	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
+	"github.com/SeyramWood/bookibus/config"
 	"github.com/SeyramWood/bookibus/ent"
 	"github.com/SeyramWood/bookibus/ent/user"
 	"github.com/SeyramWood/bookibus/utils/jwt"
@@ -26,18 +28,22 @@ const (
 var ErrBadRequest = errors.New("bad request")
 
 type service struct {
-	repo     gateways.AuthRepo
-	cache    gateways.CacheService
-	producer gateways.EventProducer
-	jwt      *jwt.JWT
+	repo        gateways.AuthRepo
+	cache       gateways.CacheService
+	producer    gateways.EventProducer
+	storage     gateways.StorageService
+	storagePath string
+	jwt         *jwt.JWT
 }
 
-func NewService(repo gateways.AuthRepo, cacheSrv gateways.CacheService, jwt *jwt.JWT, producer gateways.EventProducer) gateways.AuthService {
+func NewService(repo gateways.AuthRepo, cacheSrv gateways.CacheService, jwt *jwt.JWT, producer gateways.EventProducer, storage gateways.StorageService) gateways.AuthService {
 	return &service{
-		repo:     repo,
-		cache:    cacheSrv,
-		producer: producer,
-		jwt:      jwt,
+		repo:        repo,
+		cache:       cacheSrv,
+		producer:    producer,
+		storage:     storage,
+		storagePath: "public/user/avatar",
+		jwt:         jwt,
 	}
 }
 
@@ -110,7 +116,7 @@ func (s *service) SendPasswordResetCode(request *requeststructs.UsernameRequest)
 	if application.UsernameType(request.Username, "email") {
 		s.producer.Queue("notification:email", domain.MailerMessage{
 			To:       request.Username,
-			Subject:  "PASSWORD RESET - BookiBus",
+			Subject:  "PASSWORD RESET - Booki Rides",
 			Data:     code,
 			Template: "resetpassword",
 		})
@@ -132,6 +138,24 @@ func (s *service) SendPasswordResetCode(request *requeststructs.UsernameRequest)
 	}(s)
 
 	return code, nil
+}
+
+// UpdateAvatar implements gateways.AuthService.
+func (s *service) UpdateAvatar(userID int, request *requeststructs.AvatarUpdateRequest) (string, error) {
+	user, err := s.repo.ReadByID(userID)
+	if err != nil {
+		return "", err
+	}
+	avatar, err := s.storage.UploadFile(s.storagePath, request.Avatar)
+	if err != nil {
+		return "", err
+	}
+	if err := s.repo.UpdateAvatar(userID, avatar); err != nil {
+		go s.storage.ExecuteTask(strings.Replace(avatar, config.App().AppURL, "public", 1), "delete_file")
+		return "", err
+	}
+	go s.storage.ExecuteTask(strings.Replace(user.Avatar, config.App().AppURL, "public", 1), "delete_file")
+	return avatar, nil
 }
 
 // UpdatePassword implements gateways.AuthService.

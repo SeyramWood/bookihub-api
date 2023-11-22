@@ -118,6 +118,9 @@ type (
 	}
 
 	TripFilterRequest struct {
+		From      string
+		To        string
+		Datetime  string
 		Today     bool
 		Scheduled bool
 		Completed bool

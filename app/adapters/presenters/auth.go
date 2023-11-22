@@ -10,11 +10,13 @@ import (
 
 type (
 	AuthSession struct {
-		ID          int    `json:"id"`
-		CompanyID   int    `json:"companyId,omitempty"`
-		DisplayName string `json:"displayName"`
-		Username    string `json:"username"`
-		Role        string `json:"role,omitempty"`
+		ID            int    `json:"id"`
+		CompanyID     int    `json:"companyId,omitempty"`
+		CompanyStatus string `json:"companyStatus,omitempty"`
+		DisplayName   string `json:"displayName"`
+		Username      string `json:"username"`
+		Avatar        string `json:"avatar,omitempty"`
+		Role          string `json:"role,omitempty"`
 	}
 	AuthTokenData struct {
 		AccessToken  string `json:"accessToken"`
@@ -32,16 +34,19 @@ func FormatSession(data *ent.User) *AuthSession {
 			ID:          data.ID,
 			DisplayName: strings.Split(profile.OtherName, " ")[0],
 			Username:    data.Username,
+			Avatar:      data.Avatar,
 			Role:        string(profile.Role),
 		}
 	}
 	if profile, err := data.Edges.CompanyUserOrErr(); err == nil {
 		return &AuthSession{
-			ID:          data.ID,
-			CompanyID:   profile.Edges.Company.ID,
-			DisplayName: strings.Split(profile.OtherName, " ")[0],
-			Username:    data.Username,
-			Role:        string(profile.Role),
+			ID:            data.ID,
+			CompanyID:     profile.Edges.Company.ID,
+			CompanyStatus: string(profile.Edges.Company.Status),
+			DisplayName:   strings.Split(profile.OtherName, " ")[0],
+			Username:      data.Username,
+			Avatar:        data.Avatar,
+			Role:          string(profile.Role),
 		}
 	}
 	if profile, err := data.Edges.CustomerOrErr(); err == nil {

@@ -132,6 +132,13 @@ func ParseRFC3339Datetime(rfc3339Datetime ...string) time.Time {
 	}
 	return rfc3339Time
 }
+func IsRFC3339Datetime(rfc3339Datetime string) bool {
+	_, err := time.Parse(time.RFC3339, rfc3339Datetime)
+	if err != nil {
+		return false
+	}
+	return true
+}
 func ParseRFC3339MYSQLDatetime(rfc3339Datetime string, format ...string) string {
 	if format != nil {
 		rfc3339Time, err := time.Parse(time.RFC3339, rfc3339Datetime)
