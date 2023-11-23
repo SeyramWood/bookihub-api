@@ -33,6 +33,7 @@ func UnauthorizedRoutes(r fiber.Router, router *apiRouter) {
 	tripGroup := r.Group("/trips")
 	tripGroup.Get("/all", tripHandler.FetchAllCustomer())
 	tripGroup.Get("/popular", tripHandler.FetchAllPopular())
+	tripGroup.Get("/:id/details", tripHandler.Fetch())
 
 	bookingGroup := r.Group("/bookings")
 	bookingGroup.Get("/all", bookingHandler.FetchAllCustomer())
