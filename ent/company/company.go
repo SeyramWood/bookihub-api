@@ -23,10 +23,14 @@ const (
 	FieldName = "name"
 	// FieldPhone holds the string denoting the phone field in the database.
 	FieldPhone = "phone"
-	// FieldOtherPhone holds the string denoting the other_phone field in the database.
-	FieldOtherPhone = "other_phone"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldCertificate holds the string denoting the certificate field in the database.
+	FieldCertificate = "certificate"
+	// FieldBankAccount holds the string denoting the bank_account field in the database.
+	FieldBankAccount = "bank_account"
+	// FieldContactPerson holds the string denoting the contact_person field in the database.
+	FieldContactPerson = "contact_person"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// EdgeProfile holds the string denoting the profile edge name in mutations.
@@ -121,8 +125,10 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldName,
 	FieldPhone,
-	FieldOtherPhone,
 	FieldEmail,
+	FieldCertificate,
+	FieldBankAccount,
+	FieldContactPerson,
 	FieldStatus,
 }
 
@@ -205,14 +211,14 @@ func ByPhone(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPhone, opts...).ToFunc()
 }
 
-// ByOtherPhone orders the results by the other_phone field.
-func ByOtherPhone(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOtherPhone, opts...).ToFunc()
-}
-
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByCertificate orders the results by the certificate field.
+func ByCertificate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCertificate, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

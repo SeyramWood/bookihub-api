@@ -170,16 +170,17 @@ func (r *repository) ReadAllByCompany(companyId int, limit int, offset int, filt
 
 // ReadAllByDriver implements gateways.ParcelRepo.
 func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter *requeststructs.ParcelFilterRequest) (*presenters.PaginationResponse, error) {
+	driverID := r.db.User.GetX(r.ctx, driverId).QueryCompanyUser().OnlyIDX(r.ctx)
 	if filter.Status != "" {
 		query := r.db.Parcel.Query().Where(
 			parcel.And(
-				parcel.HasDriverWith(companyuser.ID(driverId)),
+				parcel.HasDriverWith(companyuser.ID(driverID)),
 				parcel.StatusEQ(parcel.Status(strings.ToLower(filter.Status))),
 			),
 		)
 		return r.filterParcel(query, limit, offset)
 	}
-	return r.filterParcel(r.db.Parcel.Query().Where(parcel.HasDriverWith(companyuser.ID(driverId))), limit, offset)
+	return r.filterParcel(r.db.Parcel.Query().Where(parcel.HasDriverWith(companyuser.ID(driverID))), limit, offset)
 }
 
 // Update implements gateways.ParcelRepo.

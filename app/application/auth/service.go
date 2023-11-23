@@ -126,7 +126,7 @@ func (s *service) SendPasswordResetCode(request *requeststructs.UsernameRequest)
 			"notification:sms",
 			&domain.SMSPayload{
 				Message: fmt.Sprintf(
-					"You are a step away to complete your password reset! Enter the reset code to proceed. %s",
+					"You are a step away from completing your password reset! Enter the reset code to proceed. %s",
 					code,
 				),
 				Recipients: []string{fmt.Sprintf("+233%s", request.Username)},

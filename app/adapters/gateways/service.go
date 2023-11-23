@@ -72,6 +72,12 @@ type (
 		FetchAll(limit, offset int) (*presenters.PaginationResponse, error)
 		Fetch(id int) (*ent.Company, error)
 		Create(request *requeststructs.CompanyRequest) (*ent.Company, error)
+		BookiOnboard(request *requeststructs.BookiOnboardingRequest) (*ent.Company, error)
+		Onboard(id int, request *requeststructs.CompanyOnboardingRequest) (*ent.Company, error)
+		UpdateBankAccount(id int, request *requeststructs.CompanyBankAccountRequest) (*ent.Company, error)
+		UpdateContactPerson(id int, request *requeststructs.CompanyContactPersonUpdateRequest) (*ent.Company, error)
+		UpdateCertificate(id int, request *requeststructs.CompanyCertificateUpdateRequest) (*ent.Company, error)
+		UpdateStatus(id int, status string) (*ent.Company, error)
 		Update(id int, request *requeststructs.CompanyUpdateRequest) (*ent.Company, error)
 		Remove(id int) error
 	}

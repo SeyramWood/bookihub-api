@@ -7,6 +7,21 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
+type (
+	BankAccount struct {
+		AccountName   string `json:"accountName"`
+		AccountNumber string `json:"accountNumber"`
+		Bank          string `json:"bank"`
+		Branch        string `json:"branch"`
+	}
+	ContactPerson struct {
+		Name     string `json:"name"`
+		Position string `json:"position"`
+		Phone    string `json:"phone"`
+		Email    string `json:"email"`
+	}
+)
+
 // Company holds the schema definition for the Company entity.
 type Company struct {
 	ent.Schema
@@ -24,8 +39,10 @@ func (Company) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").NotEmpty(),
 		field.String("phone").NotEmpty(),
-		field.String("other_phone").Optional(),
 		field.String("email").NotEmpty(),
+		field.String("certificate").Optional(),
+		field.JSON("bank_account", &BankAccount{}).Optional(),
+		field.JSON("contact_person", &ContactPerson{}).Optional(),
 		field.Enum("status").Values("unverified", "verified").Default("unverified"),
 	}
 }

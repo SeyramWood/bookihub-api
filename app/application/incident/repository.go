@@ -170,10 +170,11 @@ func (r *repository) ReadAllByCompany(companyId int, limit int, offset int, filt
 
 // ReadAllByDriver implements gateways.IncidentRepo.
 func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter *requeststructs.IncidentFilterRequest) (*presenters.PaginationResponse, error) {
+	driverID := r.db.User.GetX(r.ctx, driverId).QueryCompanyUser().OnlyIDX(r.ctx)
 	if filter.Datetime != "" {
 		query := r.db.Incident.Query().Where(
 			incident.And(
-				incident.HasDriverWith(companyuser.ID(driverId)),
+				incident.HasDriverWith(companyuser.ID(driverID)),
 				func(s *sql.Selector) {
 					s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) = ?", incident.FieldTime), application.ParseRFC3339MYSQLDatetime(filter.Datetime)))
 				},
@@ -181,7 +182,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 		)
 		return r.filterIncident(query, limit, offset)
 	}
-	return r.filterIncident(r.db.Incident.Query().Where(incident.HasDriverWith(companyuser.ID(driverId))), limit, offset)
+	return r.filterIncident(r.db.Incident.Query().Where(incident.HasDriverWith(companyuser.ID(driverID))), limit, offset)
 }
 
 // Update implements gateways.IncidentRepo.

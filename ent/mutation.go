@@ -2501,8 +2501,10 @@ type CompanyMutation struct {
 	updated_at           *time.Time
 	name                 *string
 	phone                *string
-	other_phone          *string
 	email                *string
+	certificate          *string
+	bank_account         **schema.BankAccount
+	contact_person       **schema.ContactPerson
 	status               *company.Status
 	clearedFields        map[string]struct{}
 	profile              map[int]struct{}
@@ -2779,55 +2781,6 @@ func (m *CompanyMutation) ResetPhone() {
 	m.phone = nil
 }
 
-// SetOtherPhone sets the "other_phone" field.
-func (m *CompanyMutation) SetOtherPhone(s string) {
-	m.other_phone = &s
-}
-
-// OtherPhone returns the value of the "other_phone" field in the mutation.
-func (m *CompanyMutation) OtherPhone() (r string, exists bool) {
-	v := m.other_phone
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOtherPhone returns the old "other_phone" field's value of the Company entity.
-// If the Company object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompanyMutation) OldOtherPhone(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOtherPhone is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOtherPhone requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOtherPhone: %w", err)
-	}
-	return oldValue.OtherPhone, nil
-}
-
-// ClearOtherPhone clears the value of the "other_phone" field.
-func (m *CompanyMutation) ClearOtherPhone() {
-	m.other_phone = nil
-	m.clearedFields[company.FieldOtherPhone] = struct{}{}
-}
-
-// OtherPhoneCleared returns if the "other_phone" field was cleared in this mutation.
-func (m *CompanyMutation) OtherPhoneCleared() bool {
-	_, ok := m.clearedFields[company.FieldOtherPhone]
-	return ok
-}
-
-// ResetOtherPhone resets all changes to the "other_phone" field.
-func (m *CompanyMutation) ResetOtherPhone() {
-	m.other_phone = nil
-	delete(m.clearedFields, company.FieldOtherPhone)
-}
-
 // SetEmail sets the "email" field.
 func (m *CompanyMutation) SetEmail(s string) {
 	m.email = &s
@@ -2862,6 +2815,153 @@ func (m *CompanyMutation) OldEmail(ctx context.Context) (v string, err error) {
 // ResetEmail resets all changes to the "email" field.
 func (m *CompanyMutation) ResetEmail() {
 	m.email = nil
+}
+
+// SetCertificate sets the "certificate" field.
+func (m *CompanyMutation) SetCertificate(s string) {
+	m.certificate = &s
+}
+
+// Certificate returns the value of the "certificate" field in the mutation.
+func (m *CompanyMutation) Certificate() (r string, exists bool) {
+	v := m.certificate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCertificate returns the old "certificate" field's value of the Company entity.
+// If the Company object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompanyMutation) OldCertificate(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCertificate is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCertificate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCertificate: %w", err)
+	}
+	return oldValue.Certificate, nil
+}
+
+// ClearCertificate clears the value of the "certificate" field.
+func (m *CompanyMutation) ClearCertificate() {
+	m.certificate = nil
+	m.clearedFields[company.FieldCertificate] = struct{}{}
+}
+
+// CertificateCleared returns if the "certificate" field was cleared in this mutation.
+func (m *CompanyMutation) CertificateCleared() bool {
+	_, ok := m.clearedFields[company.FieldCertificate]
+	return ok
+}
+
+// ResetCertificate resets all changes to the "certificate" field.
+func (m *CompanyMutation) ResetCertificate() {
+	m.certificate = nil
+	delete(m.clearedFields, company.FieldCertificate)
+}
+
+// SetBankAccount sets the "bank_account" field.
+func (m *CompanyMutation) SetBankAccount(sa *schema.BankAccount) {
+	m.bank_account = &sa
+}
+
+// BankAccount returns the value of the "bank_account" field in the mutation.
+func (m *CompanyMutation) BankAccount() (r *schema.BankAccount, exists bool) {
+	v := m.bank_account
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBankAccount returns the old "bank_account" field's value of the Company entity.
+// If the Company object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompanyMutation) OldBankAccount(ctx context.Context) (v *schema.BankAccount, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBankAccount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBankAccount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBankAccount: %w", err)
+	}
+	return oldValue.BankAccount, nil
+}
+
+// ClearBankAccount clears the value of the "bank_account" field.
+func (m *CompanyMutation) ClearBankAccount() {
+	m.bank_account = nil
+	m.clearedFields[company.FieldBankAccount] = struct{}{}
+}
+
+// BankAccountCleared returns if the "bank_account" field was cleared in this mutation.
+func (m *CompanyMutation) BankAccountCleared() bool {
+	_, ok := m.clearedFields[company.FieldBankAccount]
+	return ok
+}
+
+// ResetBankAccount resets all changes to the "bank_account" field.
+func (m *CompanyMutation) ResetBankAccount() {
+	m.bank_account = nil
+	delete(m.clearedFields, company.FieldBankAccount)
+}
+
+// SetContactPerson sets the "contact_person" field.
+func (m *CompanyMutation) SetContactPerson(sp *schema.ContactPerson) {
+	m.contact_person = &sp
+}
+
+// ContactPerson returns the value of the "contact_person" field in the mutation.
+func (m *CompanyMutation) ContactPerson() (r *schema.ContactPerson, exists bool) {
+	v := m.contact_person
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldContactPerson returns the old "contact_person" field's value of the Company entity.
+// If the Company object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompanyMutation) OldContactPerson(ctx context.Context) (v *schema.ContactPerson, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldContactPerson is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldContactPerson requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldContactPerson: %w", err)
+	}
+	return oldValue.ContactPerson, nil
+}
+
+// ClearContactPerson clears the value of the "contact_person" field.
+func (m *CompanyMutation) ClearContactPerson() {
+	m.contact_person = nil
+	m.clearedFields[company.FieldContactPerson] = struct{}{}
+}
+
+// ContactPersonCleared returns if the "contact_person" field was cleared in this mutation.
+func (m *CompanyMutation) ContactPersonCleared() bool {
+	_, ok := m.clearedFields[company.FieldContactPerson]
+	return ok
+}
+
+// ResetContactPerson resets all changes to the "contact_person" field.
+func (m *CompanyMutation) ResetContactPerson() {
+	m.contact_person = nil
+	delete(m.clearedFields, company.FieldContactPerson)
 }
 
 // SetStatus sets the "status" field.
@@ -3420,7 +3520,7 @@ func (m *CompanyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CompanyMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, company.FieldCreatedAt)
 	}
@@ -3433,11 +3533,17 @@ func (m *CompanyMutation) Fields() []string {
 	if m.phone != nil {
 		fields = append(fields, company.FieldPhone)
 	}
-	if m.other_phone != nil {
-		fields = append(fields, company.FieldOtherPhone)
-	}
 	if m.email != nil {
 		fields = append(fields, company.FieldEmail)
+	}
+	if m.certificate != nil {
+		fields = append(fields, company.FieldCertificate)
+	}
+	if m.bank_account != nil {
+		fields = append(fields, company.FieldBankAccount)
+	}
+	if m.contact_person != nil {
+		fields = append(fields, company.FieldContactPerson)
 	}
 	if m.status != nil {
 		fields = append(fields, company.FieldStatus)
@@ -3458,10 +3564,14 @@ func (m *CompanyMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case company.FieldPhone:
 		return m.Phone()
-	case company.FieldOtherPhone:
-		return m.OtherPhone()
 	case company.FieldEmail:
 		return m.Email()
+	case company.FieldCertificate:
+		return m.Certificate()
+	case company.FieldBankAccount:
+		return m.BankAccount()
+	case company.FieldContactPerson:
+		return m.ContactPerson()
 	case company.FieldStatus:
 		return m.Status()
 	}
@@ -3481,10 +3591,14 @@ func (m *CompanyMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldName(ctx)
 	case company.FieldPhone:
 		return m.OldPhone(ctx)
-	case company.FieldOtherPhone:
-		return m.OldOtherPhone(ctx)
 	case company.FieldEmail:
 		return m.OldEmail(ctx)
+	case company.FieldCertificate:
+		return m.OldCertificate(ctx)
+	case company.FieldBankAccount:
+		return m.OldBankAccount(ctx)
+	case company.FieldContactPerson:
+		return m.OldContactPerson(ctx)
 	case company.FieldStatus:
 		return m.OldStatus(ctx)
 	}
@@ -3524,19 +3638,33 @@ func (m *CompanyMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPhone(v)
 		return nil
-	case company.FieldOtherPhone:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOtherPhone(v)
-		return nil
 	case company.FieldEmail:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEmail(v)
+		return nil
+	case company.FieldCertificate:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCertificate(v)
+		return nil
+	case company.FieldBankAccount:
+		v, ok := value.(*schema.BankAccount)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBankAccount(v)
+		return nil
+	case company.FieldContactPerson:
+		v, ok := value.(*schema.ContactPerson)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContactPerson(v)
 		return nil
 	case company.FieldStatus:
 		v, ok := value.(company.Status)
@@ -3575,8 +3703,14 @@ func (m *CompanyMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *CompanyMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(company.FieldOtherPhone) {
-		fields = append(fields, company.FieldOtherPhone)
+	if m.FieldCleared(company.FieldCertificate) {
+		fields = append(fields, company.FieldCertificate)
+	}
+	if m.FieldCleared(company.FieldBankAccount) {
+		fields = append(fields, company.FieldBankAccount)
+	}
+	if m.FieldCleared(company.FieldContactPerson) {
+		fields = append(fields, company.FieldContactPerson)
 	}
 	return fields
 }
@@ -3592,8 +3726,14 @@ func (m *CompanyMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *CompanyMutation) ClearField(name string) error {
 	switch name {
-	case company.FieldOtherPhone:
-		m.ClearOtherPhone()
+	case company.FieldCertificate:
+		m.ClearCertificate()
+		return nil
+	case company.FieldBankAccount:
+		m.ClearBankAccount()
+		return nil
+	case company.FieldContactPerson:
+		m.ClearContactPerson()
 		return nil
 	}
 	return fmt.Errorf("unknown Company nullable field %s", name)
@@ -3615,11 +3755,17 @@ func (m *CompanyMutation) ResetField(name string) error {
 	case company.FieldPhone:
 		m.ResetPhone()
 		return nil
-	case company.FieldOtherPhone:
-		m.ResetOtherPhone()
-		return nil
 	case company.FieldEmail:
 		m.ResetEmail()
+		return nil
+	case company.FieldCertificate:
+		m.ResetCertificate()
+		return nil
+	case company.FieldBankAccount:
+		m.ResetBankAccount()
+		return nil
+	case company.FieldContactPerson:
+		m.ResetContactPerson()
 		return nil
 	case company.FieldStatus:
 		m.ResetStatus()

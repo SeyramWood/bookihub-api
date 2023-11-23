@@ -75,14 +75,14 @@ func Phone(v string) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldPhone, v))
 }
 
-// OtherPhone applies equality check predicate on the "other_phone" field. It's identical to OtherPhoneEQ.
-func OtherPhone(v string) predicate.Company {
-	return predicate.Company(sql.FieldEQ(FieldOtherPhone, v))
-}
-
 // Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
 func Email(v string) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldEmail, v))
+}
+
+// Certificate applies equality check predicate on the "certificate" field. It's identical to CertificateEQ.
+func Certificate(v string) predicate.Company {
+	return predicate.Company(sql.FieldEQ(FieldCertificate, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -295,81 +295,6 @@ func PhoneContainsFold(v string) predicate.Company {
 	return predicate.Company(sql.FieldContainsFold(FieldPhone, v))
 }
 
-// OtherPhoneEQ applies the EQ predicate on the "other_phone" field.
-func OtherPhoneEQ(v string) predicate.Company {
-	return predicate.Company(sql.FieldEQ(FieldOtherPhone, v))
-}
-
-// OtherPhoneNEQ applies the NEQ predicate on the "other_phone" field.
-func OtherPhoneNEQ(v string) predicate.Company {
-	return predicate.Company(sql.FieldNEQ(FieldOtherPhone, v))
-}
-
-// OtherPhoneIn applies the In predicate on the "other_phone" field.
-func OtherPhoneIn(vs ...string) predicate.Company {
-	return predicate.Company(sql.FieldIn(FieldOtherPhone, vs...))
-}
-
-// OtherPhoneNotIn applies the NotIn predicate on the "other_phone" field.
-func OtherPhoneNotIn(vs ...string) predicate.Company {
-	return predicate.Company(sql.FieldNotIn(FieldOtherPhone, vs...))
-}
-
-// OtherPhoneGT applies the GT predicate on the "other_phone" field.
-func OtherPhoneGT(v string) predicate.Company {
-	return predicate.Company(sql.FieldGT(FieldOtherPhone, v))
-}
-
-// OtherPhoneGTE applies the GTE predicate on the "other_phone" field.
-func OtherPhoneGTE(v string) predicate.Company {
-	return predicate.Company(sql.FieldGTE(FieldOtherPhone, v))
-}
-
-// OtherPhoneLT applies the LT predicate on the "other_phone" field.
-func OtherPhoneLT(v string) predicate.Company {
-	return predicate.Company(sql.FieldLT(FieldOtherPhone, v))
-}
-
-// OtherPhoneLTE applies the LTE predicate on the "other_phone" field.
-func OtherPhoneLTE(v string) predicate.Company {
-	return predicate.Company(sql.FieldLTE(FieldOtherPhone, v))
-}
-
-// OtherPhoneContains applies the Contains predicate on the "other_phone" field.
-func OtherPhoneContains(v string) predicate.Company {
-	return predicate.Company(sql.FieldContains(FieldOtherPhone, v))
-}
-
-// OtherPhoneHasPrefix applies the HasPrefix predicate on the "other_phone" field.
-func OtherPhoneHasPrefix(v string) predicate.Company {
-	return predicate.Company(sql.FieldHasPrefix(FieldOtherPhone, v))
-}
-
-// OtherPhoneHasSuffix applies the HasSuffix predicate on the "other_phone" field.
-func OtherPhoneHasSuffix(v string) predicate.Company {
-	return predicate.Company(sql.FieldHasSuffix(FieldOtherPhone, v))
-}
-
-// OtherPhoneIsNil applies the IsNil predicate on the "other_phone" field.
-func OtherPhoneIsNil() predicate.Company {
-	return predicate.Company(sql.FieldIsNull(FieldOtherPhone))
-}
-
-// OtherPhoneNotNil applies the NotNil predicate on the "other_phone" field.
-func OtherPhoneNotNil() predicate.Company {
-	return predicate.Company(sql.FieldNotNull(FieldOtherPhone))
-}
-
-// OtherPhoneEqualFold applies the EqualFold predicate on the "other_phone" field.
-func OtherPhoneEqualFold(v string) predicate.Company {
-	return predicate.Company(sql.FieldEqualFold(FieldOtherPhone, v))
-}
-
-// OtherPhoneContainsFold applies the ContainsFold predicate on the "other_phone" field.
-func OtherPhoneContainsFold(v string) predicate.Company {
-	return predicate.Company(sql.FieldContainsFold(FieldOtherPhone, v))
-}
-
 // EmailEQ applies the EQ predicate on the "email" field.
 func EmailEQ(v string) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldEmail, v))
@@ -433,6 +358,101 @@ func EmailEqualFold(v string) predicate.Company {
 // EmailContainsFold applies the ContainsFold predicate on the "email" field.
 func EmailContainsFold(v string) predicate.Company {
 	return predicate.Company(sql.FieldContainsFold(FieldEmail, v))
+}
+
+// CertificateEQ applies the EQ predicate on the "certificate" field.
+func CertificateEQ(v string) predicate.Company {
+	return predicate.Company(sql.FieldEQ(FieldCertificate, v))
+}
+
+// CertificateNEQ applies the NEQ predicate on the "certificate" field.
+func CertificateNEQ(v string) predicate.Company {
+	return predicate.Company(sql.FieldNEQ(FieldCertificate, v))
+}
+
+// CertificateIn applies the In predicate on the "certificate" field.
+func CertificateIn(vs ...string) predicate.Company {
+	return predicate.Company(sql.FieldIn(FieldCertificate, vs...))
+}
+
+// CertificateNotIn applies the NotIn predicate on the "certificate" field.
+func CertificateNotIn(vs ...string) predicate.Company {
+	return predicate.Company(sql.FieldNotIn(FieldCertificate, vs...))
+}
+
+// CertificateGT applies the GT predicate on the "certificate" field.
+func CertificateGT(v string) predicate.Company {
+	return predicate.Company(sql.FieldGT(FieldCertificate, v))
+}
+
+// CertificateGTE applies the GTE predicate on the "certificate" field.
+func CertificateGTE(v string) predicate.Company {
+	return predicate.Company(sql.FieldGTE(FieldCertificate, v))
+}
+
+// CertificateLT applies the LT predicate on the "certificate" field.
+func CertificateLT(v string) predicate.Company {
+	return predicate.Company(sql.FieldLT(FieldCertificate, v))
+}
+
+// CertificateLTE applies the LTE predicate on the "certificate" field.
+func CertificateLTE(v string) predicate.Company {
+	return predicate.Company(sql.FieldLTE(FieldCertificate, v))
+}
+
+// CertificateContains applies the Contains predicate on the "certificate" field.
+func CertificateContains(v string) predicate.Company {
+	return predicate.Company(sql.FieldContains(FieldCertificate, v))
+}
+
+// CertificateHasPrefix applies the HasPrefix predicate on the "certificate" field.
+func CertificateHasPrefix(v string) predicate.Company {
+	return predicate.Company(sql.FieldHasPrefix(FieldCertificate, v))
+}
+
+// CertificateHasSuffix applies the HasSuffix predicate on the "certificate" field.
+func CertificateHasSuffix(v string) predicate.Company {
+	return predicate.Company(sql.FieldHasSuffix(FieldCertificate, v))
+}
+
+// CertificateIsNil applies the IsNil predicate on the "certificate" field.
+func CertificateIsNil() predicate.Company {
+	return predicate.Company(sql.FieldIsNull(FieldCertificate))
+}
+
+// CertificateNotNil applies the NotNil predicate on the "certificate" field.
+func CertificateNotNil() predicate.Company {
+	return predicate.Company(sql.FieldNotNull(FieldCertificate))
+}
+
+// CertificateEqualFold applies the EqualFold predicate on the "certificate" field.
+func CertificateEqualFold(v string) predicate.Company {
+	return predicate.Company(sql.FieldEqualFold(FieldCertificate, v))
+}
+
+// CertificateContainsFold applies the ContainsFold predicate on the "certificate" field.
+func CertificateContainsFold(v string) predicate.Company {
+	return predicate.Company(sql.FieldContainsFold(FieldCertificate, v))
+}
+
+// BankAccountIsNil applies the IsNil predicate on the "bank_account" field.
+func BankAccountIsNil() predicate.Company {
+	return predicate.Company(sql.FieldIsNull(FieldBankAccount))
+}
+
+// BankAccountNotNil applies the NotNil predicate on the "bank_account" field.
+func BankAccountNotNil() predicate.Company {
+	return predicate.Company(sql.FieldNotNull(FieldBankAccount))
+}
+
+// ContactPersonIsNil applies the IsNil predicate on the "contact_person" field.
+func ContactPersonIsNil() predicate.Company {
+	return predicate.Company(sql.FieldIsNull(FieldContactPerson))
+}
+
+// ContactPersonNotNil applies the NotNil predicate on the "contact_person" field.
+func ContactPersonNotNil() predicate.Company {
+	return predicate.Company(sql.FieldNotNull(FieldContactPerson))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

@@ -78,8 +78,10 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString},
 		{Name: "phone", Type: field.TypeString},
-		{Name: "other_phone", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString},
+		{Name: "certificate", Type: field.TypeString, Nullable: true},
+		{Name: "bank_account", Type: field.TypeJSON, Nullable: true},
+		{Name: "contact_person", Type: field.TypeJSON, Nullable: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"unverified", "verified"}, Default: "unverified"},
 	}
 	// CompaniesTable holds the schema information for the "companies" table.

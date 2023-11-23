@@ -64,6 +64,21 @@ func ValidateCompany(next http.Handler) http.Handler {
 func ValidateCompanyUpdate(next http.Handler) http.Handler {
 	return valid.New(validConfig()).RequestStruct(new(requeststructs.CompanyUpdateRequest)).ValidateRequest(next)
 }
+func ValidateNewOnboarding(next http.Handler) http.Handler {
+	return valid.New(validConfig()).RequestStruct(new(requeststructs.BookiOnboardingRequest)).ValidateRequest(next)
+}
+func ValidateOnboarding(next http.Handler) http.Handler {
+	return valid.New(validConfig()).RequestStruct(new(requeststructs.CompanyOnboardingRequest)).ValidateRequest(next)
+}
+func ValidateCompanyBankAccountUpdate(next http.Handler) http.Handler {
+	return valid.New(validConfig()).RequestStruct(new(requeststructs.CompanyBankAccountRequest)).ValidateRequest(next)
+}
+func ValidateCompanyContactPersonUpdate(next http.Handler) http.Handler {
+	return valid.New(validConfig()).RequestStruct(new(requeststructs.CompanyContactPersonUpdateRequest)).ValidateRequest(next)
+}
+func ValidateCompanyCertificateUpdate(next http.Handler) http.Handler {
+	return valid.New(validConfig()).RequestStruct(new(requeststructs.CompanyCertificateUpdateRequest)).ValidateRequest(next)
+}
 
 func ValidateTerminal(next http.Handler) http.Handler {
 	return valid.New(validConfig()).RequestStruct(new(requeststructs.TerminalRequest)).ValidateRequest(next)

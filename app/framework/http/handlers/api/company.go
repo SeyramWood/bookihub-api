@@ -17,9 +17,9 @@ type companyHandler struct {
 	service gateways.CompanyService
 }
 
-func NewCompanyHandler(db *database.Adapter, producer gateways.EventProducer) *companyHandler {
+func NewCompanyHandler(db *database.Adapter, producer gateways.EventProducer, storage gateways.StorageService) *companyHandler {
 	return &companyHandler{
-		service: company.NewService(company.NewRepository(db)),
+		service: company.NewService(company.NewRepository(db), producer, storage),
 	}
 }
 
@@ -30,6 +30,20 @@ func (h *companyHandler) Create() fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
 		}
 		result, err := h.service.Create(request)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.CompanyResponse(result))
+	}
+}
+
+func (h *companyHandler) BookiOnboard() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.BookiOnboardingRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		result, err := h.service.BookiOnboard(request)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}
@@ -68,6 +82,97 @@ func (h *companyHandler) Remove() fiber.Handler {
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}
 		return c.Status(fiber.StatusOK).JSON(presenters.MessageResponse("company deleted"))
+	}
+}
+
+func (h *companyHandler) Onboard() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.CompanyOnboardingRequest)
+		if c.BodyParser(request) != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
+		}
+		id, _ := c.ParamsInt("id")
+		result, err := h.service.Onboard(id, request)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.CompanyResponse(result))
+	}
+}
+
+func (h *companyHandler) UpdateBankAccount() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.CompanyBankAccountRequest)
+		if c.BodyParser(request) != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
+		}
+		id, _ := c.ParamsInt("id")
+		result, err := h.service.UpdateBankAccount(id, request)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.CompanyResponse(result))
+	}
+}
+func (h *companyHandler) UpdateContactPerson() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.CompanyContactPersonUpdateRequest)
+		if c.BodyParser(request) != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
+		}
+		id, _ := c.ParamsInt("id")
+		result, err := h.service.UpdateContactPerson(id, request)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.CompanyResponse(result))
+	}
+}
+func (h *companyHandler) UpdateCertificate() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		request := new(requeststructs.CompanyCertificateUpdateRequest)
+		if err := c.BodyParser(request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		certificate, err := c.FormFile("businessCertificate")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		request.BusinessCertificate = certificate
+		id, _ := c.ParamsInt("id")
+		result, err := h.service.UpdateCertificate(id, request)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.CompanyResponse(result))
+	}
+}
+func (h *companyHandler) UpdateStatus() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if c.Query("status") == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
+		}
+		id, _ := c.ParamsInt("id")
+		result, err := h.service.UpdateStatus(id, c.Query("status"))
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.CompanyResponse(result))
 	}
 }
 

@@ -17,6 +17,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/notification"
 	"github.com/SeyramWood/bookibus/ent/parcel"
 	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/schema"
 	"github.com/SeyramWood/bookibus/ent/terminal"
 	"github.com/SeyramWood/bookibus/ent/trip"
 	"github.com/SeyramWood/bookibus/ent/vehicle"
@@ -69,23 +70,35 @@ func (cc *CompanyCreate) SetPhone(s string) *CompanyCreate {
 	return cc
 }
 
-// SetOtherPhone sets the "other_phone" field.
-func (cc *CompanyCreate) SetOtherPhone(s string) *CompanyCreate {
-	cc.mutation.SetOtherPhone(s)
+// SetEmail sets the "email" field.
+func (cc *CompanyCreate) SetEmail(s string) *CompanyCreate {
+	cc.mutation.SetEmail(s)
 	return cc
 }
 
-// SetNillableOtherPhone sets the "other_phone" field if the given value is not nil.
-func (cc *CompanyCreate) SetNillableOtherPhone(s *string) *CompanyCreate {
+// SetCertificate sets the "certificate" field.
+func (cc *CompanyCreate) SetCertificate(s string) *CompanyCreate {
+	cc.mutation.SetCertificate(s)
+	return cc
+}
+
+// SetNillableCertificate sets the "certificate" field if the given value is not nil.
+func (cc *CompanyCreate) SetNillableCertificate(s *string) *CompanyCreate {
 	if s != nil {
-		cc.SetOtherPhone(*s)
+		cc.SetCertificate(*s)
 	}
 	return cc
 }
 
-// SetEmail sets the "email" field.
-func (cc *CompanyCreate) SetEmail(s string) *CompanyCreate {
-	cc.mutation.SetEmail(s)
+// SetBankAccount sets the "bank_account" field.
+func (cc *CompanyCreate) SetBankAccount(sa *schema.BankAccount) *CompanyCreate {
+	cc.mutation.SetBankAccount(sa)
+	return cc
+}
+
+// SetContactPerson sets the "contact_person" field.
+func (cc *CompanyCreate) SetContactPerson(sp *schema.ContactPerson) *CompanyCreate {
+	cc.mutation.SetContactPerson(sp)
 	return cc
 }
 
@@ -369,13 +382,21 @@ func (cc *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 		_spec.SetField(company.FieldPhone, field.TypeString, value)
 		_node.Phone = value
 	}
-	if value, ok := cc.mutation.OtherPhone(); ok {
-		_spec.SetField(company.FieldOtherPhone, field.TypeString, value)
-		_node.OtherPhone = value
-	}
 	if value, ok := cc.mutation.Email(); ok {
 		_spec.SetField(company.FieldEmail, field.TypeString, value)
 		_node.Email = value
+	}
+	if value, ok := cc.mutation.Certificate(); ok {
+		_spec.SetField(company.FieldCertificate, field.TypeString, value)
+		_node.Certificate = value
+	}
+	if value, ok := cc.mutation.BankAccount(); ok {
+		_spec.SetField(company.FieldBankAccount, field.TypeJSON, value)
+		_node.BankAccount = value
+	}
+	if value, ok := cc.mutation.ContactPerson(); ok {
+		_spec.SetField(company.FieldContactPerson, field.TypeJSON, value)
+		_node.ContactPerson = value
 	}
 	if value, ok := cc.mutation.Status(); ok {
 		_spec.SetField(company.FieldStatus, field.TypeEnum, value)

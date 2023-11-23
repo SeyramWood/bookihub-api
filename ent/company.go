@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/schema"
 )
 
 // Company is the model entity for the Company schema.
@@ -25,10 +27,14 @@ type Company struct {
 	Name string `json:"name,omitempty"`
 	// Phone holds the value of the "phone" field.
 	Phone string `json:"phone,omitempty"`
-	// OtherPhone holds the value of the "other_phone" field.
-	OtherPhone string `json:"other_phone,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
+	// Certificate holds the value of the "certificate" field.
+	Certificate string `json:"certificate,omitempty"`
+	// BankAccount holds the value of the "bank_account" field.
+	BankAccount *schema.BankAccount `json:"bank_account,omitempty"`
+	// ContactPerson holds the value of the "contact_person" field.
+	ContactPerson *schema.ContactPerson `json:"contact_person,omitempty"`
 	// Status holds the value of the "status" field.
 	Status company.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -148,9 +154,11 @@ func (*Company) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case company.FieldBankAccount, company.FieldContactPerson:
+			values[i] = new([]byte)
 		case company.FieldID:
 			values[i] = new(sql.NullInt64)
-		case company.FieldName, company.FieldPhone, company.FieldOtherPhone, company.FieldEmail, company.FieldStatus:
+		case company.FieldName, company.FieldPhone, company.FieldEmail, company.FieldCertificate, company.FieldStatus:
 			values[i] = new(sql.NullString)
 		case company.FieldCreatedAt, company.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -199,17 +207,33 @@ func (c *Company) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.Phone = value.String
 			}
-		case company.FieldOtherPhone:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field other_phone", values[i])
-			} else if value.Valid {
-				c.OtherPhone = value.String
-			}
 		case company.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
 				c.Email = value.String
+			}
+		case company.FieldCertificate:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field certificate", values[i])
+			} else if value.Valid {
+				c.Certificate = value.String
+			}
+		case company.FieldBankAccount:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field bank_account", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &c.BankAccount); err != nil {
+					return fmt.Errorf("unmarshal field bank_account: %w", err)
+				}
+			}
+		case company.FieldContactPerson:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field contact_person", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &c.ContactPerson); err != nil {
+					return fmt.Errorf("unmarshal field contact_person: %w", err)
+				}
 			}
 		case company.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -310,11 +334,17 @@ func (c *Company) String() string {
 	builder.WriteString("phone=")
 	builder.WriteString(c.Phone)
 	builder.WriteString(", ")
-	builder.WriteString("other_phone=")
-	builder.WriteString(c.OtherPhone)
-	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(c.Email)
+	builder.WriteString(", ")
+	builder.WriteString("certificate=")
+	builder.WriteString(c.Certificate)
+	builder.WriteString(", ")
+	builder.WriteString("bank_account=")
+	builder.WriteString(fmt.Sprintf("%v", c.BankAccount))
+	builder.WriteString(", ")
+	builder.WriteString("contact_person=")
+	builder.WriteString(fmt.Sprintf("%v", c.ContactPerson))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", c.Status))

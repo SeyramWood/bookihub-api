@@ -11,7 +11,7 @@ import (
 
 func UnauthorizedRoutes(r fiber.Router, router *apiRouter) {
 	authHandler := api.NewAuthHandler(router.Adapter, router.CacheSrv, router.jwt, router.EventProducer, router.StorageSrv)
-	companyHandler := api.NewCompanyHandler(router.Adapter, router.EventProducer)
+	companyHandler := api.NewCompanyHandler(router.Adapter, router.EventProducer, router.StorageSrv)
 	tripHandler := api.NewTripHandler(router.Adapter)
 	customerHandler := api.NewCustomerHandler(router.Adapter)
 	bookingHandler := api.NewBookingHandler(router.Adapter, router.EventProducer, router.CacheSrv, router.Payment)

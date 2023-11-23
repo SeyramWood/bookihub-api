@@ -9,7 +9,7 @@ import (
 )
 
 func CompanyRoutes(r fiber.Router, router *apiRouter) {
-	handler := api.NewCompanyHandler(router.Adapter, router.EventProducer)
+	handler := api.NewCompanyHandler(router.Adapter, router.EventProducer, router.StorageSrv)
 	terminalHandler := api.NewTerminalHandler(router.Adapter)
 	userHandler := api.NewCompanyUserHandler(router.Adapter, router.EventProducer)
 	vehicleHandler := api.NewVehicleHandler(router.Adapter, router.StorageSrv)
@@ -29,6 +29,12 @@ func CompanyRoutes(r fiber.Router, router *apiRouter) {
 	companyGroup := r.Group("/companies")
 	companyGroup.Get("", handler.FetchAll())
 	companyGroup.Get("/:id", handler.Fetch())
+	companyGroup.Post("/onboard-new", adaptor.HTTPMiddleware(requests.ValidateNewOnboarding), handler.BookiOnboard())
+	companyGroup.Put("/:id/onboard", adaptor.HTTPMiddleware(requests.ValidateOnboarding), handler.Onboard())
+	companyGroup.Put("/:id/update-bank-account", adaptor.HTTPMiddleware(requests.ValidateCompanyBankAccountUpdate), handler.UpdateBankAccount())
+	companyGroup.Put("/:id/update-contact-person", adaptor.HTTPMiddleware(requests.ValidateCompanyContactPersonUpdate), handler.UpdateContactPerson())
+	companyGroup.Put("/:id/update-certificate", adaptor.HTTPMiddleware(requests.ValidateCompanyCertificateUpdate), handler.UpdateCertificate())
+	companyGroup.Put("/:id/update-status", handler.UpdateStatus())
 	companyGroup.Put("/:id", adaptor.HTTPMiddleware(requests.ValidateCompanyUpdate), handler.Update())
 	companyGroup.Delete("/:id", handler.Remove())
 

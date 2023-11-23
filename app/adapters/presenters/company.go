@@ -5,6 +5,7 @@ import (
 
 	"github.com/SeyramWood/bookibus/ent"
 	"github.com/SeyramWood/bookibus/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/schema"
 )
 
 type (
@@ -17,6 +18,18 @@ type (
 		Role       string `json:"role,omitempty"`
 		CreatedAt  any    `json:"createdAt,omitempty"`
 		UpdatedAt  any    `json:"updatedAt,omitempty"`
+	}
+	AdminCompanyResponseData struct {
+		ID            int                   `json:"id"`
+		Name          string                `json:"name"`
+		Phone         string                `json:"phone"`
+		Email         string                `json:"email"`
+		Certificate   string                `json:"certificate"`
+		BankAccount   *schema.BankAccount   `json:"bankAccount"`
+		ContactPerson *schema.ContactPerson `json:"contactPerson"`
+		Status        string                `json:"status"`
+		CreatedAt     any                   `json:"createdAt,omitempty"`
+		UpdatedAt     any                   `json:"updatedAt,omitempty"`
 	}
 	CompanyResponseData struct {
 		ID        int    `json:"id"`
@@ -127,25 +140,33 @@ func CompanyUsersResponse(data *PaginationResponse) *fiber.Map {
 	return SuccessResponse(data)
 }
 func CompanyResponse(data *ent.Company) *fiber.Map {
-	return SuccessResponse(&CompanyResponseData{
-		ID:        data.ID,
-		Name:      data.Name,
-		Phone:     data.Phone,
-		Email:     data.Email,
-		CreatedAt: data.CreatedAt,
-		UpdatedAt: data.UpdatedAt,
+	return SuccessResponse(&AdminCompanyResponseData{
+		ID:            data.ID,
+		Name:          data.Name,
+		Phone:         data.Phone,
+		Email:         data.Email,
+		Certificate:   data.Certificate,
+		BankAccount:   data.BankAccount,
+		ContactPerson: data.ContactPerson,
+		Status:        string(data.Status),
+		CreatedAt:     data.CreatedAt,
+		UpdatedAt:     data.UpdatedAt,
 	})
 }
 func CompaniesResponse(data *PaginationResponse) *fiber.Map {
-	var response []*CompanyResponseData
+	var response []*AdminCompanyResponseData
 	for _, c := range data.Data.([]*ent.Company) {
-		response = append(response, &CompanyResponseData{
-			ID:        c.ID,
-			Name:      c.Name,
-			Phone:     c.Phone,
-			Email:     c.Email,
-			CreatedAt: c.CreatedAt,
-			UpdatedAt: c.UpdatedAt,
+		response = append(response, &AdminCompanyResponseData{
+			ID:            c.ID,
+			Name:          c.Name,
+			Phone:         c.Phone,
+			Email:         c.Email,
+			Certificate:   c.Certificate,
+			BankAccount:   c.BankAccount,
+			ContactPerson: c.ContactPerson,
+			Status:        string(c.Status),
+			CreatedAt:     c.CreatedAt,
+			UpdatedAt:     c.UpdatedAt,
 		})
 	}
 	data.Data = response

@@ -118,7 +118,7 @@ func init() {
 	// company.PhoneValidator is a validator for the "phone" field. It is called by the builders before save.
 	company.PhoneValidator = companyDescPhone.Validators[0].(func(string) error)
 	// companyDescEmail is the schema descriptor for email field.
-	companyDescEmail := companyFields[3].Descriptor()
+	companyDescEmail := companyFields[2].Descriptor()
 	// company.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	company.EmailValidator = companyDescEmail.Validators[0].(func(string) error)
 	companyuserMixin := schema.CompanyUser{}.Mixin()

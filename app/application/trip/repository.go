@@ -391,11 +391,12 @@ func (r *repository) ReadAllSearchByCompany(searchKey string, companyId int, lim
 // ReadAllByDriver implements gateways.TripRepo.
 func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error) {
 	fm := application.ConvertStructToMap(*(filter))
+	driverID := r.db.User.GetX(r.ctx, driverId).QueryCompanyUser().OnlyIDX(r.ctx)
 	for _, com := range application.FilterCombinations(r.filterKeys()) {
 		if len(com) == len(r.filterKeys()) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
 				predicates := r.filterPredicate(fm, com)
-				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
 				return r.filterTrip(query, limit, offset)
 			}
@@ -403,7 +404,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 		if len(com) == (len(r.filterKeys()) - 1) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
 				predicates := r.filterPredicate(fm, com)
-				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
 				return r.filterTrip(query, limit, offset)
 			}
@@ -411,7 +412,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 		if len(com) == (len(r.filterKeys()) - 2) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
 				predicates := r.filterPredicate(fm, com)
-				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
 				return r.filterTrip(query, limit, offset)
 			}
@@ -420,7 +421,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 		if len(com) == (len(r.filterKeys()) - 3) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
 				predicates := r.filterPredicate(fm, com)
-				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
 				return r.filterTrip(query, limit, offset)
 			}
@@ -428,7 +429,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 		if len(com) == (len(r.filterKeys()) - 4) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) {
 				predicates := r.filterPredicate(fm, com)
-				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
 				return r.filterTrip(query, limit, offset)
 			}
@@ -436,7 +437,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 		if len(com) == (len(r.filterKeys()) - 5) {
 			if r.compareFilter(fm[com[0]]) {
 				predicates := r.filterPredicate(fm, com)
-				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverId)))
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
 				return r.filterTrip(query, limit, offset)
 			}
