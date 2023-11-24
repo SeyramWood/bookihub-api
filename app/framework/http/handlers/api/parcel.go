@@ -36,7 +36,7 @@ func (h *parcelHandler) Create() fiber.Handler {
 		}
 		request.Image = form.File["image"]
 		companyId, _ := c.ParamsInt("id")
-		result, err := h.service.Create(companyId, request, c.Query("trans-type"))
+		result, err := h.service.Create(companyId, request, c.Query("transType"))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}

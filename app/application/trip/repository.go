@@ -779,7 +779,12 @@ func (r *repository) filterPredicate(data map[string]any, combinations []string)
 			}
 			if combination == k && combination == "Scheduled" {
 				results = append(results, trip.And(
-					trip.StatusNotIn(trip.StatusEnded),
+					trip.Or(
+						trip.StatusNotIn(trip.StatusEnded),
+						func(s *sql.Selector) {
+							s.Where(sql.ExprP(fmt.Sprintf("%s IS NULL", trip.FieldStatus)))
+						},
+					),
 					trip.Scheduled(true),
 					func(s *sql.Selector) {
 						s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) = CURDATE()", trip.FieldDepartureDate)))

@@ -30,7 +30,7 @@ func (h *bookingHandler) Create() fiber.Handler {
 		if err := c.BodyParser(request); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
 		}
-		result, err := h.service.Create(request, c.Query("trans-type"))
+		result, err := h.service.Create(request, c.Query("transType"))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}
