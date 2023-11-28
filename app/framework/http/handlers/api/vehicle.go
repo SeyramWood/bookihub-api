@@ -145,6 +145,11 @@ func (h *vehicleHandler) UpdateImage() fiber.Handler {
 		if c.BodyParser(request) != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
 		}
+		image, err := c.FormFile("image")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
+		}
+		request.Image = image
 		id, _ := c.ParamsInt("id")
 		result, err := h.service.UpdateImage(id, request)
 		if err != nil {

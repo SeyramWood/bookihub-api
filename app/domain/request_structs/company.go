@@ -74,7 +74,7 @@ type (
 		RegistrationNumber string                  `json:"registrationNumber" validate:"required|ascii"`
 		Model              string                  `json:"model" validate:"required|ascii"`
 		Seat               int                     `json:"seat" validate:"required|int"`
-		Image              []*multipart.FileHeader `json:"image" form:"image" validate:"required|slice:max:3|image|size:1MB"`
+		Image              []*multipart.FileHeader `json:"image" form:"image" validate:"required|slice:max:3|image|size:3MB"`
 	}
 	VehicleUpdateRequest struct {
 		RegistrationNumber string `json:"registrationNumber" validate:"required|ascii"`
@@ -85,13 +85,13 @@ type (
 		RegistrationNumber string   `json:"registrationNumber" validate:"required|ascii"`
 		Model              string   `json:"model" validate:"required|ascii"`
 		Seat               int      `json:"seat" validate:"required"`
-		Image              []string `json:"image" form:"image" validate:"required|image|size:1MB"`
+		Image              []string `json:"image" form:"image" validate:"required|image|size:3MB"`
 	}
 	VehicleImageRequest struct {
-		Image []*multipart.FileHeader `json:"image" form:"image" validate:"required|slice:max:3|image|size:1MB"`
+		Image []*multipart.FileHeader `json:"image" form:"image" validate:"required|slice:max:3|image|size:3MB"`
 	}
 	VehicleImageUpdateRequest struct {
-		Image *multipart.FileHeader `json:"image" form:"image" validate:"required|image|size:1MB"`
+		Image *multipart.FileHeader `json:"image" form:"image" validate:"required|image|size:3MB"`
 	}
 	RouteStopRequest struct {
 		Latitude  float64 `json:"latitude" validate:"required"`
