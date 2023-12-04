@@ -76,6 +76,9 @@ func (h *tripHandler) FetchAll() fiber.Handler {
 }
 func (h *tripHandler) FetchAllSearch() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		if c.Query("searchKey") == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("searchKey is empty")))
+		}
 		if c.Query("datetime") != "" && !application.IsRFC3339Datetime(c.Query("datetime")) {
 			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("datetime is invalid")))
 		}
@@ -110,7 +113,12 @@ func (h *tripHandler) FetchAllByCompany() fiber.Handler {
 			Scheduled:  c.QueryBool("scheduled"),
 			Completed:  c.QueryBool("completed"),
 			Passengers: c.QueryInt("passengers"),
-			TimeRange:  fmt.Sprintf("%s_%s", c.Query("minTime"), c.Query("maxTime")),
+			TimeRange: func() string {
+				if c.Query("minTime") != "" && c.Query("maxTime") != "" {
+					return fmt.Sprintf("%s_%s", c.Query("minTime"), c.Query("maxTime"))
+				}
+				return ""
+			}(),
 		})
 		if err != nil {
 			if ent.IsNotFound(err) {
@@ -118,11 +126,15 @@ func (h *tripHandler) FetchAllByCompany() fiber.Handler {
 			}
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}
+
 		return c.Status(fiber.StatusOK).JSON(presenters.TripsResponse(results))
 	}
 }
 func (h *tripHandler) FetchAllSearchByCompany() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		if c.Query("searchKey") == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("searchKey is empty")))
+		}
 		if c.Query("datetime") != "" && !application.IsRFC3339Datetime(c.Query("datetime")) {
 			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("datetime is invalid")))
 		}

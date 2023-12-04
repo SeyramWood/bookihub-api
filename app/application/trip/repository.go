@@ -204,6 +204,9 @@ func (r *repository) ReadAllSearch(searchKey string, limit int, offset int, filt
 			s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) LIKE ? OR LOWER(%s) LIKE ?", companyuser.FieldOtherName, companyuser.FieldLastName), "%"+strings.ToLower(searchKey)+"%", "%"+strings.ToLower(searchKey)+"%"))
 		}),
 	)
+	if filter.From == "" && filter.To == "" && filter.Datetime == "" && !filter.Today && !filter.Scheduled && !filter.Completed {
+		return r.filterTrip(r.db.Trip.Query().Where(searchPredicate), limit, offset)
+	}
 	fm := application.ConvertStructToMap(*(filter))
 	for _, com := range application.FilterCombinations(r.filterKeys()) {
 		if len(com) == len(r.filterKeys()) {
@@ -254,15 +257,14 @@ func (r *repository) ReadAllSearch(searchKey string, limit int, offset int, filt
 			}
 		}
 	}
-	if filter.From == "" && filter.To == "" && filter.Datetime == "" && !filter.Today && !filter.Scheduled && !filter.Completed {
-		return r.filterTrip(r.db.Trip.Query().Where(searchPredicate), limit, offset)
-	}
-
 	return application.Paginate(0, []*ent.Trip{})
 }
 
 // ReadAllByCompany implements gateways.TripRepo.
 func (r *repository) ReadAllByCompany(companyId int, limit int, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error) {
+	if filter.From == "" && filter.To == "" && filter.Datetime == "" && !filter.Today && !filter.Scheduled && !filter.Completed {
+		return r.filterTrip(r.db.Trip.Query().Where(trip.And(trip.HasCompanyWith(company.ID(companyId)))), limit, offset)
+	}
 	fm := application.ConvertStructToMap(*(filter))
 	for _, com := range application.FilterCombinations(r.filterKeys()) {
 		if len(com) == len(r.filterKeys()) {
@@ -331,9 +333,6 @@ func (r *repository) ReadAllByCompany(companyId int, limit int, offset int, filt
 			}
 		}
 	}
-	if filter.From == "" && filter.To == "" && filter.Datetime == "" && !filter.Today && !filter.Scheduled && !filter.Completed {
-		return r.filterTrip(r.db.Trip.Query().Where(trip.And(trip.HasCompanyWith(company.ID(companyId)))), limit, offset)
-	}
 	return application.Paginate(0, []*ent.Trip{})
 }
 
@@ -350,6 +349,9 @@ func (r *repository) ReadAllSearchByCompany(searchKey string, companyId int, lim
 			s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) LIKE ? OR LOWER(%s) LIKE ?", companyuser.FieldOtherName, companyuser.FieldLastName), "%"+strings.ToLower(searchKey)+"%", "%"+strings.ToLower(searchKey)+"%"))
 		}),
 	)
+	if filter.From == "" && filter.To == "" && filter.Datetime == "" && !filter.Today && !filter.Scheduled && !filter.Completed {
+		return r.filterTrip(r.db.Trip.Query().Where(searchPredicate, trip.And(trip.HasCompanyWith(company.ID(companyId)))), limit, offset)
+	}
 	fm := application.ConvertStructToMap(*(filter))
 	for _, com := range application.FilterCombinations(r.filterKeys()) {
 		if len(com) == len(r.filterKeys()) {
@@ -401,9 +403,6 @@ func (r *repository) ReadAllSearchByCompany(searchKey string, companyId int, lim
 				return r.filterTrip(query, limit, offset)
 			}
 		}
-	}
-	if filter.From == "" && filter.To == "" && filter.Datetime == "" && !filter.Today && !filter.Scheduled && !filter.Completed {
-		return r.filterTrip(r.db.Trip.Query().Where(searchPredicate, trip.And(trip.HasCompanyWith(company.ID(companyId)))), limit, offset)
 	}
 	return application.Paginate(0, []*ent.Trip{})
 }
@@ -463,7 +462,6 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 			}
 		}
 	}
-
 	return application.Paginate(0, []*ent.Trip{})
 }
 
