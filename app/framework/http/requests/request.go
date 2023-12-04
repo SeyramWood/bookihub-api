@@ -44,6 +44,9 @@ func ValidateBookibusUser(next http.Handler) http.Handler {
 func ValidateBookibusUserUpdate(next http.Handler) http.Handler {
 	return valid.New(validConfig()).RequestStruct(new(requeststructs.BookibusUserUpdateRequest)).ValidateRequest(next)
 }
+func ValidateTransCharge(next http.Handler) http.Handler {
+	return valid.New(validConfig()).RequestStruct(new(requeststructs.TransactionChargeRequest)).ValidateRequest(next)
+}
 func ValidateCompanyUser(next http.Handler) http.Handler {
 	return valid.New(validConfig()).RequestStruct(new(requeststructs.CompanyUserRequest)).ValidateRequest(next)
 }

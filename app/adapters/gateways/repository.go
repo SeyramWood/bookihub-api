@@ -7,6 +7,12 @@ import (
 )
 
 type (
+	ConfigurationRepo interface {
+		Read() (*ent.Configuration, error)
+		ReadCharge() (*ent.Configuration, error)
+		InsertCharge(request *requeststructs.TransactionChargeRequest) (*ent.Configuration, error)
+		UpdateCharge(id int, request *requeststructs.TransactionChargeRequest) (*ent.Configuration, error)
+	}
 	AuthRepo interface {
 		ReadByID(id int) (*ent.User, error)
 		ReadByUsername(username string) (*ent.User, error)
@@ -102,6 +108,7 @@ type (
 		ReadAllByCompany(companyId, limit, offset int, filter *requeststructs.BookingFilterRequest) (*presenters.PaginationResponse, error)
 		ReadAllCustomer(limit, offset int, filter *requeststructs.BookingFilterRequest, customerId ...int) (*presenters.PaginationResponse, error)
 		Read(id int) (*ent.Booking, error)
+		ReadByBookingNumber(id string) (*ent.Booking, error)
 		Insert(request *requeststructs.BookingRequest, refResponse *requeststructs.PaymentReferenceResponse) (*ent.Booking, error)
 		Update(id int, request *requeststructs.BookingUpdateRequest) (*ent.Booking, error)
 		CancelBooking(id int, request *requeststructs.BookingCancelRequest) (*ent.Booking, error)

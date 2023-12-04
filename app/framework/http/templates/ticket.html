@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>BookiRide</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.min.js"></script>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Handlee&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100&display=swap");
+
+    html {
+      font-family: "Poppins", sans-serif;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: rgb(229 231 235/1);
+    }
+
+    .ellipsis {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .divider {
+      width: 100%;
+      height: 0;
+      color: inherit;
+      border-color: rgb(75 85 99/1);
+      border-width: .8px;
+      margin: 2rem 0;
+    }
+
+    .main {
+      padding: 2rem 0;
+    }
+
+    .email__content {
+      position: relative;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .ticket__container {
+      width: 23rem;
+      background-color: rgb(255 255 255 / 1);
+      border-radius: 1rem;
+      border-width: 1;
+      padding: 4rem 2rem;
+    }
+
+    .header {
+      position: relative;
+      width: 100%;
+      height: 5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    .header::after {
+      position: absolute;
+      display: block;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      content: "";
+      width: 100%;
+      height: 1px;
+      background-color: rgb(75 85 99/1);
+    }
+
+    .header__route {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .header__route--from {
+      width: 30%;
+      font-size: 0.9rem;
+      font-weight: bolder;
+      text-align: right;
+    }
+
+    .header__route--to {
+      width: 30%;
+      font-size: 0.9rem;
+      font-weight: bolder;
+      text-align: left;
+    }
+
+    .header__route--icon {
+      flex: 1;
+      padding: 0 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header__route__point {
+      position: relative;
+      width: 1.7rem;
+      height: 1.7rem;
+      border-radius: 9999px;
+      background-color: inherit;
+      border: 1px solid #e5e7eb;
+    }
+
+    .header__route__point::after {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: block;
+      content: "";
+      width: 0.8rem;
+      height: 0.8rem;
+      border-radius: 9999px;
+      background-color: #cf641ecc;
+      box-sizing: border-box;
+    }
+
+    .header__route__line__wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header__route--line {
+      width: 10px;
+      height: 1.5px;
+      margin: 0 4px;
+      background-color: #cf641ecc;
+    }
+
+    .ticket__row {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .ticket__row:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+
+    .ticket__column {
+      width: 50%;
+    }
+
+    .ticket__column:first-child {
+      margin-right: .5rem;
+    }
+
+    .ticket__column:last-child {
+      margin-left: .5rem;
+    }
+
+    .ticket__column.full {
+      width: 100%;
+      margin-right: 0;
+    }
+
+    .ticket__column>h4 {
+      line-height: 1;
+      margin: 0;
+      font-size: .8rem;
+      color: rgba(0, 0, 0, 0.64);
+    }
+
+    .ticket__column>p {
+      line-height: 1.7;
+      margin: 0;
+      font-size: .8rem;
+      font-weight: 100;
+      color: #cf641ecc;
+    }
+
+    .ticket__footer {
+      width: 100%;
+      text-align: center;
+    }
+
+    .ticket__footer>h3 {}
+
+    .ticket__footer>picture {
+      width: 5rem;
+      height: 5rem;
+    }
+
+    .ticket__footer>picture>img {
+      width: 8rem;
+      height: 8rem;
+    }
+
+    .email__footer {
+      width: 100%;
+      text-align: center;
+      font-size: .7rem;
+      color: #717173ac;
+      margin-top: 1rem;
+    }
+
+    .email__footer>p {
+      margin: 0;
+    }
+
+    .email__btn {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 0;
+    }
+
+    .btn {
+      font-size: .8rem !important;
+      text-align: center;
+      line-height: 1;
+      background-color: #5967ff;
+      color: white;
+      width: 9rem;
+      padding: .8rem;
+      display: block;
+      transition: all .2s ease-in;
+      border-radius: 5px;
+    }
+
+    .btn:not(:last-child) {
+      margin-right: 1rem;
+    }
+
+    .btn:hover {
+      background-color: rgba(87, 101, 255, 0.682);
+    }
+
+    .btn.link {
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn.download {
+      border: none;
+      outline: none;
+      border-color: #5967ff;
+      cursor: pointer;
+    }
+  </style>
+
+
+</head>
+
+<body>
+  <main class="main">
+    <section class="email__content">
+      <div class="ticket__container" id="ticket">
+        <header class="header">
+          <img src="{{.appUrl}}/logo.png" alt="logo" />
+          <div class="header__route">
+            <div class="header__route--from ellipsis">{{.data.Trip.Route.From}}</div>
+            <div class="header__route--icon">
+              <div class="header__route__point"></div>
+              <div class="header__route__line__wrapper">
+                <span class="header__route--line"></span>
+                <span class="header__route--line"></span>
+                <span class="header__route--line"></span>
+                <span class="header__route--line"></span>
+                <span class="header__route--line"></span>
+                <span class="header__route--line"></span>
+                <span class="header__route--line"></span>
+              </div>
+              <div class="header__route__point"></div>
+            </div>
+            <div class="header__route--to ellipsis">{{.data.Trip.Route.To}}</div>
+          </div>
+        </header>
+        <section>
+          <section class="ticket__row">
+            <div class="ticket__column">
+              <h4>TICKET PRICE</h4>
+              <p><strong>GHS {{.data.Transaction.Amount}}</strong></p>
+            </div>
+            <div class="ticket__column">
+              <h4>TICKET NUMBER</h4>
+              <p><strong>{{.data.TripID}}</strong></p>
+            </div>
+          </section>
+          <section class="ticket__row">
+            <div class="ticket__column">
+              <h4>VEHICLE NUMBER</h4>
+              <p><strong>{{.data.Trip.Vehicle.RegistrationNumber}}</strong></p>
+            </div>
+            <div class="ticket__column">
+              <h4>DEPARTURE DATE</h4>
+              <p><strong>{{.data.Trip.DepartureDate}}</strong></p>
+
+            </div>
+          </section>
+          <section class="ticket__row">
+            <div class="ticket__column">
+              <h4>COMPANY</h4>
+              <p><strong>{{.data.Trip.Company.Name}}</strong></p>
+            </div>
+            <div class="ticket__column">
+              <h4>TERMINAL</h4>
+              <p><strong>{{.data.Trip.Terminal.From.Name}}</strong></p>
+            </div>
+          </section>
+        </section>
+        <hr class="divider">
+        </hr>
+        <section>
+          <section class="ticket__row">
+            <div class="ticket__column">
+              <h4>PASSENGER</h4>
+              <p><strong>{{.data.Contact.FullName}}</strong></p>
+              <p><strong>{{.data.Contact.Phone}}</strong></p>
+            </div>
+            <div class="ticket__column">
+              <h4>DRIVER</h4>
+              <p><strong>{{.data.Trip.Driver.OtherName}}</strong></p>
+              <p><strong>{{.data.Trip.Driver.Phone}}</strong></p>
+            </div>
+          </section>
+          <section class="ticket__row">
+            <div class="ticket__column">
+              <h4>NO. of PASSENGERS</h4>
+              <p><strong>{{ .data.Passengers }}</strong></p>
+            </div>
+            <div class="ticket__column">
+              <h4>LUGGAGE</h4>
+              <p><strong>{{ .data.Luggages }}</strong></p>
+            </div>
+          </section>
+        </section>
+        <hr class="divider">
+        </hr>
+        <section>
+          <section class="ticket__row">
+            <div class="ticket__column full">
+              <h4>CONTACT</h4>
+              <p><strong>{{.bookiContact.email}}</strong></p>
+              <p><strong>{{.bookiContact.phone}}</strong></p>
+            </div>
+          </section>
+        </section>
+        <hr class="divider">
+        </hr>
+        <footer class="ticket__footer">
+          <h3>BOARDING PASS</h3>
+          <picture>
+            <img src="{{.appUrl}}/BookiRide.png" alt="qr" className="w-32 h-32" />
+          </picture>
+        </footer>
+      </div>
+      <div class="email__btn">
+        <a href="{{.url}}" target="_blank" class="btn link">Visit BookiRide</a>
+        <button type="button" class="btn download" onclick="downloadTicket('{{.data.TripID}}')">Download
+          Ticket</button>
+      </div>
+    </section>
+    <footer class="email__footer">
+      <span>&copy; BookiRide <span id="year"></span></span>
+      <p>Your Journey, Our Responsibility.</p>
+    </footer>
+  </main>
+  <script>
+    const element = document.getElementById('ticket');
+    let opt = {
+      margin: [0, 2],
+      filename: 'bookirideticket.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    const downloadTicket = (filename, proxyUrl = null) => {
+      opt.filename = filename
+      opt.html2canvas.proxy = proxyUrl
+      const worker = html2pdf().set(opt).from(element).save();
+    }
+    document.getElementById("year").innerText = (new Date()).getUTCFullYear()
+  </script>
+</body>
+
+</html>

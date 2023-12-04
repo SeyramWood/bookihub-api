@@ -12,6 +12,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/companyuser"
 	"github.com/SeyramWood/bookibus/ent/parcel"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
@@ -42,12 +43,6 @@ type Parcel struct {
 	RecipientLocation string `json:"recipient_location,omitempty"`
 	// Weight holds the value of the "weight" field.
 	Weight float32 `json:"weight,omitempty"`
-	// Amount holds the value of the "amount" field.
-	Amount float64 `json:"amount,omitempty"`
-	// PaidAt holds the value of the "paid_at" field.
-	PaidAt time.Time `json:"paid_at,omitempty"`
-	// TansType holds the value of the "tans_type" field.
-	TansType parcel.TansType `json:"tans_type,omitempty"`
 	// Status holds the value of the "status" field.
 	Status parcel.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -63,6 +58,8 @@ type Parcel struct {
 type ParcelEdges struct {
 	// Images holds the value of the images edge.
 	Images []*ParcelImage `json:"images,omitempty"`
+	// Transaction holds the value of the transaction edge.
+	Transaction *Transaction `json:"transaction,omitempty"`
 	// Trip holds the value of the trip edge.
 	Trip *Trip `json:"trip,omitempty"`
 	// Company holds the value of the company edge.
@@ -71,7 +68,7 @@ type ParcelEdges struct {
 	Driver *CompanyUser `json:"driver,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // ImagesOrErr returns the Images value or an error if the edge
@@ -83,10 +80,23 @@ func (e ParcelEdges) ImagesOrErr() ([]*ParcelImage, error) {
 	return nil, &NotLoadedError{edge: "images"}
 }
 
+// TransactionOrErr returns the Transaction value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ParcelEdges) TransactionOrErr() (*Transaction, error) {
+	if e.loadedTypes[1] {
+		if e.Transaction == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: transaction.Label}
+		}
+		return e.Transaction, nil
+	}
+	return nil, &NotLoadedError{edge: "transaction"}
+}
+
 // TripOrErr returns the Trip value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ParcelEdges) TripOrErr() (*Trip, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		if e.Trip == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: trip.Label}
@@ -99,7 +109,7 @@ func (e ParcelEdges) TripOrErr() (*Trip, error) {
 // CompanyOrErr returns the Company value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ParcelEdges) CompanyOrErr() (*Company, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		if e.Company == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: company.Label}
@@ -112,7 +122,7 @@ func (e ParcelEdges) CompanyOrErr() (*Company, error) {
 // DriverOrErr returns the Driver value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ParcelEdges) DriverOrErr() (*CompanyUser, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		if e.Driver == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: companyuser.Label}
@@ -127,13 +137,13 @@ func (*Parcel) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case parcel.FieldWeight, parcel.FieldAmount:
+		case parcel.FieldWeight:
 			values[i] = new(sql.NullFloat64)
 		case parcel.FieldID:
 			values[i] = new(sql.NullInt64)
-		case parcel.FieldParcelCode, parcel.FieldType, parcel.FieldSenderName, parcel.FieldSenderPhone, parcel.FieldSenderEmail, parcel.FieldRecipientName, parcel.FieldRecipientPhone, parcel.FieldRecipientLocation, parcel.FieldTansType, parcel.FieldStatus:
+		case parcel.FieldParcelCode, parcel.FieldType, parcel.FieldSenderName, parcel.FieldSenderPhone, parcel.FieldSenderEmail, parcel.FieldRecipientName, parcel.FieldRecipientPhone, parcel.FieldRecipientLocation, parcel.FieldStatus:
 			values[i] = new(sql.NullString)
-		case parcel.FieldCreatedAt, parcel.FieldUpdatedAt, parcel.FieldPaidAt:
+		case parcel.FieldCreatedAt, parcel.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case parcel.ForeignKeys[0]: // company_parcels
 			values[i] = new(sql.NullInt64)
@@ -228,24 +238,6 @@ func (pa *Parcel) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pa.Weight = float32(value.Float64)
 			}
-		case parcel.FieldAmount:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field amount", values[i])
-			} else if value.Valid {
-				pa.Amount = value.Float64
-			}
-		case parcel.FieldPaidAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field paid_at", values[i])
-			} else if value.Valid {
-				pa.PaidAt = value.Time
-			}
-		case parcel.FieldTansType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field tans_type", values[i])
-			} else if value.Valid {
-				pa.TansType = parcel.TansType(value.String)
-			}
 		case parcel.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
@@ -289,6 +281,11 @@ func (pa *Parcel) Value(name string) (ent.Value, error) {
 // QueryImages queries the "images" edge of the Parcel entity.
 func (pa *Parcel) QueryImages() *ParcelImageQuery {
 	return NewParcelClient(pa.config).QueryImages(pa)
+}
+
+// QueryTransaction queries the "transaction" edge of the Parcel entity.
+func (pa *Parcel) QueryTransaction() *TransactionQuery {
+	return NewParcelClient(pa.config).QueryTransaction(pa)
 }
 
 // QueryTrip queries the "trip" edge of the Parcel entity.
@@ -361,15 +358,6 @@ func (pa *Parcel) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("weight=")
 	builder.WriteString(fmt.Sprintf("%v", pa.Weight))
-	builder.WriteString(", ")
-	builder.WriteString("amount=")
-	builder.WriteString(fmt.Sprintf("%v", pa.Amount))
-	builder.WriteString(", ")
-	builder.WriteString("paid_at=")
-	builder.WriteString(pa.PaidAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("tans_type=")
-	builder.WriteString(fmt.Sprintf("%v", pa.TansType))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", pa.Status))

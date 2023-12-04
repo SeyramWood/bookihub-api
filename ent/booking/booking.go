@@ -19,24 +19,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldReference holds the string denoting the reference field in the database.
-	FieldReference = "reference"
 	// FieldBookingNumber holds the string denoting the booking_number field in the database.
 	FieldBookingNumber = "booking_number"
-	// FieldVat holds the string denoting the vat field in the database.
-	FieldVat = "vat"
-	// FieldSmsFee holds the string denoting the sms_fee field in the database.
-	FieldSmsFee = "sms_fee"
-	// FieldAmount holds the string denoting the amount field in the database.
-	FieldAmount = "amount"
-	// FieldRefundAmount holds the string denoting the refund_amount field in the database.
-	FieldRefundAmount = "refund_amount"
-	// FieldPaidAt holds the string denoting the paid_at field in the database.
-	FieldPaidAt = "paid_at"
-	// FieldRefundAt holds the string denoting the refund_at field in the database.
-	FieldRefundAt = "refund_at"
-	// FieldTansType holds the string denoting the tans_type field in the database.
-	FieldTansType = "tans_type"
 	// FieldSmsNotification holds the string denoting the sms_notification field in the database.
 	FieldSmsNotification = "sms_notification"
 	// FieldStatus holds the string denoting the status field in the database.
@@ -47,6 +31,8 @@ const (
 	EdgeLuggages = "luggages"
 	// EdgeContact holds the string denoting the contact edge name in mutations.
 	EdgeContact = "contact"
+	// EdgeTransaction holds the string denoting the transaction edge name in mutations.
+	EdgeTransaction = "transaction"
 	// EdgeTrip holds the string denoting the trip edge name in mutations.
 	EdgeTrip = "trip"
 	// EdgeCompany holds the string denoting the company edge name in mutations.
@@ -76,6 +62,13 @@ const (
 	ContactInverseTable = "customer_contacts"
 	// ContactColumn is the table column denoting the contact relation/edge.
 	ContactColumn = "booking_contact"
+	// TransactionTable is the table that holds the transaction relation/edge.
+	TransactionTable = "transactions"
+	// TransactionInverseTable is the table name for the Transaction entity.
+	// It exists in this package in order to avoid circular dependency with the "transaction" package.
+	TransactionInverseTable = "transactions"
+	// TransactionColumn is the table column denoting the transaction relation/edge.
+	TransactionColumn = "booking_transaction"
 	// TripTable is the table that holds the trip relation/edge.
 	TripTable = "bookings"
 	// TripInverseTable is the table name for the Trip entity.
@@ -104,15 +97,7 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldReference,
 	FieldBookingNumber,
-	FieldVat,
-	FieldSmsFee,
-	FieldAmount,
-	FieldRefundAmount,
-	FieldPaidAt,
-	FieldRefundAt,
-	FieldTansType,
 	FieldSmsNotification,
 	FieldStatus,
 }
@@ -149,42 +134,9 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// BookingNumberValidator is a validator for the "booking_number" field. It is called by the builders before save.
 	BookingNumberValidator func(string) error
-	// DefaultVat holds the default value on creation for the "vat" field.
-	DefaultVat float64
-	// DefaultSmsFee holds the default value on creation for the "sms_fee" field.
-	DefaultSmsFee float64
-	// DefaultAmount holds the default value on creation for the "amount" field.
-	DefaultAmount float64
 	// DefaultSmsNotification holds the default value on creation for the "sms_notification" field.
 	DefaultSmsNotification bool
 )
-
-// TansType defines the type for the "tans_type" enum field.
-type TansType string
-
-// TansTypeCash is the default value of the TansType enum.
-const DefaultTansType = TansTypeCash
-
-// TansType values.
-const (
-	TansTypeMomo TansType = "momo"
-	TansTypeCard TansType = "card"
-	TansTypeCash TansType = "cash"
-)
-
-func (tt TansType) String() string {
-	return string(tt)
-}
-
-// TansTypeValidator is a validator for the "tans_type" field enum values. It is called by the builders before save.
-func TansTypeValidator(tt TansType) error {
-	switch tt {
-	case TansTypeMomo, TansTypeCard, TansTypeCash:
-		return nil
-	default:
-		return fmt.Errorf("booking: invalid enum value for tans_type field: %q", tt)
-	}
-}
 
 // Status defines the type for the "status" enum field.
 type Status string
@@ -230,49 +182,9 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
-// ByReference orders the results by the reference field.
-func ByReference(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldReference, opts...).ToFunc()
-}
-
 // ByBookingNumber orders the results by the booking_number field.
 func ByBookingNumber(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBookingNumber, opts...).ToFunc()
-}
-
-// ByVat orders the results by the vat field.
-func ByVat(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldVat, opts...).ToFunc()
-}
-
-// BySmsFee orders the results by the sms_fee field.
-func BySmsFee(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSmsFee, opts...).ToFunc()
-}
-
-// ByAmount orders the results by the amount field.
-func ByAmount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAmount, opts...).ToFunc()
-}
-
-// ByRefundAmount orders the results by the refund_amount field.
-func ByRefundAmount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRefundAmount, opts...).ToFunc()
-}
-
-// ByPaidAt orders the results by the paid_at field.
-func ByPaidAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPaidAt, opts...).ToFunc()
-}
-
-// ByRefundAt orders the results by the refund_at field.
-func ByRefundAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRefundAt, opts...).ToFunc()
-}
-
-// ByTansType orders the results by the tans_type field.
-func ByTansType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTansType, opts...).ToFunc()
 }
 
 // BySmsNotification orders the results by the sms_notification field.
@@ -320,6 +232,13 @@ func ByContactField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByTransactionField orders the results by transaction field.
+func ByTransactionField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTransactionStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByTripField orders the results by trip field.
 func ByTripField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -359,6 +278,13 @@ func newContactStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ContactInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, ContactTable, ContactColumn),
+	)
+}
+func newTransactionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TransactionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, TransactionTable, TransactionColumn),
 	)
 }
 func newTripStep() *sqlgraph.Step {

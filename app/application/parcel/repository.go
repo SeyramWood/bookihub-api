@@ -9,13 +9,17 @@ import (
 	"github.com/SeyramWood/bookibus/app/adapters/gateways"
 	"github.com/SeyramWood/bookibus/app/adapters/presenters"
 	"github.com/SeyramWood/bookibus/app/application"
+	"github.com/SeyramWood/bookibus/app/domain"
 	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
 	"github.com/SeyramWood/bookibus/app/framework/database"
 	"github.com/SeyramWood/bookibus/ent"
 	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/configuration"
 	"github.com/SeyramWood/bookibus/ent/parcel"
 	"github.com/SeyramWood/bookibus/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/schema"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 )
 
 type repository struct {
@@ -47,16 +51,13 @@ func (r *repository) Insert(companyId int, request *requeststructs.ParcelRequest
 		return nil, fmt.Errorf("error starting a transaction: %w", err)
 	}
 	result, err := tx.Parcel.Create().
-		SetParcelCode(fmt.Sprintf("PC_%s", application.OTP(9))).
+		SetParcelCode(domain.ComputeUniqueCode("P")).
 		SetSenderName(request.SenderName).
 		SetSenderPhone(request.SenderPhone).
 		SetSenderEmail(request.SenderEmail).
 		SetRecipientName(request.RecipientName).
 		SetRecipientPhone(request.RecipientPhone).
 		SetRecipientLocation(request.RecipientLocation).
-		SetAmount(request.Amount).
-		SetPaidAt(application.ParseRFC3339Datetime(refResponse.PaidAt)).
-		SetTansType(parcel.TansType(refResponse.TransType)).
 		SetWeight(request.Weight).
 		SetType(request.Type).
 		SetTripID(request.TripID).
@@ -71,6 +72,18 @@ func (r *repository) Insert(companyId int, request *requeststructs.ParcelRequest
 	}).Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed creating package image: %w", err))
+	}
+	_, err = tx.Transaction.Create().
+		SetReference(request.Reference).
+		SetAmount(request.Amount).
+		SetTransactionFee(domain.ComputeTransactionFee(r.readCharge().PaymentGatewayServiceFee, r.readCharge().ParcelServiceFee, request.Amount)).
+		SetPaidAt(application.ParseRFC3339Datetime(refResponse.PaidAt)).
+		SetChannel(transaction.Channel(refResponse.TransType)).
+		SetParcel(result).
+		SetCompanyID(companyId).
+		Save(r.ctx)
+	if err != nil {
+		return nil, application.Rollback(tx, fmt.Errorf("failed creating transaction: %w", err))
 	}
 	if err = tx.Commit(); err != nil {
 		return nil, fmt.Errorf("failed committing package creation transaction: %w", err)
@@ -110,6 +123,7 @@ func (r *repository) Read(id int) (*ent.Parcel, error) {
 			tq.WithDriver()
 			tq.WithCompany()
 		}).
+		WithTransaction().
 		Only(r.ctx)
 	if err != nil {
 		return nil, err
@@ -131,6 +145,7 @@ func (r *repository) ReadByCode(code string) (*ent.Parcel, error) {
 			tq.WithDriver()
 			tq.WithCompany()
 		}).
+		WithTransaction().
 		Only(r.ctx)
 	if err != nil {
 		return nil, err
@@ -235,6 +250,10 @@ func (r *repository) UpdateStatus(id int, images []string) (*ent.Parcel, error) 
 	return r.Read(id)
 }
 
+func (r *repository) readCharge() *schema.Charge {
+	return r.db.Configuration.Query().Select(configuration.FieldCharge).AllX(r.ctx)[0].Charge
+}
+
 func (r *repository) filterParcel(query *ent.ParcelQuery, limit, offset int) (*presenters.PaginationResponse, error) {
 	count := query.CountX(r.ctx)
 	results, err := query.
@@ -252,6 +271,7 @@ func (r *repository) filterParcel(query *ent.ParcelQuery, limit, offset int) (*p
 			tq.WithDriver()
 			tq.WithCompany()
 		}).
+		WithTransaction().
 		All(r.ctx)
 	if err != nil {
 		return nil, err

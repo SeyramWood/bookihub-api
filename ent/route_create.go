@@ -119,34 +119,6 @@ func (rc *RouteCreate) SetNillableToLongitude(f *float64) *RouteCreate {
 	return rc
 }
 
-// SetRate sets the "rate" field.
-func (rc *RouteCreate) SetRate(f float64) *RouteCreate {
-	rc.mutation.SetRate(f)
-	return rc
-}
-
-// SetNillableRate sets the "rate" field if the given value is not nil.
-func (rc *RouteCreate) SetNillableRate(f *float64) *RouteCreate {
-	if f != nil {
-		rc.SetRate(*f)
-	}
-	return rc
-}
-
-// SetDiscount sets the "discount" field.
-func (rc *RouteCreate) SetDiscount(f float32) *RouteCreate {
-	rc.mutation.SetDiscount(f)
-	return rc
-}
-
-// SetNillableDiscount sets the "discount" field if the given value is not nil.
-func (rc *RouteCreate) SetNillableDiscount(f *float32) *RouteCreate {
-	if f != nil {
-		rc.SetDiscount(*f)
-	}
-	return rc
-}
-
 // SetPopularity sets the "popularity" field.
 func (rc *RouteCreate) SetPopularity(i int) *RouteCreate {
 	rc.mutation.SetPopularity(i)
@@ -253,14 +225,6 @@ func (rc *RouteCreate) defaults() {
 		v := route.DefaultUpdatedAt()
 		rc.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := rc.mutation.Rate(); !ok {
-		v := route.DefaultRate
-		rc.mutation.SetRate(v)
-	}
-	if _, ok := rc.mutation.Discount(); !ok {
-		v := route.DefaultDiscount
-		rc.mutation.SetDiscount(v)
-	}
 	if _, ok := rc.mutation.Popularity(); !ok {
 		v := route.DefaultPopularity
 		rc.mutation.SetPopularity(v)
@@ -290,12 +254,6 @@ func (rc *RouteCreate) check() error {
 		if err := route.ToLocationValidator(v); err != nil {
 			return &ValidationError{Name: "to_location", err: fmt.Errorf(`ent: validator failed for field "Route.to_location": %w`, err)}
 		}
-	}
-	if _, ok := rc.mutation.Rate(); !ok {
-		return &ValidationError{Name: "rate", err: errors.New(`ent: missing required field "Route.rate"`)}
-	}
-	if _, ok := rc.mutation.Discount(); !ok {
-		return &ValidationError{Name: "discount", err: errors.New(`ent: missing required field "Route.discount"`)}
 	}
 	if _, ok := rc.mutation.Popularity(); !ok {
 		return &ValidationError{Name: "popularity", err: errors.New(`ent: missing required field "Route.popularity"`)}
@@ -357,14 +315,6 @@ func (rc *RouteCreate) createSpec() (*Route, *sqlgraph.CreateSpec) {
 	if value, ok := rc.mutation.ToLongitude(); ok {
 		_spec.SetField(route.FieldToLongitude, field.TypeFloat64, value)
 		_node.ToLongitude = value
-	}
-	if value, ok := rc.mutation.Rate(); ok {
-		_spec.SetField(route.FieldRate, field.TypeFloat64, value)
-		_node.Rate = value
-	}
-	if value, ok := rc.mutation.Discount(); ok {
-		_spec.SetField(route.FieldDiscount, field.TypeFloat32, value)
-		_node.Discount = value
 	}
 	if value, ok := rc.mutation.Popularity(); ok {
 		_spec.SetField(route.FieldPopularity, field.TypeInt, value)

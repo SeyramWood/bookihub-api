@@ -34,6 +34,8 @@ func (Trip) Fields() []ent.Field {
 		field.Bool("fuel_and_fluids_inspected").Default(false),
 		field.Bool("scheduled").Default(false),
 		field.Int("seat_left").Default(0),
+		field.Float("rate").Default(0.00),
+		field.Float32("discount").Default(0.00),
 		field.Enum("status").Values("started", "ended").Optional(),
 	}
 }

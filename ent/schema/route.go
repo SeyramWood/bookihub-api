@@ -28,8 +28,6 @@ func (Route) Fields() []ent.Field {
 		field.Float("from_longitude").Optional(),
 		field.Float("to_latitude").Optional(),
 		field.Float("to_longitude").Optional(),
-		field.Float("rate").Default(0.00),
-		field.Float32("discount").Default(0.00),
 		field.Int("popularity").Default(0),
 	}
 }

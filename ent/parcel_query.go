@@ -16,22 +16,24 @@ import (
 	"github.com/SeyramWood/bookibus/ent/parcel"
 	"github.com/SeyramWood/bookibus/ent/parcelimage"
 	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // ParcelQuery is the builder for querying Parcel entities.
 type ParcelQuery struct {
 	config
-	ctx         *QueryContext
-	order       []parcel.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.Parcel
-	withImages  *ParcelImageQuery
-	withTrip    *TripQuery
-	withCompany *CompanyQuery
-	withDriver  *CompanyUserQuery
-	withFKs     bool
-	modifiers   []func(*sql.Selector)
+	ctx             *QueryContext
+	order           []parcel.OrderOption
+	inters          []Interceptor
+	predicates      []predicate.Parcel
+	withImages      *ParcelImageQuery
+	withTransaction *TransactionQuery
+	withTrip        *TripQuery
+	withCompany     *CompanyQuery
+	withDriver      *CompanyUserQuery
+	withFKs         bool
+	modifiers       []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -83,6 +85,28 @@ func (pq *ParcelQuery) QueryImages() *ParcelImageQuery {
 			sqlgraph.From(parcel.Table, parcel.FieldID, selector),
 			sqlgraph.To(parcelimage.Table, parcelimage.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, parcel.ImagesTable, parcel.ImagesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTransaction chains the current query on the "transaction" edge.
+func (pq *ParcelQuery) QueryTransaction() *TransactionQuery {
+	query := (&TransactionClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(parcel.Table, parcel.FieldID, selector),
+			sqlgraph.To(transaction.Table, transaction.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, parcel.TransactionTable, parcel.TransactionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -343,15 +367,16 @@ func (pq *ParcelQuery) Clone() *ParcelQuery {
 		return nil
 	}
 	return &ParcelQuery{
-		config:      pq.config,
-		ctx:         pq.ctx.Clone(),
-		order:       append([]parcel.OrderOption{}, pq.order...),
-		inters:      append([]Interceptor{}, pq.inters...),
-		predicates:  append([]predicate.Parcel{}, pq.predicates...),
-		withImages:  pq.withImages.Clone(),
-		withTrip:    pq.withTrip.Clone(),
-		withCompany: pq.withCompany.Clone(),
-		withDriver:  pq.withDriver.Clone(),
+		config:          pq.config,
+		ctx:             pq.ctx.Clone(),
+		order:           append([]parcel.OrderOption{}, pq.order...),
+		inters:          append([]Interceptor{}, pq.inters...),
+		predicates:      append([]predicate.Parcel{}, pq.predicates...),
+		withImages:      pq.withImages.Clone(),
+		withTransaction: pq.withTransaction.Clone(),
+		withTrip:        pq.withTrip.Clone(),
+		withCompany:     pq.withCompany.Clone(),
+		withDriver:      pq.withDriver.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
 		path: pq.path,
@@ -366,6 +391,17 @@ func (pq *ParcelQuery) WithImages(opts ...func(*ParcelImageQuery)) *ParcelQuery 
 		opt(query)
 	}
 	pq.withImages = query
+	return pq
+}
+
+// WithTransaction tells the query-builder to eager-load the nodes that are connected to
+// the "transaction" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ParcelQuery) WithTransaction(opts ...func(*TransactionQuery)) *ParcelQuery {
+	query := (&TransactionClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withTransaction = query
 	return pq
 }
 
@@ -481,8 +517,9 @@ func (pq *ParcelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Parce
 		nodes       = []*Parcel{}
 		withFKs     = pq.withFKs
 		_spec       = pq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [5]bool{
 			pq.withImages != nil,
+			pq.withTransaction != nil,
 			pq.withTrip != nil,
 			pq.withCompany != nil,
 			pq.withDriver != nil,
@@ -519,6 +556,12 @@ func (pq *ParcelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Parce
 		if err := pq.loadImages(ctx, query, nodes,
 			func(n *Parcel) { n.Edges.Images = []*ParcelImage{} },
 			func(n *Parcel, e *ParcelImage) { n.Edges.Images = append(n.Edges.Images, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := pq.withTransaction; query != nil {
+		if err := pq.loadTransaction(ctx, query, nodes, nil,
+			func(n *Parcel, e *Transaction) { n.Edges.Transaction = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -569,6 +612,34 @@ func (pq *ParcelQuery) loadImages(ctx context.Context, query *ParcelImageQuery, 
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "parcel_images" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (pq *ParcelQuery) loadTransaction(ctx context.Context, query *TransactionQuery, nodes []*Parcel, init func(*Parcel), assign func(*Parcel, *Transaction)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Parcel)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	query.withFKs = true
+	query.Where(predicate.Transaction(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(parcel.TransactionColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.parcel_transaction
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "parcel_transaction" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "parcel_transaction" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

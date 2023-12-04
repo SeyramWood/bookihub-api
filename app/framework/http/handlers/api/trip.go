@@ -98,14 +98,19 @@ func (h *tripHandler) FetchAllByCompany() fiber.Handler {
 		if c.Query("datetime") != "" && !application.IsRFC3339Datetime(c.Query("datetime")) {
 			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("datetime is invalid")))
 		}
+		if (c.Query("minTime") != "" && !application.IsTime(c.Query("minTime"))) || (c.Query("maxTime") != "" && !application.IsTime(c.Query("minTime"))) {
+			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("minTime or maxTime is invalid")))
+		}
 		id, _ := c.ParamsInt("id")
 		results, err := h.service.FetchAllByCompany(id, c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.TripFilterRequest{
-			From:      c.Query("from"),
-			To:        c.Query("to"),
-			Datetime:  c.Query("datetime"),
-			Today:     c.QueryBool("today"),
-			Scheduled: c.QueryBool("scheduled"),
-			Completed: c.QueryBool("completed"),
+			From:       c.Query("from"),
+			To:         c.Query("to"),
+			Datetime:   c.Query("datetime"),
+			Today:      c.QueryBool("today"),
+			Scheduled:  c.QueryBool("scheduled"),
+			Completed:  c.QueryBool("completed"),
+			Passengers: c.QueryInt("passengers"),
+			TimeRange:  fmt.Sprintf("%s_%s", c.Query("minTime"), c.Query("maxTime")),
 		})
 		if err != nil {
 			if ent.IsNotFound(err) {

@@ -50,6 +50,10 @@ type Trip struct {
 	Scheduled bool `json:"scheduled,omitempty"`
 	// SeatLeft holds the value of the "seat_left" field.
 	SeatLeft int `json:"seat_left,omitempty"`
+	// Rate holds the value of the "rate" field.
+	Rate float64 `json:"rate,omitempty"`
+	// Discount holds the value of the "discount" field.
+	Discount float32 `json:"discount,omitempty"`
 	// Status holds the value of the "status" field.
 	Status trip.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -201,6 +205,8 @@ func (*Trip) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case trip.FieldExteriorInspected, trip.FieldInteriorInspected, trip.FieldEngineCompartmentInspected, trip.FieldBrakeAndSteeringInspected, trip.FieldEmergencyEquipmentInspected, trip.FieldFuelAndFluidsInspected, trip.FieldScheduled:
 			values[i] = new(sql.NullBool)
+		case trip.FieldRate, trip.FieldDiscount:
+			values[i] = new(sql.NullFloat64)
 		case trip.FieldID, trip.FieldSeatLeft:
 			values[i] = new(sql.NullInt64)
 		case trip.FieldType, trip.FieldStatus:
@@ -323,6 +329,18 @@ func (t *Trip) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field seat_left", values[i])
 			} else if value.Valid {
 				t.SeatLeft = int(value.Int64)
+			}
+		case trip.FieldRate:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field rate", values[i])
+			} else if value.Valid {
+				t.Rate = value.Float64
+			}
+		case trip.FieldDiscount:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field discount", values[i])
+			} else if value.Valid {
+				t.Discount = float32(value.Float64)
 			}
 		case trip.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -494,6 +512,12 @@ func (t *Trip) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("seat_left=")
 	builder.WriteString(fmt.Sprintf("%v", t.SeatLeft))
+	builder.WriteString(", ")
+	builder.WriteString("rate=")
+	builder.WriteString(fmt.Sprintf("%v", t.Rate))
+	builder.WriteString(", ")
+	builder.WriteString("discount=")
+	builder.WriteString(fmt.Sprintf("%v", t.Discount))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", t.Status))

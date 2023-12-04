@@ -21,6 +21,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/route"
 	"github.com/SeyramWood/bookibus/ent/schema"
 	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
@@ -107,16 +108,16 @@ func (cu *CompanyUpdate) ClearContactPerson() *CompanyUpdate {
 	return cu
 }
 
-// SetStatus sets the "status" field.
-func (cu *CompanyUpdate) SetStatus(c company.Status) *CompanyUpdate {
-	cu.mutation.SetStatus(c)
+// SetOnboardingStatus sets the "onboarding_status" field.
+func (cu *CompanyUpdate) SetOnboardingStatus(cs company.OnboardingStatus) *CompanyUpdate {
+	cu.mutation.SetOnboardingStatus(cs)
 	return cu
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (cu *CompanyUpdate) SetNillableStatus(c *company.Status) *CompanyUpdate {
-	if c != nil {
-		cu.SetStatus(*c)
+// SetNillableOnboardingStatus sets the "onboarding_status" field if the given value is not nil.
+func (cu *CompanyUpdate) SetNillableOnboardingStatus(cs *company.OnboardingStatus) *CompanyUpdate {
+	if cs != nil {
+		cu.SetOnboardingStatus(*cs)
 	}
 	return cu
 }
@@ -239,6 +240,21 @@ func (cu *CompanyUpdate) AddParcels(p ...*Parcel) *CompanyUpdate {
 		ids[i] = p[i].ID
 	}
 	return cu.AddParcelIDs(ids...)
+}
+
+// AddTransactionIDs adds the "transactions" edge to the Transaction entity by IDs.
+func (cu *CompanyUpdate) AddTransactionIDs(ids ...int) *CompanyUpdate {
+	cu.mutation.AddTransactionIDs(ids...)
+	return cu
+}
+
+// AddTransactions adds the "transactions" edges to the Transaction entity.
+func (cu *CompanyUpdate) AddTransactions(t ...*Transaction) *CompanyUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return cu.AddTransactionIDs(ids...)
 }
 
 // AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
@@ -429,6 +445,27 @@ func (cu *CompanyUpdate) RemoveParcels(p ...*Parcel) *CompanyUpdate {
 	return cu.RemoveParcelIDs(ids...)
 }
 
+// ClearTransactions clears all "transactions" edges to the Transaction entity.
+func (cu *CompanyUpdate) ClearTransactions() *CompanyUpdate {
+	cu.mutation.ClearTransactions()
+	return cu
+}
+
+// RemoveTransactionIDs removes the "transactions" edge to Transaction entities by IDs.
+func (cu *CompanyUpdate) RemoveTransactionIDs(ids ...int) *CompanyUpdate {
+	cu.mutation.RemoveTransactionIDs(ids...)
+	return cu
+}
+
+// RemoveTransactions removes "transactions" edges to Transaction entities.
+func (cu *CompanyUpdate) RemoveTransactions(t ...*Transaction) *CompanyUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return cu.RemoveTransactionIDs(ids...)
+}
+
 // ClearNotifications clears all "notifications" edges to the Notification entity.
 func (cu *CompanyUpdate) ClearNotifications() *CompanyUpdate {
 	cu.mutation.ClearNotifications()
@@ -503,9 +540,9 @@ func (cu *CompanyUpdate) check() error {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Company.email": %w`, err)}
 		}
 	}
-	if v, ok := cu.mutation.Status(); ok {
-		if err := company.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Company.status": %w`, err)}
+	if v, ok := cu.mutation.OnboardingStatus(); ok {
+		if err := company.OnboardingStatusValidator(v); err != nil {
+			return &ValidationError{Name: "onboarding_status", err: fmt.Errorf(`ent: validator failed for field "Company.onboarding_status": %w`, err)}
 		}
 	}
 	return nil
@@ -559,8 +596,8 @@ func (cu *CompanyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if cu.mutation.ContactPersonCleared() {
 		_spec.ClearField(company.FieldContactPerson, field.TypeJSON)
 	}
-	if value, ok := cu.mutation.Status(); ok {
-		_spec.SetField(company.FieldStatus, field.TypeEnum, value)
+	if value, ok := cu.mutation.OnboardingStatus(); ok {
+		_spec.SetField(company.FieldOnboardingStatus, field.TypeEnum, value)
 	}
 	if cu.mutation.ProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -922,6 +959,51 @@ func (cu *CompanyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if cu.mutation.TransactionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TransactionsTable,
+			Columns: []string{company.TransactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.RemovedTransactionsIDs(); len(nodes) > 0 && !cu.mutation.TransactionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TransactionsTable,
+			Columns: []string{company.TransactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.TransactionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TransactionsTable,
+			Columns: []string{company.TransactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if cu.mutation.NotificationsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -1057,16 +1139,16 @@ func (cuo *CompanyUpdateOne) ClearContactPerson() *CompanyUpdateOne {
 	return cuo
 }
 
-// SetStatus sets the "status" field.
-func (cuo *CompanyUpdateOne) SetStatus(c company.Status) *CompanyUpdateOne {
-	cuo.mutation.SetStatus(c)
+// SetOnboardingStatus sets the "onboarding_status" field.
+func (cuo *CompanyUpdateOne) SetOnboardingStatus(cs company.OnboardingStatus) *CompanyUpdateOne {
+	cuo.mutation.SetOnboardingStatus(cs)
 	return cuo
 }
 
-// SetNillableStatus sets the "status" field if the given value is not nil.
-func (cuo *CompanyUpdateOne) SetNillableStatus(c *company.Status) *CompanyUpdateOne {
-	if c != nil {
-		cuo.SetStatus(*c)
+// SetNillableOnboardingStatus sets the "onboarding_status" field if the given value is not nil.
+func (cuo *CompanyUpdateOne) SetNillableOnboardingStatus(cs *company.OnboardingStatus) *CompanyUpdateOne {
+	if cs != nil {
+		cuo.SetOnboardingStatus(*cs)
 	}
 	return cuo
 }
@@ -1189,6 +1271,21 @@ func (cuo *CompanyUpdateOne) AddParcels(p ...*Parcel) *CompanyUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return cuo.AddParcelIDs(ids...)
+}
+
+// AddTransactionIDs adds the "transactions" edge to the Transaction entity by IDs.
+func (cuo *CompanyUpdateOne) AddTransactionIDs(ids ...int) *CompanyUpdateOne {
+	cuo.mutation.AddTransactionIDs(ids...)
+	return cuo
+}
+
+// AddTransactions adds the "transactions" edges to the Transaction entity.
+func (cuo *CompanyUpdateOne) AddTransactions(t ...*Transaction) *CompanyUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return cuo.AddTransactionIDs(ids...)
 }
 
 // AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
@@ -1379,6 +1476,27 @@ func (cuo *CompanyUpdateOne) RemoveParcels(p ...*Parcel) *CompanyUpdateOne {
 	return cuo.RemoveParcelIDs(ids...)
 }
 
+// ClearTransactions clears all "transactions" edges to the Transaction entity.
+func (cuo *CompanyUpdateOne) ClearTransactions() *CompanyUpdateOne {
+	cuo.mutation.ClearTransactions()
+	return cuo
+}
+
+// RemoveTransactionIDs removes the "transactions" edge to Transaction entities by IDs.
+func (cuo *CompanyUpdateOne) RemoveTransactionIDs(ids ...int) *CompanyUpdateOne {
+	cuo.mutation.RemoveTransactionIDs(ids...)
+	return cuo
+}
+
+// RemoveTransactions removes "transactions" edges to Transaction entities.
+func (cuo *CompanyUpdateOne) RemoveTransactions(t ...*Transaction) *CompanyUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return cuo.RemoveTransactionIDs(ids...)
+}
+
 // ClearNotifications clears all "notifications" edges to the Notification entity.
 func (cuo *CompanyUpdateOne) ClearNotifications() *CompanyUpdateOne {
 	cuo.mutation.ClearNotifications()
@@ -1466,9 +1584,9 @@ func (cuo *CompanyUpdateOne) check() error {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Company.email": %w`, err)}
 		}
 	}
-	if v, ok := cuo.mutation.Status(); ok {
-		if err := company.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Company.status": %w`, err)}
+	if v, ok := cuo.mutation.OnboardingStatus(); ok {
+		if err := company.OnboardingStatusValidator(v); err != nil {
+			return &ValidationError{Name: "onboarding_status", err: fmt.Errorf(`ent: validator failed for field "Company.onboarding_status": %w`, err)}
 		}
 	}
 	return nil
@@ -1539,8 +1657,8 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 	if cuo.mutation.ContactPersonCleared() {
 		_spec.ClearField(company.FieldContactPerson, field.TypeJSON)
 	}
-	if value, ok := cuo.mutation.Status(); ok {
-		_spec.SetField(company.FieldStatus, field.TypeEnum, value)
+	if value, ok := cuo.mutation.OnboardingStatus(); ok {
+		_spec.SetField(company.FieldOnboardingStatus, field.TypeEnum, value)
 	}
 	if cuo.mutation.ProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1895,6 +2013,51 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(parcel.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuo.mutation.TransactionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TransactionsTable,
+			Columns: []string{company.TransactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.RemovedTransactionsIDs(); len(nodes) > 0 && !cuo.mutation.TransactionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TransactionsTable,
+			Columns: []string{company.TransactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.TransactionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.TransactionsTable,
+			Columns: []string{company.TransactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

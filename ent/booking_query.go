@@ -18,24 +18,26 @@ import (
 	"github.com/SeyramWood/bookibus/ent/customerluggage"
 	"github.com/SeyramWood/bookibus/ent/passenger"
 	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // BookingQuery is the builder for querying Booking entities.
 type BookingQuery struct {
 	config
-	ctx            *QueryContext
-	order          []booking.OrderOption
-	inters         []Interceptor
-	predicates     []predicate.Booking
-	withPassengers *PassengerQuery
-	withLuggages   *CustomerLuggageQuery
-	withContact    *CustomerContactQuery
-	withTrip       *TripQuery
-	withCompany    *CompanyQuery
-	withCustomer   *CustomerQuery
-	withFKs        bool
-	modifiers      []func(*sql.Selector)
+	ctx             *QueryContext
+	order           []booking.OrderOption
+	inters          []Interceptor
+	predicates      []predicate.Booking
+	withPassengers  *PassengerQuery
+	withLuggages    *CustomerLuggageQuery
+	withContact     *CustomerContactQuery
+	withTransaction *TransactionQuery
+	withTrip        *TripQuery
+	withCompany     *CompanyQuery
+	withCustomer    *CustomerQuery
+	withFKs         bool
+	modifiers       []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -131,6 +133,28 @@ func (bq *BookingQuery) QueryContact() *CustomerContactQuery {
 			sqlgraph.From(booking.Table, booking.FieldID, selector),
 			sqlgraph.To(customercontact.Table, customercontact.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, booking.ContactTable, booking.ContactColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(bq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTransaction chains the current query on the "transaction" edge.
+func (bq *BookingQuery) QueryTransaction() *TransactionQuery {
+	query := (&TransactionClient{config: bq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := bq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := bq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(booking.Table, booking.FieldID, selector),
+			sqlgraph.To(transaction.Table, transaction.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, booking.TransactionTable, booking.TransactionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(bq.driver.Dialect(), step)
 		return fromU, nil
@@ -391,17 +415,18 @@ func (bq *BookingQuery) Clone() *BookingQuery {
 		return nil
 	}
 	return &BookingQuery{
-		config:         bq.config,
-		ctx:            bq.ctx.Clone(),
-		order:          append([]booking.OrderOption{}, bq.order...),
-		inters:         append([]Interceptor{}, bq.inters...),
-		predicates:     append([]predicate.Booking{}, bq.predicates...),
-		withPassengers: bq.withPassengers.Clone(),
-		withLuggages:   bq.withLuggages.Clone(),
-		withContact:    bq.withContact.Clone(),
-		withTrip:       bq.withTrip.Clone(),
-		withCompany:    bq.withCompany.Clone(),
-		withCustomer:   bq.withCustomer.Clone(),
+		config:          bq.config,
+		ctx:             bq.ctx.Clone(),
+		order:           append([]booking.OrderOption{}, bq.order...),
+		inters:          append([]Interceptor{}, bq.inters...),
+		predicates:      append([]predicate.Booking{}, bq.predicates...),
+		withPassengers:  bq.withPassengers.Clone(),
+		withLuggages:    bq.withLuggages.Clone(),
+		withContact:     bq.withContact.Clone(),
+		withTransaction: bq.withTransaction.Clone(),
+		withTrip:        bq.withTrip.Clone(),
+		withCompany:     bq.withCompany.Clone(),
+		withCustomer:    bq.withCustomer.Clone(),
 		// clone intermediate query.
 		sql:  bq.sql.Clone(),
 		path: bq.path,
@@ -438,6 +463,17 @@ func (bq *BookingQuery) WithContact(opts ...func(*CustomerContactQuery)) *Bookin
 		opt(query)
 	}
 	bq.withContact = query
+	return bq
+}
+
+// WithTransaction tells the query-builder to eager-load the nodes that are connected to
+// the "transaction" edge. The optional arguments are used to configure the query builder of the edge.
+func (bq *BookingQuery) WithTransaction(opts ...func(*TransactionQuery)) *BookingQuery {
+	query := (&TransactionClient{config: bq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	bq.withTransaction = query
 	return bq
 }
 
@@ -553,10 +589,11 @@ func (bq *BookingQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Book
 		nodes       = []*Booking{}
 		withFKs     = bq.withFKs
 		_spec       = bq.querySpec()
-		loadedTypes = [6]bool{
+		loadedTypes = [7]bool{
 			bq.withPassengers != nil,
 			bq.withLuggages != nil,
 			bq.withContact != nil,
+			bq.withTransaction != nil,
 			bq.withTrip != nil,
 			bq.withCompany != nil,
 			bq.withCustomer != nil,
@@ -606,6 +643,12 @@ func (bq *BookingQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Book
 	if query := bq.withContact; query != nil {
 		if err := bq.loadContact(ctx, query, nodes, nil,
 			func(n *Booking, e *CustomerContact) { n.Edges.Contact = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := bq.withTransaction; query != nil {
+		if err := bq.loadTransaction(ctx, query, nodes, nil,
+			func(n *Booking, e *Transaction) { n.Edges.Transaction = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -715,6 +758,34 @@ func (bq *BookingQuery) loadContact(ctx context.Context, query *CustomerContactQ
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "booking_contact" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (bq *BookingQuery) loadTransaction(ctx context.Context, query *TransactionQuery, nodes []*Booking, init func(*Booking), assign func(*Booking, *Transaction)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Booking)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	query.withFKs = true
+	query.Where(predicate.Transaction(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(booking.TransactionColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.booking_transaction
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "booking_transaction" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "booking_transaction" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

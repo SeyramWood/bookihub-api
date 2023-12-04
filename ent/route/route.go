@@ -30,10 +30,6 @@ const (
 	FieldToLatitude = "to_latitude"
 	// FieldToLongitude holds the string denoting the to_longitude field in the database.
 	FieldToLongitude = "to_longitude"
-	// FieldRate holds the string denoting the rate field in the database.
-	FieldRate = "rate"
-	// FieldDiscount holds the string denoting the discount field in the database.
-	FieldDiscount = "discount"
 	// FieldPopularity holds the string denoting the popularity field in the database.
 	FieldPopularity = "popularity"
 	// EdgeCompany holds the string denoting the company edge name in mutations.
@@ -78,8 +74,6 @@ var Columns = []string{
 	FieldFromLongitude,
 	FieldToLatitude,
 	FieldToLongitude,
-	FieldRate,
-	FieldDiscount,
 	FieldPopularity,
 }
 
@@ -115,10 +109,6 @@ var (
 	FromLocationValidator func(string) error
 	// ToLocationValidator is a validator for the "to_location" field. It is called by the builders before save.
 	ToLocationValidator func(string) error
-	// DefaultRate holds the default value on creation for the "rate" field.
-	DefaultRate float64
-	// DefaultDiscount holds the default value on creation for the "discount" field.
-	DefaultDiscount float32
 	// DefaultPopularity holds the default value on creation for the "popularity" field.
 	DefaultPopularity int
 )
@@ -169,16 +159,6 @@ func ByToLatitude(opts ...sql.OrderTermOption) OrderOption {
 // ByToLongitude orders the results by the to_longitude field.
 func ByToLongitude(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldToLongitude, opts...).ToFunc()
-}
-
-// ByRate orders the results by the rate field.
-func ByRate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRate, opts...).ToFunc()
-}
-
-// ByDiscount orders the results by the discount field.
-func ByDiscount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDiscount, opts...).ToFunc()
 }
 
 // ByPopularity orders the results by the popularity field.

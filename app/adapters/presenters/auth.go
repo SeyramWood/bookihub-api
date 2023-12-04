@@ -42,7 +42,7 @@ func FormatSession(data *ent.User) *AuthSession {
 		return &AuthSession{
 			ID:            data.ID,
 			CompanyID:     profile.Edges.Company.ID,
-			CompanyStatus: string(profile.Edges.Company.Status),
+			CompanyStatus: string(profile.Edges.Company.OnboardingStatus),
 			DisplayName:   strings.Split(profile.OtherName, " ")[0],
 			Username:      data.Username,
 			Avatar:        data.Avatar,

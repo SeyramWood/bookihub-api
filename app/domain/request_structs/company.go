@@ -105,8 +105,6 @@ type (
 		ToLatitude    float64             `json:"toLatitude" validate:"required|float"`
 		ToLongitude   float64             `json:"toLongitude" validate:"required|float"`
 		Stops         []*RouteStopRequest `json:"stops" validate:""`
-		Rate          float64             `json:"rate" validate:"required|float"`
-		Discount      float32             `json:"discount" validate:"float|min:1|max:100"`
 	}
 	RouteUpdateRequest struct {
 		From          string  `json:"from" validate:"required|ascii"`
@@ -115,30 +113,33 @@ type (
 		FromLongitude float64 `json:"fromLongitude" validate:"required|float"`
 		ToLatitude    float64 `json:"toLatitude" validate:"required|float"`
 		ToLongitude   float64 `json:"toLongitude" validate:"required|float"`
-		Rate          float64 `json:"rate" validate:"required|float"`
-		Discount      float32 `json:"discount" validate:"min:1|max:100"`
 	}
 	TripRequest struct {
-		FromTerminalID int    `json:"fromTerminalId" validate:"required|int"`
-		ToTerminalID   int    `json:"toTerminalId" validate:"required|int"`
-		VehicleID      int    `json:"vehicleId" validate:"required|int"`
-		RouteID        int    `json:"routeId" validate:"required|int"`
-		DriverID       int    `json:"driverId" validate:"required|int"`
-		DepartureDate  string `json:"departureDate" validate:"required|rfc3339"`
-		ArrivalDate    string `json:"arrivalDate" validate:"required|rfc3339"`
-		ReturnDate     string `json:"returnDate" validate:"rfc3339"`
-		TripType       string `json:"tripType" validate:"required|string"`
-		Schedule       bool   `json:"schedule" validate:""`
+		FromTerminalID int     `json:"fromTerminalId" validate:"required|int"`
+		ToTerminalID   int     `json:"toTerminalId" validate:"required|int"`
+		VehicleID      int     `json:"vehicleId" validate:"required|int"`
+		RouteID        int     `json:"routeId" validate:"required|int"`
+		DriverID       int     `json:"driverId" validate:"required|int"`
+		DepartureDate  string  `json:"departureDate" validate:"required|rfc3339"`
+		ArrivalDate    string  `json:"arrivalDate" validate:"required|rfc3339"`
+		ReturnDate     string  `json:"returnDate" validate:"rfc3339"`
+		TripType       string  `json:"tripType" validate:"required|string"`
+		Schedule       bool    `json:"schedule" validate:""`
+		Rate           float64 `json:"rate" validate:"required|float"`
+		Discount       float32 `json:"discount" validate:"min:1|max:100"`
 	}
 	TripUpdateRequest struct {
-		FromTerminalID int    `json:"fromTerminalId" validate:"required|int"`
-		ToTerminalID   int    `json:"toTerminalId" validate:"required|int"`
-		VehicleID      int    `json:"vehicleId" validate:"required|int"`
-		DriverID       int    `json:"driverId" validate:"required|int"`
-		DepartureDate  string `json:"departureDate" validate:"required|rfc3339"`
-		ArrivalDate    string `json:"arrivalDate" validate:"required|rfc3339"`
-		ReturnDate     string `json:"returnDate" validate:"rfc3339"`
-		TripType       string `json:"tripType" validate:"required|string"`
+		FromTerminalID int     `json:"fromTerminalId" validate:"required|int"`
+		ToTerminalID   int     `json:"toTerminalId" validate:"required|int"`
+		VehicleID      int     `json:"vehicleId" validate:"required|int"`
+		RouteID        int     `json:"routeId" validate:"required|int"`
+		DriverID       int     `json:"driverId" validate:"required|int"`
+		DepartureDate  string  `json:"departureDate" validate:"required|rfc3339"`
+		ArrivalDate    string  `json:"arrivalDate" validate:"required|rfc3339"`
+		ReturnDate     string  `json:"returnDate" validate:"rfc3339"`
+		TripType       string  `json:"tripType" validate:"required|string"`
+		Rate           float64 `json:"rate" validate:"required|float"`
+		Discount       float32 `json:"discount" validate:"min:1|max:100"`
 	}
 	TripInspectionStatusRequest struct {
 		Exterior           bool `json:"exterior"`
@@ -154,12 +155,14 @@ type (
 	}
 
 	TripFilterRequest struct {
-		From      string
-		To        string
-		Datetime  string
-		Today     bool
-		Scheduled bool
-		Completed bool
+		From       string
+		To         string
+		Datetime   string
+		Today      bool
+		Scheduled  bool
+		Completed  bool
+		Passengers int
+		TimeRange  string
 	}
 	CustomerTripFilterRequest struct {
 		CompanyID     int    `json:"companyId"`

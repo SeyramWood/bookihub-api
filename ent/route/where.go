@@ -95,16 +95,6 @@ func ToLongitude(v float64) predicate.Route {
 	return predicate.Route(sql.FieldEQ(FieldToLongitude, v))
 }
 
-// Rate applies equality check predicate on the "rate" field. It's identical to RateEQ.
-func Rate(v float64) predicate.Route {
-	return predicate.Route(sql.FieldEQ(FieldRate, v))
-}
-
-// Discount applies equality check predicate on the "discount" field. It's identical to DiscountEQ.
-func Discount(v float32) predicate.Route {
-	return predicate.Route(sql.FieldEQ(FieldDiscount, v))
-}
-
 // Popularity applies equality check predicate on the "popularity" field. It's identical to PopularityEQ.
 func Popularity(v int) predicate.Route {
 	return predicate.Route(sql.FieldEQ(FieldPopularity, v))
@@ -518,86 +508,6 @@ func ToLongitudeIsNil() predicate.Route {
 // ToLongitudeNotNil applies the NotNil predicate on the "to_longitude" field.
 func ToLongitudeNotNil() predicate.Route {
 	return predicate.Route(sql.FieldNotNull(FieldToLongitude))
-}
-
-// RateEQ applies the EQ predicate on the "rate" field.
-func RateEQ(v float64) predicate.Route {
-	return predicate.Route(sql.FieldEQ(FieldRate, v))
-}
-
-// RateNEQ applies the NEQ predicate on the "rate" field.
-func RateNEQ(v float64) predicate.Route {
-	return predicate.Route(sql.FieldNEQ(FieldRate, v))
-}
-
-// RateIn applies the In predicate on the "rate" field.
-func RateIn(vs ...float64) predicate.Route {
-	return predicate.Route(sql.FieldIn(FieldRate, vs...))
-}
-
-// RateNotIn applies the NotIn predicate on the "rate" field.
-func RateNotIn(vs ...float64) predicate.Route {
-	return predicate.Route(sql.FieldNotIn(FieldRate, vs...))
-}
-
-// RateGT applies the GT predicate on the "rate" field.
-func RateGT(v float64) predicate.Route {
-	return predicate.Route(sql.FieldGT(FieldRate, v))
-}
-
-// RateGTE applies the GTE predicate on the "rate" field.
-func RateGTE(v float64) predicate.Route {
-	return predicate.Route(sql.FieldGTE(FieldRate, v))
-}
-
-// RateLT applies the LT predicate on the "rate" field.
-func RateLT(v float64) predicate.Route {
-	return predicate.Route(sql.FieldLT(FieldRate, v))
-}
-
-// RateLTE applies the LTE predicate on the "rate" field.
-func RateLTE(v float64) predicate.Route {
-	return predicate.Route(sql.FieldLTE(FieldRate, v))
-}
-
-// DiscountEQ applies the EQ predicate on the "discount" field.
-func DiscountEQ(v float32) predicate.Route {
-	return predicate.Route(sql.FieldEQ(FieldDiscount, v))
-}
-
-// DiscountNEQ applies the NEQ predicate on the "discount" field.
-func DiscountNEQ(v float32) predicate.Route {
-	return predicate.Route(sql.FieldNEQ(FieldDiscount, v))
-}
-
-// DiscountIn applies the In predicate on the "discount" field.
-func DiscountIn(vs ...float32) predicate.Route {
-	return predicate.Route(sql.FieldIn(FieldDiscount, vs...))
-}
-
-// DiscountNotIn applies the NotIn predicate on the "discount" field.
-func DiscountNotIn(vs ...float32) predicate.Route {
-	return predicate.Route(sql.FieldNotIn(FieldDiscount, vs...))
-}
-
-// DiscountGT applies the GT predicate on the "discount" field.
-func DiscountGT(v float32) predicate.Route {
-	return predicate.Route(sql.FieldGT(FieldDiscount, v))
-}
-
-// DiscountGTE applies the GTE predicate on the "discount" field.
-func DiscountGTE(v float32) predicate.Route {
-	return predicate.Route(sql.FieldGTE(FieldDiscount, v))
-}
-
-// DiscountLT applies the LT predicate on the "discount" field.
-func DiscountLT(v float32) predicate.Route {
-	return predicate.Route(sql.FieldLT(FieldDiscount, v))
-}
-
-// DiscountLTE applies the LTE predicate on the "discount" field.
-func DiscountLTE(v float32) predicate.Route {
-	return predicate.Route(sql.FieldLTE(FieldDiscount, v))
 }
 
 // PopularityEQ applies the EQ predicate on the "popularity" field.

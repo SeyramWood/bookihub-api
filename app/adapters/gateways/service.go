@@ -36,6 +36,12 @@ type (
 		Pay(request any) (any, error)
 		Verify(reference string) (*requeststructs.PaymentReferenceResponse, error)
 	}
+	ConfigurationService interface {
+		Fetch() (*ent.Configuration, error)
+		FetchCharge() (*ent.Configuration, error)
+		CreateCharge(request *requeststructs.TransactionChargeRequest) (*ent.Configuration, error)
+		UpdateCharge(id int, request *requeststructs.TransactionChargeRequest) (*ent.Configuration, error)
+	}
 	AuthService interface {
 		OTPVerifier
 		Login(request *requeststructs.UserLoginRequest) (*presenters.AuthTokenData, error)
@@ -133,6 +139,7 @@ type (
 		FetchAllByCompany(companyId, limit, offset int, filter *requeststructs.BookingFilterRequest) (*presenters.PaginationResponse, error)
 		FetchAllCustomer(limit, offset int, filter *requeststructs.BookingFilterRequest, customerId ...int) (*presenters.PaginationResponse, error)
 		Fetch(id int) (*ent.Booking, error)
+		FetchByBookingNumber(id string) (*ent.Booking, error)
 		Create(request *requeststructs.BookingRequest, transType string) (*ent.Booking, error)
 		SaveToCache(reference string, request *requeststructs.BookingRequest) error
 		Update(id int, request *requeststructs.BookingUpdateRequest) (*ent.Booking, error)

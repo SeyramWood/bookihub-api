@@ -20,6 +20,8 @@ type Tx struct {
 	Company *CompanyClient
 	// CompanyUser is the client for interacting with the CompanyUser builders.
 	CompanyUser *CompanyUserClient
+	// Configuration is the client for interacting with the Configuration builders.
+	Configuration *ConfigurationClient
 	// Customer is the client for interacting with the Customer builders.
 	Customer *CustomerClient
 	// CustomerContact is the client for interacting with the CustomerContact builders.
@@ -44,6 +46,8 @@ type Tx struct {
 	RouteStop *RouteStopClient
 	// Terminal is the client for interacting with the Terminal builders.
 	Terminal *TerminalClient
+	// Transaction is the client for interacting with the Transaction builders.
+	Transaction *TransactionClient
 	// Trip is the client for interacting with the Trip builders.
 	Trip *TripClient
 	// User is the client for interacting with the User builders.
@@ -187,6 +191,7 @@ func (tx *Tx) init() {
 	tx.Booking = NewBookingClient(tx.config)
 	tx.Company = NewCompanyClient(tx.config)
 	tx.CompanyUser = NewCompanyUserClient(tx.config)
+	tx.Configuration = NewConfigurationClient(tx.config)
 	tx.Customer = NewCustomerClient(tx.config)
 	tx.CustomerContact = NewCustomerContactClient(tx.config)
 	tx.CustomerLuggage = NewCustomerLuggageClient(tx.config)
@@ -199,6 +204,7 @@ func (tx *Tx) init() {
 	tx.Route = NewRouteClient(tx.config)
 	tx.RouteStop = NewRouteStopClient(tx.config)
 	tx.Terminal = NewTerminalClient(tx.config)
+	tx.Transaction = NewTransactionClient(tx.config)
 	tx.Trip = NewTripClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.Vehicle = NewVehicleClient(tx.config)

@@ -455,24 +455,24 @@ func ContactPersonNotNil() predicate.Company {
 	return predicate.Company(sql.FieldNotNull(FieldContactPerson))
 }
 
-// StatusEQ applies the EQ predicate on the "status" field.
-func StatusEQ(v Status) predicate.Company {
-	return predicate.Company(sql.FieldEQ(FieldStatus, v))
+// OnboardingStatusEQ applies the EQ predicate on the "onboarding_status" field.
+func OnboardingStatusEQ(v OnboardingStatus) predicate.Company {
+	return predicate.Company(sql.FieldEQ(FieldOnboardingStatus, v))
 }
 
-// StatusNEQ applies the NEQ predicate on the "status" field.
-func StatusNEQ(v Status) predicate.Company {
-	return predicate.Company(sql.FieldNEQ(FieldStatus, v))
+// OnboardingStatusNEQ applies the NEQ predicate on the "onboarding_status" field.
+func OnboardingStatusNEQ(v OnboardingStatus) predicate.Company {
+	return predicate.Company(sql.FieldNEQ(FieldOnboardingStatus, v))
 }
 
-// StatusIn applies the In predicate on the "status" field.
-func StatusIn(vs ...Status) predicate.Company {
-	return predicate.Company(sql.FieldIn(FieldStatus, vs...))
+// OnboardingStatusIn applies the In predicate on the "onboarding_status" field.
+func OnboardingStatusIn(vs ...OnboardingStatus) predicate.Company {
+	return predicate.Company(sql.FieldIn(FieldOnboardingStatus, vs...))
 }
 
-// StatusNotIn applies the NotIn predicate on the "status" field.
-func StatusNotIn(vs ...Status) predicate.Company {
-	return predicate.Company(sql.FieldNotIn(FieldStatus, vs...))
+// OnboardingStatusNotIn applies the NotIn predicate on the "onboarding_status" field.
+func OnboardingStatusNotIn(vs ...OnboardingStatus) predicate.Company {
+	return predicate.Company(sql.FieldNotIn(FieldOnboardingStatus, vs...))
 }
 
 // HasProfile applies the HasEdge predicate on the "profile" edge.
@@ -651,6 +651,29 @@ func HasParcels() predicate.Company {
 func HasParcelsWith(preds ...predicate.Parcel) predicate.Company {
 	return predicate.Company(func(s *sql.Selector) {
 		step := newParcelsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTransactions applies the HasEdge predicate on the "transactions" edge.
+func HasTransactions() predicate.Company {
+	return predicate.Company(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TransactionsTable, TransactionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTransactionsWith applies the HasEdge predicate on the "transactions" edge with a given conditions (other predicates).
+func HasTransactionsWith(preds ...predicate.Transaction) predicate.Company {
+	return predicate.Company(func(s *sql.Selector) {
+		step := newTransactionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

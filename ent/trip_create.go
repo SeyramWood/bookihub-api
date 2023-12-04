@@ -224,6 +224,34 @@ func (tc *TripCreate) SetNillableSeatLeft(i *int) *TripCreate {
 	return tc
 }
 
+// SetRate sets the "rate" field.
+func (tc *TripCreate) SetRate(f float64) *TripCreate {
+	tc.mutation.SetRate(f)
+	return tc
+}
+
+// SetNillableRate sets the "rate" field if the given value is not nil.
+func (tc *TripCreate) SetNillableRate(f *float64) *TripCreate {
+	if f != nil {
+		tc.SetRate(*f)
+	}
+	return tc
+}
+
+// SetDiscount sets the "discount" field.
+func (tc *TripCreate) SetDiscount(f float32) *TripCreate {
+	tc.mutation.SetDiscount(f)
+	return tc
+}
+
+// SetNillableDiscount sets the "discount" field if the given value is not nil.
+func (tc *TripCreate) SetNillableDiscount(f *float32) *TripCreate {
+	if f != nil {
+		tc.SetDiscount(*f)
+	}
+	return tc
+}
+
 // SetStatus sets the "status" field.
 func (tc *TripCreate) SetStatus(t trip.Status) *TripCreate {
 	tc.mutation.SetStatus(t)
@@ -476,6 +504,14 @@ func (tc *TripCreate) defaults() {
 		v := trip.DefaultSeatLeft
 		tc.mutation.SetSeatLeft(v)
 	}
+	if _, ok := tc.mutation.Rate(); !ok {
+		v := trip.DefaultRate
+		tc.mutation.SetRate(v)
+	}
+	if _, ok := tc.mutation.Discount(); !ok {
+		v := trip.DefaultDiscount
+		tc.mutation.SetDiscount(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -517,6 +553,12 @@ func (tc *TripCreate) check() error {
 	}
 	if _, ok := tc.mutation.SeatLeft(); !ok {
 		return &ValidationError{Name: "seat_left", err: errors.New(`ent: missing required field "Trip.seat_left"`)}
+	}
+	if _, ok := tc.mutation.Rate(); !ok {
+		return &ValidationError{Name: "rate", err: errors.New(`ent: missing required field "Trip.rate"`)}
+	}
+	if _, ok := tc.mutation.Discount(); !ok {
+		return &ValidationError{Name: "discount", err: errors.New(`ent: missing required field "Trip.discount"`)}
 	}
 	if v, ok := tc.mutation.Status(); ok {
 		if err := trip.StatusValidator(v); err != nil {
@@ -604,6 +646,14 @@ func (tc *TripCreate) createSpec() (*Trip, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.SeatLeft(); ok {
 		_spec.SetField(trip.FieldSeatLeft, field.TypeInt, value)
 		_node.SeatLeft = value
+	}
+	if value, ok := tc.mutation.Rate(); ok {
+		_spec.SetField(trip.FieldRate, field.TypeFloat64, value)
+		_node.Rate = value
+	}
+	if value, ok := tc.mutation.Discount(); ok {
+		_spec.SetField(trip.FieldDiscount, field.TypeFloat32, value)
+		_node.Discount = value
 	}
 	if value, ok := tc.mutation.Status(); ok {
 		_spec.SetField(trip.FieldStatus, field.TypeEnum, value)

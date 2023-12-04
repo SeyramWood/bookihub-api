@@ -120,6 +120,16 @@ func SeatLeft(v int) predicate.Trip {
 	return predicate.Trip(sql.FieldEQ(FieldSeatLeft, v))
 }
 
+// Rate applies equality check predicate on the "rate" field. It's identical to RateEQ.
+func Rate(v float64) predicate.Trip {
+	return predicate.Trip(sql.FieldEQ(FieldRate, v))
+}
+
+// Discount applies equality check predicate on the "discount" field. It's identical to DiscountEQ.
+func Discount(v float32) predicate.Trip {
+	return predicate.Trip(sql.FieldEQ(FieldDiscount, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Trip {
 	return predicate.Trip(sql.FieldEQ(FieldCreatedAt, v))
@@ -478,6 +488,86 @@ func SeatLeftLT(v int) predicate.Trip {
 // SeatLeftLTE applies the LTE predicate on the "seat_left" field.
 func SeatLeftLTE(v int) predicate.Trip {
 	return predicate.Trip(sql.FieldLTE(FieldSeatLeft, v))
+}
+
+// RateEQ applies the EQ predicate on the "rate" field.
+func RateEQ(v float64) predicate.Trip {
+	return predicate.Trip(sql.FieldEQ(FieldRate, v))
+}
+
+// RateNEQ applies the NEQ predicate on the "rate" field.
+func RateNEQ(v float64) predicate.Trip {
+	return predicate.Trip(sql.FieldNEQ(FieldRate, v))
+}
+
+// RateIn applies the In predicate on the "rate" field.
+func RateIn(vs ...float64) predicate.Trip {
+	return predicate.Trip(sql.FieldIn(FieldRate, vs...))
+}
+
+// RateNotIn applies the NotIn predicate on the "rate" field.
+func RateNotIn(vs ...float64) predicate.Trip {
+	return predicate.Trip(sql.FieldNotIn(FieldRate, vs...))
+}
+
+// RateGT applies the GT predicate on the "rate" field.
+func RateGT(v float64) predicate.Trip {
+	return predicate.Trip(sql.FieldGT(FieldRate, v))
+}
+
+// RateGTE applies the GTE predicate on the "rate" field.
+func RateGTE(v float64) predicate.Trip {
+	return predicate.Trip(sql.FieldGTE(FieldRate, v))
+}
+
+// RateLT applies the LT predicate on the "rate" field.
+func RateLT(v float64) predicate.Trip {
+	return predicate.Trip(sql.FieldLT(FieldRate, v))
+}
+
+// RateLTE applies the LTE predicate on the "rate" field.
+func RateLTE(v float64) predicate.Trip {
+	return predicate.Trip(sql.FieldLTE(FieldRate, v))
+}
+
+// DiscountEQ applies the EQ predicate on the "discount" field.
+func DiscountEQ(v float32) predicate.Trip {
+	return predicate.Trip(sql.FieldEQ(FieldDiscount, v))
+}
+
+// DiscountNEQ applies the NEQ predicate on the "discount" field.
+func DiscountNEQ(v float32) predicate.Trip {
+	return predicate.Trip(sql.FieldNEQ(FieldDiscount, v))
+}
+
+// DiscountIn applies the In predicate on the "discount" field.
+func DiscountIn(vs ...float32) predicate.Trip {
+	return predicate.Trip(sql.FieldIn(FieldDiscount, vs...))
+}
+
+// DiscountNotIn applies the NotIn predicate on the "discount" field.
+func DiscountNotIn(vs ...float32) predicate.Trip {
+	return predicate.Trip(sql.FieldNotIn(FieldDiscount, vs...))
+}
+
+// DiscountGT applies the GT predicate on the "discount" field.
+func DiscountGT(v float32) predicate.Trip {
+	return predicate.Trip(sql.FieldGT(FieldDiscount, v))
+}
+
+// DiscountGTE applies the GTE predicate on the "discount" field.
+func DiscountGTE(v float32) predicate.Trip {
+	return predicate.Trip(sql.FieldGTE(FieldDiscount, v))
+}
+
+// DiscountLT applies the LT predicate on the "discount" field.
+func DiscountLT(v float32) predicate.Trip {
+	return predicate.Trip(sql.FieldLT(FieldDiscount, v))
+}
+
+// DiscountLTE applies the LTE predicate on the "discount" field.
+func DiscountLTE(v float32) predicate.Trip {
+	return predicate.Trip(sql.FieldLTE(FieldDiscount, v))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

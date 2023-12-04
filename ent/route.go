@@ -34,10 +34,6 @@ type Route struct {
 	ToLatitude float64 `json:"to_latitude,omitempty"`
 	// ToLongitude holds the value of the "to_longitude" field.
 	ToLongitude float64 `json:"to_longitude,omitempty"`
-	// Rate holds the value of the "rate" field.
-	Rate float64 `json:"rate,omitempty"`
-	// Discount holds the value of the "discount" field.
-	Discount float32 `json:"discount,omitempty"`
 	// Popularity holds the value of the "popularity" field.
 	Popularity int `json:"popularity,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -96,7 +92,7 @@ func (*Route) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case route.FieldFromLatitude, route.FieldFromLongitude, route.FieldToLatitude, route.FieldToLongitude, route.FieldRate, route.FieldDiscount:
+		case route.FieldFromLatitude, route.FieldFromLongitude, route.FieldToLatitude, route.FieldToLongitude:
 			values[i] = new(sql.NullFloat64)
 		case route.FieldID, route.FieldPopularity:
 			values[i] = new(sql.NullInt64)
@@ -174,18 +170,6 @@ func (r *Route) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field to_longitude", values[i])
 			} else if value.Valid {
 				r.ToLongitude = value.Float64
-			}
-		case route.FieldRate:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field rate", values[i])
-			} else if value.Valid {
-				r.Rate = value.Float64
-			}
-		case route.FieldDiscount:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field discount", values[i])
-			} else if value.Valid {
-				r.Discount = float32(value.Float64)
 			}
 		case route.FieldPopularity:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -274,12 +258,6 @@ func (r *Route) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("to_longitude=")
 	builder.WriteString(fmt.Sprintf("%v", r.ToLongitude))
-	builder.WriteString(", ")
-	builder.WriteString("rate=")
-	builder.WriteString(fmt.Sprintf("%v", r.Rate))
-	builder.WriteString(", ")
-	builder.WriteString("discount=")
-	builder.WriteString(fmt.Sprintf("%v", r.Discount))
 	builder.WriteString(", ")
 	builder.WriteString("popularity=")
 	builder.WriteString(fmt.Sprintf("%v", r.Popularity))

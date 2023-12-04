@@ -5,9 +5,16 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
+
+	"github.com/SeyramWood/bookibus/app/adapters/gateways"
+	"github.com/SeyramWood/bookibus/app/framework/database"
 )
 
 type webRouter struct {
+	Adapter       *database.Adapter
+	CacheSrv      gateways.CacheService
+	EventProducer gateways.EventProducer
+	Payment       gateways.PaymentService
 }
 
 func NewWebRouter(params []any) *webRouter {
@@ -16,10 +23,11 @@ func NewWebRouter(params []any) *webRouter {
 }
 
 func (r *webRouter) Router(app *fiber.App) {
+
 	webGroup := app.Group("")
 	r.index(webGroup)
 	r.monitor(webGroup)
-
+	TripRoutes(webGroup, r)
 	// Custom config
 	webGroup.Static(
 		"/", "./storage/public", fiber.Static{
@@ -44,13 +52,25 @@ func (r *webRouter) index(router fiber.Router) {
 		},
 	)
 }
+
 func (r *webRouter) monitor(router fiber.Router) {
 	router.Get("/monitor", monitor.New())
 }
 
 func (r *webRouter) instantiate(params []any) *webRouter {
-	// for _, param := range params {
-	//
-	// }
+	for _, param := range params {
+		if adapter, ok := param.(*database.Adapter); ok {
+			r.Adapter = adapter
+			continue
+		}
+		if cacheService, ok := param.(gateways.CacheService); ok {
+			r.CacheSrv = cacheService
+			continue
+		}
+		if eventProducer, ok := param.(gateways.EventProducer); ok {
+			r.EventProducer = eventProducer
+			continue
+		}
+	}
 	return r
 }

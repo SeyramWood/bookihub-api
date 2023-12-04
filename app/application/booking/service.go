@@ -53,24 +53,28 @@ func (s *service) Create(request *requeststructs.BookingRequest, transType strin
 		if err != nil {
 			return nil, err
 		}
-		// TODO process new booking notification: sms or email and db
-		if result.SmsNotification {
+		if request.SMSNotification {
 			s.producer.Queue("notification:sms", domain.SMSPayload{
-				Message:    fmt.Sprintf("Your booking was successful, use the details below to manage your trip.\nTrip ID: %s\nName: %s", result.BookingNumber, result.Edges.Contact.FullName),
+				Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
 				Recipients: []string{result.Edges.Contact.Phone},
 			})
 		} else {
 			s.producer.Queue("notification:email", domain.MailerMessage{
 				To:      result.Edges.Contact.Email,
-				Subject: "New Booking - Bookibus",
-				Data: map[string]string{
-					"tripId": result.BookingNumber,
-					"name":   result.Edges.Contact.FullName,
-					"url":    config.App().AppBookiBusURL,
+				Subject: "Trip Ticket - BookiRide",
+				Data: map[string]any{
+					"data":   presenters.BookingTicketResponse(result),
+					"url":    config.App().AppWebsiteURL,
+					"appUrl": config.App().AppURL,
+					"bookiContact": map[string]string{
+						"email": config.Contact().Email,
+						"phone": config.Contact().Phone,
+					},
 				},
 				Template: "newbooking",
 			})
 		}
+
 		return result, nil
 	}
 
@@ -86,15 +90,21 @@ func (s *service) Create(request *requeststructs.BookingRequest, transType strin
 		// TODO process new booking notification: sms or email and db
 		if result.SmsNotification {
 			s.producer.Queue("notification:sms", domain.SMSPayload{
-				Message:    fmt.Sprintf("Your booking was successful, use the details below to manage your trip.\nTrip ID: %s\nName: %s", result.BookingNumber, result.Edges.Contact.FullName),
+				Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
 				Recipients: []string{result.Edges.Contact.Phone},
 			})
 		} else {
 			s.producer.Queue("notification:email", domain.MailerMessage{
 				To:      result.Edges.Contact.Email,
-				Subject: "New Booking - Bookibus",
-				Data: map[string]string{
-					"url": config.App().AppBookiBusURL,
+				Subject: "Trip Ticket - BookiRide",
+				Data: map[string]any{
+					"data":   presenters.BookingTicketResponse(result),
+					"url":    config.App().AppWebsiteURL,
+					"appUrl": config.App().AppURL,
+					"bookiContact": map[string]string{
+						"email": config.Contact().Email,
+						"phone": config.Contact().Phone,
+					},
 				},
 				Template: "newbooking",
 			})
@@ -107,6 +117,11 @@ func (s *service) Create(request *requeststructs.BookingRequest, transType strin
 // Fetch implements gateways.BookingService.
 func (s *service) Fetch(id int) (*ent.Booking, error) {
 	return s.repo.Read(id)
+}
+
+// FetchByBookingNumber implements gateways.BookingService.
+func (s *service) FetchByBookingNumber(id string) (*ent.Booking, error) {
+	return s.repo.ReadByBookingNumber(id)
 }
 
 // FetchAll implements gateways.BookingService.

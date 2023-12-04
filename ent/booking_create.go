@@ -16,6 +16,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/customercontact"
 	"github.com/SeyramWood/bookibus/ent/customerluggage"
 	"github.com/SeyramWood/bookibus/ent/passenger"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
@@ -54,121 +55,9 @@ func (bc *BookingCreate) SetNillableUpdatedAt(t *time.Time) *BookingCreate {
 	return bc
 }
 
-// SetReference sets the "reference" field.
-func (bc *BookingCreate) SetReference(s string) *BookingCreate {
-	bc.mutation.SetReference(s)
-	return bc
-}
-
-// SetNillableReference sets the "reference" field if the given value is not nil.
-func (bc *BookingCreate) SetNillableReference(s *string) *BookingCreate {
-	if s != nil {
-		bc.SetReference(*s)
-	}
-	return bc
-}
-
 // SetBookingNumber sets the "booking_number" field.
 func (bc *BookingCreate) SetBookingNumber(s string) *BookingCreate {
 	bc.mutation.SetBookingNumber(s)
-	return bc
-}
-
-// SetVat sets the "vat" field.
-func (bc *BookingCreate) SetVat(f float64) *BookingCreate {
-	bc.mutation.SetVat(f)
-	return bc
-}
-
-// SetNillableVat sets the "vat" field if the given value is not nil.
-func (bc *BookingCreate) SetNillableVat(f *float64) *BookingCreate {
-	if f != nil {
-		bc.SetVat(*f)
-	}
-	return bc
-}
-
-// SetSmsFee sets the "sms_fee" field.
-func (bc *BookingCreate) SetSmsFee(f float64) *BookingCreate {
-	bc.mutation.SetSmsFee(f)
-	return bc
-}
-
-// SetNillableSmsFee sets the "sms_fee" field if the given value is not nil.
-func (bc *BookingCreate) SetNillableSmsFee(f *float64) *BookingCreate {
-	if f != nil {
-		bc.SetSmsFee(*f)
-	}
-	return bc
-}
-
-// SetAmount sets the "amount" field.
-func (bc *BookingCreate) SetAmount(f float64) *BookingCreate {
-	bc.mutation.SetAmount(f)
-	return bc
-}
-
-// SetNillableAmount sets the "amount" field if the given value is not nil.
-func (bc *BookingCreate) SetNillableAmount(f *float64) *BookingCreate {
-	if f != nil {
-		bc.SetAmount(*f)
-	}
-	return bc
-}
-
-// SetRefundAmount sets the "refund_amount" field.
-func (bc *BookingCreate) SetRefundAmount(f float64) *BookingCreate {
-	bc.mutation.SetRefundAmount(f)
-	return bc
-}
-
-// SetNillableRefundAmount sets the "refund_amount" field if the given value is not nil.
-func (bc *BookingCreate) SetNillableRefundAmount(f *float64) *BookingCreate {
-	if f != nil {
-		bc.SetRefundAmount(*f)
-	}
-	return bc
-}
-
-// SetPaidAt sets the "paid_at" field.
-func (bc *BookingCreate) SetPaidAt(t time.Time) *BookingCreate {
-	bc.mutation.SetPaidAt(t)
-	return bc
-}
-
-// SetNillablePaidAt sets the "paid_at" field if the given value is not nil.
-func (bc *BookingCreate) SetNillablePaidAt(t *time.Time) *BookingCreate {
-	if t != nil {
-		bc.SetPaidAt(*t)
-	}
-	return bc
-}
-
-// SetRefundAt sets the "refund_at" field.
-func (bc *BookingCreate) SetRefundAt(t time.Time) *BookingCreate {
-	bc.mutation.SetRefundAt(t)
-	return bc
-}
-
-// SetNillableRefundAt sets the "refund_at" field if the given value is not nil.
-func (bc *BookingCreate) SetNillableRefundAt(t *time.Time) *BookingCreate {
-	if t != nil {
-		bc.SetRefundAt(*t)
-	}
-	return bc
-}
-
-// SetTansType sets the "tans_type" field.
-func (bc *BookingCreate) SetTansType(bt booking.TansType) *BookingCreate {
-	bc.mutation.SetTansType(bt)
-	return bc
-}
-
-// SetNillableTansType sets the "tans_type" field if the given value is not nil.
-func (bc *BookingCreate) SetNillableTansType(bt *booking.TansType) *BookingCreate {
-	if bt != nil {
-		bc.SetTansType(*bt)
-	}
 	return bc
 }
 
@@ -247,6 +136,25 @@ func (bc *BookingCreate) SetNillableContactID(id *int) *BookingCreate {
 // SetContact sets the "contact" edge to the CustomerContact entity.
 func (bc *BookingCreate) SetContact(c *CustomerContact) *BookingCreate {
 	return bc.SetContactID(c.ID)
+}
+
+// SetTransactionID sets the "transaction" edge to the Transaction entity by ID.
+func (bc *BookingCreate) SetTransactionID(id int) *BookingCreate {
+	bc.mutation.SetTransactionID(id)
+	return bc
+}
+
+// SetNillableTransactionID sets the "transaction" edge to the Transaction entity by ID if the given value is not nil.
+func (bc *BookingCreate) SetNillableTransactionID(id *int) *BookingCreate {
+	if id != nil {
+		bc = bc.SetTransactionID(*id)
+	}
+	return bc
+}
+
+// SetTransaction sets the "transaction" edge to the Transaction entity.
+func (bc *BookingCreate) SetTransaction(t *Transaction) *BookingCreate {
+	return bc.SetTransactionID(t.ID)
 }
 
 // SetTripID sets the "trip" edge to the Trip entity by ID.
@@ -349,22 +257,6 @@ func (bc *BookingCreate) defaults() {
 		v := booking.DefaultUpdatedAt()
 		bc.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := bc.mutation.Vat(); !ok {
-		v := booking.DefaultVat
-		bc.mutation.SetVat(v)
-	}
-	if _, ok := bc.mutation.SmsFee(); !ok {
-		v := booking.DefaultSmsFee
-		bc.mutation.SetSmsFee(v)
-	}
-	if _, ok := bc.mutation.Amount(); !ok {
-		v := booking.DefaultAmount
-		bc.mutation.SetAmount(v)
-	}
-	if _, ok := bc.mutation.TansType(); !ok {
-		v := booking.DefaultTansType
-		bc.mutation.SetTansType(v)
-	}
 	if _, ok := bc.mutation.SmsNotification(); !ok {
 		v := booking.DefaultSmsNotification
 		bc.mutation.SetSmsNotification(v)
@@ -389,23 +281,6 @@ func (bc *BookingCreate) check() error {
 	if v, ok := bc.mutation.BookingNumber(); ok {
 		if err := booking.BookingNumberValidator(v); err != nil {
 			return &ValidationError{Name: "booking_number", err: fmt.Errorf(`ent: validator failed for field "Booking.booking_number": %w`, err)}
-		}
-	}
-	if _, ok := bc.mutation.Vat(); !ok {
-		return &ValidationError{Name: "vat", err: errors.New(`ent: missing required field "Booking.vat"`)}
-	}
-	if _, ok := bc.mutation.SmsFee(); !ok {
-		return &ValidationError{Name: "sms_fee", err: errors.New(`ent: missing required field "Booking.sms_fee"`)}
-	}
-	if _, ok := bc.mutation.Amount(); !ok {
-		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Booking.amount"`)}
-	}
-	if _, ok := bc.mutation.TansType(); !ok {
-		return &ValidationError{Name: "tans_type", err: errors.New(`ent: missing required field "Booking.tans_type"`)}
-	}
-	if v, ok := bc.mutation.TansType(); ok {
-		if err := booking.TansTypeValidator(v); err != nil {
-			return &ValidationError{Name: "tans_type", err: fmt.Errorf(`ent: validator failed for field "Booking.tans_type": %w`, err)}
 		}
 	}
 	if _, ok := bc.mutation.SmsNotification(); !ok {
@@ -453,41 +328,9 @@ func (bc *BookingCreate) createSpec() (*Booking, *sqlgraph.CreateSpec) {
 		_spec.SetField(booking.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := bc.mutation.Reference(); ok {
-		_spec.SetField(booking.FieldReference, field.TypeString, value)
-		_node.Reference = value
-	}
 	if value, ok := bc.mutation.BookingNumber(); ok {
 		_spec.SetField(booking.FieldBookingNumber, field.TypeString, value)
 		_node.BookingNumber = value
-	}
-	if value, ok := bc.mutation.Vat(); ok {
-		_spec.SetField(booking.FieldVat, field.TypeFloat64, value)
-		_node.Vat = value
-	}
-	if value, ok := bc.mutation.SmsFee(); ok {
-		_spec.SetField(booking.FieldSmsFee, field.TypeFloat64, value)
-		_node.SmsFee = value
-	}
-	if value, ok := bc.mutation.Amount(); ok {
-		_spec.SetField(booking.FieldAmount, field.TypeFloat64, value)
-		_node.Amount = value
-	}
-	if value, ok := bc.mutation.RefundAmount(); ok {
-		_spec.SetField(booking.FieldRefundAmount, field.TypeFloat64, value)
-		_node.RefundAmount = value
-	}
-	if value, ok := bc.mutation.PaidAt(); ok {
-		_spec.SetField(booking.FieldPaidAt, field.TypeTime, value)
-		_node.PaidAt = value
-	}
-	if value, ok := bc.mutation.RefundAt(); ok {
-		_spec.SetField(booking.FieldRefundAt, field.TypeTime, value)
-		_node.RefundAt = value
-	}
-	if value, ok := bc.mutation.TansType(); ok {
-		_spec.SetField(booking.FieldTansType, field.TypeEnum, value)
-		_node.TansType = value
 	}
 	if value, ok := bc.mutation.SmsNotification(); ok {
 		_spec.SetField(booking.FieldSmsNotification, field.TypeBool, value)
@@ -538,6 +381,22 @@ func (bc *BookingCreate) createSpec() (*Booking, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(customercontact.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := bc.mutation.TransactionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   booking.TransactionTable,
+			Columns: []string{booking.TransactionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -9,6 +9,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/booking"
 	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/companyuser"
+	"github.com/SeyramWood/bookibus/ent/configuration"
 	"github.com/SeyramWood/bookibus/ent/customer"
 	"github.com/SeyramWood/bookibus/ent/customercontact"
 	"github.com/SeyramWood/bookibus/ent/customerluggage"
@@ -22,6 +23,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/routestop"
 	"github.com/SeyramWood/bookibus/ent/schema"
 	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 	"github.com/SeyramWood/bookibus/ent/user"
 	"github.com/SeyramWood/bookibus/ent/vehicle"
@@ -75,23 +77,11 @@ func init() {
 	// booking.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	booking.UpdateDefaultUpdatedAt = bookingDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// bookingDescBookingNumber is the schema descriptor for booking_number field.
-	bookingDescBookingNumber := bookingFields[1].Descriptor()
+	bookingDescBookingNumber := bookingFields[0].Descriptor()
 	// booking.BookingNumberValidator is a validator for the "booking_number" field. It is called by the builders before save.
 	booking.BookingNumberValidator = bookingDescBookingNumber.Validators[0].(func(string) error)
-	// bookingDescVat is the schema descriptor for vat field.
-	bookingDescVat := bookingFields[2].Descriptor()
-	// booking.DefaultVat holds the default value on creation for the vat field.
-	booking.DefaultVat = bookingDescVat.Default.(float64)
-	// bookingDescSmsFee is the schema descriptor for sms_fee field.
-	bookingDescSmsFee := bookingFields[3].Descriptor()
-	// booking.DefaultSmsFee holds the default value on creation for the sms_fee field.
-	booking.DefaultSmsFee = bookingDescSmsFee.Default.(float64)
-	// bookingDescAmount is the schema descriptor for amount field.
-	bookingDescAmount := bookingFields[4].Descriptor()
-	// booking.DefaultAmount holds the default value on creation for the amount field.
-	booking.DefaultAmount = bookingDescAmount.Default.(float64)
 	// bookingDescSmsNotification is the schema descriptor for sms_notification field.
-	bookingDescSmsNotification := bookingFields[9].Descriptor()
+	bookingDescSmsNotification := bookingFields[1].Descriptor()
 	// booking.DefaultSmsNotification holds the default value on creation for the sms_notification field.
 	booking.DefaultSmsNotification = bookingDescSmsNotification.Default.(bool)
 	companyMixin := schema.Company{}.Mixin()
@@ -136,6 +126,25 @@ func init() {
 	companyuser.DefaultUpdatedAt = companyuserDescUpdatedAt.Default.(func() time.Time)
 	// companyuser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	companyuser.UpdateDefaultUpdatedAt = companyuserDescUpdatedAt.UpdateDefault.(func() time.Time)
+	configurationMixin := schema.Configuration{}.Mixin()
+	configurationMixinFields0 := configurationMixin[0].Fields()
+	_ = configurationMixinFields0
+	configurationFields := schema.Configuration{}.Fields()
+	_ = configurationFields
+	// configurationDescCreatedAt is the schema descriptor for created_at field.
+	configurationDescCreatedAt := configurationMixinFields0[0].Descriptor()
+	// configuration.DefaultCreatedAt holds the default value on creation for the created_at field.
+	configuration.DefaultCreatedAt = configurationDescCreatedAt.Default.(func() time.Time)
+	// configurationDescUpdatedAt is the schema descriptor for updated_at field.
+	configurationDescUpdatedAt := configurationMixinFields0[1].Descriptor()
+	// configuration.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	configuration.DefaultUpdatedAt = configurationDescUpdatedAt.Default.(func() time.Time)
+	// configuration.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	configuration.UpdateDefaultUpdatedAt = configurationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// configurationDescCharge is the schema descriptor for charge field.
+	configurationDescCharge := configurationFields[0].Descriptor()
+	// configuration.DefaultCharge holds the default value on creation for the charge field.
+	configuration.DefaultCharge = configurationDescCharge.Default.(*schema.Charge)
 	customerMixin := schema.Customer{}.Mixin()
 	customerMixinFields0 := customerMixin[0].Fields()
 	_ = customerMixinFields0
@@ -316,10 +325,6 @@ func init() {
 	parcelDescRecipientLocation := parcelFields[7].Descriptor()
 	// parcel.RecipientLocationValidator is a validator for the "recipient_location" field. It is called by the builders before save.
 	parcel.RecipientLocationValidator = parcelDescRecipientLocation.Validators[0].(func(string) error)
-	// parcelDescAmount is the schema descriptor for amount field.
-	parcelDescAmount := parcelFields[9].Descriptor()
-	// parcel.DefaultAmount holds the default value on creation for the amount field.
-	parcel.DefaultAmount = parcelDescAmount.Default.(float64)
 	parcelimageMixin := schema.ParcelImage{}.Mixin()
 	parcelimageMixinFields0 := parcelimageMixin[0].Fields()
 	_ = parcelimageMixinFields0
@@ -381,16 +386,8 @@ func init() {
 	routeDescToLocation := routeFields[1].Descriptor()
 	// route.ToLocationValidator is a validator for the "to_location" field. It is called by the builders before save.
 	route.ToLocationValidator = routeDescToLocation.Validators[0].(func(string) error)
-	// routeDescRate is the schema descriptor for rate field.
-	routeDescRate := routeFields[6].Descriptor()
-	// route.DefaultRate holds the default value on creation for the rate field.
-	route.DefaultRate = routeDescRate.Default.(float64)
-	// routeDescDiscount is the schema descriptor for discount field.
-	routeDescDiscount := routeFields[7].Descriptor()
-	// route.DefaultDiscount holds the default value on creation for the discount field.
-	route.DefaultDiscount = routeDescDiscount.Default.(float32)
 	// routeDescPopularity is the schema descriptor for popularity field.
-	routeDescPopularity := routeFields[8].Descriptor()
+	routeDescPopularity := routeFields[6].Descriptor()
 	// route.DefaultPopularity holds the default value on creation for the popularity field.
 	route.DefaultPopularity = routeDescPopularity.Default.(int)
 	routestopMixin := schema.RouteStop{}.Mixin()
@@ -427,6 +424,41 @@ func init() {
 	terminalDescName := terminalFields[0].Descriptor()
 	// terminal.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	terminal.NameValidator = terminalDescName.Validators[0].(func(string) error)
+	transactionMixin := schema.Transaction{}.Mixin()
+	transactionMixinFields0 := transactionMixin[0].Fields()
+	_ = transactionMixinFields0
+	transactionFields := schema.Transaction{}.Fields()
+	_ = transactionFields
+	// transactionDescCreatedAt is the schema descriptor for created_at field.
+	transactionDescCreatedAt := transactionMixinFields0[0].Descriptor()
+	// transaction.DefaultCreatedAt holds the default value on creation for the created_at field.
+	transaction.DefaultCreatedAt = transactionDescCreatedAt.Default.(func() time.Time)
+	// transactionDescUpdatedAt is the schema descriptor for updated_at field.
+	transactionDescUpdatedAt := transactionMixinFields0[1].Descriptor()
+	// transaction.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	transaction.DefaultUpdatedAt = transactionDescUpdatedAt.Default.(func() time.Time)
+	// transaction.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	transaction.UpdateDefaultUpdatedAt = transactionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// transactionDescReference is the schema descriptor for reference field.
+	transactionDescReference := transactionFields[0].Descriptor()
+	// transaction.ReferenceValidator is a validator for the "reference" field. It is called by the builders before save.
+	transaction.ReferenceValidator = transactionDescReference.Validators[0].(func(string) error)
+	// transactionDescAmount is the schema descriptor for amount field.
+	transactionDescAmount := transactionFields[1].Descriptor()
+	// transaction.DefaultAmount holds the default value on creation for the amount field.
+	transaction.DefaultAmount = transactionDescAmount.Default.(float64)
+	// transactionDescVat is the schema descriptor for vat field.
+	transactionDescVat := transactionFields[2].Descriptor()
+	// transaction.DefaultVat holds the default value on creation for the vat field.
+	transaction.DefaultVat = transactionDescVat.Default.(float64)
+	// transactionDescTransactionFee is the schema descriptor for transaction_fee field.
+	transactionDescTransactionFee := transactionFields[3].Descriptor()
+	// transaction.DefaultTransactionFee holds the default value on creation for the transaction_fee field.
+	transaction.DefaultTransactionFee = transactionDescTransactionFee.Default.(float64)
+	// transactionDescCancellationFee is the schema descriptor for cancellation_fee field.
+	transactionDescCancellationFee := transactionFields[4].Descriptor()
+	// transaction.DefaultCancellationFee holds the default value on creation for the cancellation_fee field.
+	transaction.DefaultCancellationFee = transactionDescCancellationFee.Default.(float64)
 	tripMixin := schema.Trip{}.Mixin()
 	tripMixinFields0 := tripMixin[0].Fields()
 	_ = tripMixinFields0
@@ -474,6 +506,14 @@ func init() {
 	tripDescSeatLeft := tripFields[11].Descriptor()
 	// trip.DefaultSeatLeft holds the default value on creation for the seat_left field.
 	trip.DefaultSeatLeft = tripDescSeatLeft.Default.(int)
+	// tripDescRate is the schema descriptor for rate field.
+	tripDescRate := tripFields[12].Descriptor()
+	// trip.DefaultRate holds the default value on creation for the rate field.
+	trip.DefaultRate = tripDescRate.Default.(float64)
+	// tripDescDiscount is the schema descriptor for discount field.
+	tripDescDiscount := tripFields[13].Descriptor()
+	// trip.DefaultDiscount holds the default value on creation for the discount field.
+	trip.DefaultDiscount = tripDescDiscount.Default.(float32)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0

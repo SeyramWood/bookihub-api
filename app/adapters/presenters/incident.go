@@ -46,45 +46,67 @@ func IncidentResponse(data *ent.Incident) *fiber.Map {
 		}(),
 		Trip: func() *TripResponseData {
 			if t, err := data.Edges.TripOrErr(); err == nil {
-				return &TripResponseData{ID: t.ID, DepartureDate: t.DepartureDate, ArrivalDate: t.ArrivalDate, ReturnDate: parseNullDatetime(t.ReturnDate), Type: string(t.Type), InspectionStatus: &TripInspectionStatus{Exterior: t.ExteriorInspected, Interior: t.InteriorInspected, EngineCompartment: t.EngineCompartmentInspected, BrakeAndSteering: t.BrakeAndSteeringInspected, EmergencyEquipment: t.EmergencyEquipmentInspected, FuelAndFluid: t.FuelAndFluidsInspected}, Status: string(t.Status), Scheduled: t.Scheduled, SeatLeft: t.SeatLeft, Vehicle: func() *VehicleResponseData {
-					if v, err := t.Edges.VehicleOrErr(); err == nil {
-						return &VehicleResponseData{ID: v.ID, RegistrationNumber: v.RegistrationNumber, Model: v.Model, Seat: v.Seat, Images: func() []*VehicleImageResponseData {
-							if images, err := v.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
-								response := make([]*VehicleImageResponseData, 0, len(images))
-								for _, image := range images {
-									response = append(response, &VehicleImageResponseData{ID: image.ID, Image: image.Image})
+				return &TripResponseData{
+					ID:               t.ID,
+					DepartureDate:    t.DepartureDate,
+					ArrivalDate:      t.ArrivalDate,
+					ReturnDate:       parseNullDatetime(t.ReturnDate),
+					Type:             string(t.Type),
+					InspectionStatus: &TripInspectionStatus{Exterior: t.ExteriorInspected, Interior: t.InteriorInspected, EngineCompartment: t.EngineCompartmentInspected, BrakeAndSteering: t.BrakeAndSteeringInspected, EmergencyEquipment: t.EmergencyEquipmentInspected, FuelAndFluid: t.FuelAndFluidsInspected},
+					Status:           string(t.Status),
+					Scheduled:        t.Scheduled,
+					SeatLeft:         t.SeatLeft,
+					Rate:             t.Rate,
+					Discount:         t.Discount,
+					Terminal:         &TripTerminalResponseData{},
+					Vehicle: func() *VehicleResponseData {
+						if v, err := t.Edges.VehicleOrErr(); err == nil {
+							return &VehicleResponseData{ID: v.ID, RegistrationNumber: v.RegistrationNumber, Model: v.Model, Seat: v.Seat, Images: func() []*VehicleImageResponseData {
+								if images, err := v.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
+									response := make([]*VehicleImageResponseData, 0, len(images))
+									for _, image := range images {
+										response = append(response, &VehicleImageResponseData{ID: image.ID, Image: image.Image})
+									}
+									return response
 								}
-								return response
-							}
-							return nil
-						}()}
-					}
-					return nil
-				}(), Route: func() *RouteResponseData {
-					if r, err := t.Edges.RouteOrErr(); err == nil {
-						return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Rate: r.Rate, Discount: r.Discount, Stops: func() []*RouteStopResponseData {
-							if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
-								response := make([]*RouteStopResponseData, 0, len(stops))
-								for _, s := range stops {
-									response = append(response, &RouteStopResponseData{ID: s.ID, Latitude: s.Latitude, Longitude: s.Longitude})
+								return nil
+							}()}
+						}
+						return nil
+					}(),
+					Route: func() *RouteResponseData {
+						if r, err := t.Edges.RouteOrErr(); err == nil {
+							return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Stops: func() []*RouteStopResponseData {
+								if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
+									response := make([]*RouteStopResponseData, 0, len(stops))
+									for _, s := range stops {
+										response = append(response, &RouteStopResponseData{ID: s.ID, Latitude: s.Latitude, Longitude: s.Longitude})
+									}
+									return response
 								}
-								return response
-							}
-							return nil
-						}()}
-					}
-					return nil
-				}(), Driver: func() *CompanyUserResponseData {
-					if d, err := t.Edges.DriverOrErr(); err == nil {
-						return &CompanyUserResponseData{ID: d.ID, LastName: d.LastName, OtherName: d.OtherName, Phone: d.Phone, OtherPhone: d.OtherPhone}
-					}
-					return nil
-				}(), Company: func() *CompanyResponseData {
-					if c, err := t.Edges.CompanyOrErr(); err == nil {
-						return &CompanyResponseData{ID: c.ID, Name: c.Name, Phone: c.Phone, Email: c.Email}
-					}
-					return nil
-				}()}
+								return nil
+							}()}
+						}
+						return nil
+					}(),
+					Driver: func() *CompanyUserResponseData {
+						if d, err := t.Edges.DriverOrErr(); err == nil {
+							return &CompanyUserResponseData{ID: d.ID, LastName: d.LastName, OtherName: d.OtherName, Phone: d.Phone, OtherPhone: d.OtherPhone}
+						}
+						return nil
+					}(),
+					Company: func() *CompanyResponseData {
+						if c, err := t.Edges.CompanyOrErr(); err == nil {
+							return &CompanyResponseData{ID: c.ID, Name: c.Name, Phone: c.Phone, Email: c.Email}
+						}
+						return nil
+					}(),
+					Bookings:  []*BookingResponseData{},
+					Delivery:  []*ParcelResponseData{},
+					Incident:  []*IncidentResponseData{},
+					CreatedAt: nil,
+					UpdatedAt: data,
+				}
 			}
 			return nil
 		}(),
@@ -115,45 +137,67 @@ func IncidentsResponse(data *PaginationResponse) *fiber.Map {
 			}(),
 			Trip: func() *TripResponseData {
 				if t, err := i.Edges.TripOrErr(); err == nil {
-					return &TripResponseData{ID: t.ID, DepartureDate: t.DepartureDate, ArrivalDate: t.ArrivalDate, ReturnDate: parseNullDatetime(t.ReturnDate), Type: string(t.Type), InspectionStatus: &TripInspectionStatus{Exterior: t.ExteriorInspected, Interior: t.InteriorInspected, EngineCompartment: t.EngineCompartmentInspected, BrakeAndSteering: t.BrakeAndSteeringInspected, EmergencyEquipment: t.EmergencyEquipmentInspected, FuelAndFluid: t.FuelAndFluidsInspected}, Status: string(t.Status), Scheduled: t.Scheduled, SeatLeft: t.SeatLeft, Vehicle: func() *VehicleResponseData {
-						if v, err := t.Edges.VehicleOrErr(); err == nil {
-							return &VehicleResponseData{ID: v.ID, RegistrationNumber: v.RegistrationNumber, Model: v.Model, Seat: v.Seat, Images: func() []*VehicleImageResponseData {
-								if images, err := v.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
-									response := make([]*VehicleImageResponseData, 0, len(images))
-									for _, image := range images {
-										response = append(response, &VehicleImageResponseData{ID: image.ID, Image: image.Image})
+					return &TripResponseData{
+						ID:               t.ID,
+						DepartureDate:    t.DepartureDate,
+						ArrivalDate:      t.ArrivalDate,
+						ReturnDate:       parseNullDatetime(t.ReturnDate),
+						Type:             string(t.Type),
+						InspectionStatus: &TripInspectionStatus{Exterior: t.ExteriorInspected, Interior: t.InteriorInspected, EngineCompartment: t.EngineCompartmentInspected, BrakeAndSteering: t.BrakeAndSteeringInspected, EmergencyEquipment: t.EmergencyEquipmentInspected, FuelAndFluid: t.FuelAndFluidsInspected},
+						Status:           string(t.Status),
+						Scheduled:        t.Scheduled,
+						SeatLeft:         t.SeatLeft,
+						Rate:             t.Rate,
+						Discount:         t.Discount,
+						Terminal:         &TripTerminalResponseData{},
+						Vehicle: func() *VehicleResponseData {
+							if v, err := t.Edges.VehicleOrErr(); err == nil {
+								return &VehicleResponseData{ID: v.ID, RegistrationNumber: v.RegistrationNumber, Model: v.Model, Seat: v.Seat, Images: func() []*VehicleImageResponseData {
+									if images, err := v.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
+										response := make([]*VehicleImageResponseData, 0, len(images))
+										for _, image := range images {
+											response = append(response, &VehicleImageResponseData{ID: image.ID, Image: image.Image})
+										}
+										return response
 									}
-									return response
-								}
-								return nil
-							}()}
-						}
-						return nil
-					}(), Route: func() *RouteResponseData {
-						if r, err := t.Edges.RouteOrErr(); err == nil {
-							return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Rate: r.Rate, Discount: r.Discount, Stops: func() []*RouteStopResponseData {
-								if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
-									response := make([]*RouteStopResponseData, 0, len(stops))
-									for _, s := range stops {
-										response = append(response, &RouteStopResponseData{ID: s.ID, Latitude: s.Latitude, Longitude: s.Longitude})
+									return nil
+								}()}
+							}
+							return nil
+						}(),
+						Route: func() *RouteResponseData {
+							if r, err := t.Edges.RouteOrErr(); err == nil {
+								return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Stops: func() []*RouteStopResponseData {
+									if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
+										response := make([]*RouteStopResponseData, 0, len(stops))
+										for _, s := range stops {
+											response = append(response, &RouteStopResponseData{ID: s.ID, Latitude: s.Latitude, Longitude: s.Longitude})
+										}
+										return response
 									}
-									return response
-								}
-								return nil
-							}()}
-						}
-						return nil
-					}(), Driver: func() *CompanyUserResponseData {
-						if d, err := t.Edges.DriverOrErr(); err == nil {
-							return &CompanyUserResponseData{ID: d.ID, LastName: d.LastName, OtherName: d.OtherName, Phone: d.Phone, OtherPhone: d.OtherPhone}
-						}
-						return nil
-					}(), Company: func() *CompanyResponseData {
-						if c, err := t.Edges.CompanyOrErr(); err == nil {
-							return &CompanyResponseData{ID: c.ID, Name: c.Name, Phone: c.Phone, Email: c.Email}
-						}
-						return nil
-					}()}
+									return nil
+								}()}
+							}
+							return nil
+						}(),
+						Driver: func() *CompanyUserResponseData {
+							if d, err := t.Edges.DriverOrErr(); err == nil {
+								return &CompanyUserResponseData{ID: d.ID, LastName: d.LastName, OtherName: d.OtherName, Phone: d.Phone, OtherPhone: d.OtherPhone}
+							}
+							return nil
+						}(),
+						Company: func() *CompanyResponseData {
+							if c, err := t.Edges.CompanyOrErr(); err == nil {
+								return &CompanyResponseData{ID: c.ID, Name: c.Name, Phone: c.Phone, Email: c.Email}
+							}
+							return nil
+						}(),
+						Bookings:  []*BookingResponseData{},
+						Delivery:  []*ParcelResponseData{},
+						Incident:  []*IncidentResponseData{},
+						CreatedAt: nil,
+						UpdatedAt: data,
+					}
 				}
 				return nil
 			}(),

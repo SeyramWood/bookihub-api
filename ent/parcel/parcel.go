@@ -37,16 +37,12 @@ const (
 	FieldRecipientLocation = "recipient_location"
 	// FieldWeight holds the string denoting the weight field in the database.
 	FieldWeight = "weight"
-	// FieldAmount holds the string denoting the amount field in the database.
-	FieldAmount = "amount"
-	// FieldPaidAt holds the string denoting the paid_at field in the database.
-	FieldPaidAt = "paid_at"
-	// FieldTansType holds the string denoting the tans_type field in the database.
-	FieldTansType = "tans_type"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// EdgeImages holds the string denoting the images edge name in mutations.
 	EdgeImages = "images"
+	// EdgeTransaction holds the string denoting the transaction edge name in mutations.
+	EdgeTransaction = "transaction"
 	// EdgeTrip holds the string denoting the trip edge name in mutations.
 	EdgeTrip = "trip"
 	// EdgeCompany holds the string denoting the company edge name in mutations.
@@ -62,6 +58,13 @@ const (
 	ImagesInverseTable = "parcel_images"
 	// ImagesColumn is the table column denoting the images relation/edge.
 	ImagesColumn = "parcel_images"
+	// TransactionTable is the table that holds the transaction relation/edge.
+	TransactionTable = "transactions"
+	// TransactionInverseTable is the table name for the Transaction entity.
+	// It exists in this package in order to avoid circular dependency with the "transaction" package.
+	TransactionInverseTable = "transactions"
+	// TransactionColumn is the table column denoting the transaction relation/edge.
+	TransactionColumn = "parcel_transaction"
 	// TripTable is the table that holds the trip relation/edge.
 	TripTable = "parcels"
 	// TripInverseTable is the table name for the Trip entity.
@@ -99,9 +102,6 @@ var Columns = []string{
 	FieldRecipientPhone,
 	FieldRecipientLocation,
 	FieldWeight,
-	FieldAmount,
-	FieldPaidAt,
-	FieldTansType,
 	FieldStatus,
 }
 
@@ -151,36 +151,7 @@ var (
 	RecipientPhoneValidator func(string) error
 	// RecipientLocationValidator is a validator for the "recipient_location" field. It is called by the builders before save.
 	RecipientLocationValidator func(string) error
-	// DefaultAmount holds the default value on creation for the "amount" field.
-	DefaultAmount float64
 )
-
-// TansType defines the type for the "tans_type" enum field.
-type TansType string
-
-// TansTypeCash is the default value of the TansType enum.
-const DefaultTansType = TansTypeCash
-
-// TansType values.
-const (
-	TansTypeMomo TansType = "momo"
-	TansTypeCard TansType = "card"
-	TansTypeCash TansType = "cash"
-)
-
-func (tt TansType) String() string {
-	return string(tt)
-}
-
-// TansTypeValidator is a validator for the "tans_type" field enum values. It is called by the builders before save.
-func TansTypeValidator(tt TansType) error {
-	switch tt {
-	case TansTypeMomo, TansTypeCard, TansTypeCash:
-		return nil
-	default:
-		return fmt.Errorf("parcel: invalid enum value for tans_type field: %q", tt)
-	}
-}
 
 // Status defines the type for the "status" enum field.
 type Status string
@@ -271,21 +242,6 @@ func ByWeight(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldWeight, opts...).ToFunc()
 }
 
-// ByAmount orders the results by the amount field.
-func ByAmount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAmount, opts...).ToFunc()
-}
-
-// ByPaidAt orders the results by the paid_at field.
-func ByPaidAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPaidAt, opts...).ToFunc()
-}
-
-// ByTansType orders the results by the tans_type field.
-func ByTansType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTansType, opts...).ToFunc()
-}
-
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
@@ -302,6 +258,13 @@ func ByImagesCount(opts ...sql.OrderTermOption) OrderOption {
 func ByImages(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newImagesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTransactionField orders the results by transaction field.
+func ByTransactionField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTransactionStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -330,6 +293,13 @@ func newImagesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ImagesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ImagesTable, ImagesColumn),
+	)
+}
+func newTransactionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TransactionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, TransactionTable, TransactionColumn),
 	)
 }
 func newTripStep() *sqlgraph.Step {

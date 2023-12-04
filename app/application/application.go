@@ -93,7 +93,6 @@ func combinations(input []string, prefix []string, index int, result *[][]string
 		}
 		return
 	}
-
 	// Include the current element in the combination
 	combinations(input, append(prefix, input[index]), index+1, result)
 
@@ -134,6 +133,13 @@ func ParseRFC3339Datetime(rfc3339Datetime ...string) time.Time {
 }
 func IsRFC3339Datetime(rfc3339Datetime string) bool {
 	_, err := time.Parse(time.RFC3339, rfc3339Datetime)
+	if err != nil {
+		return false
+	}
+	return true
+}
+func IsTime(timeString string) bool {
+	_, err := time.Parse(time.TimeOnly, timeString)
 	if err != nil {
 		return false
 	}

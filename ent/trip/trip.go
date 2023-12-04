@@ -43,6 +43,10 @@ const (
 	FieldScheduled = "scheduled"
 	// FieldSeatLeft holds the string denoting the seat_left field in the database.
 	FieldSeatLeft = "seat_left"
+	// FieldRate holds the string denoting the rate field in the database.
+	FieldRate = "rate"
+	// FieldDiscount holds the string denoting the discount field in the database.
+	FieldDiscount = "discount"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// EdgeCompany holds the string denoting the company edge name in mutations.
@@ -147,6 +151,8 @@ var Columns = []string{
 	FieldFuelAndFluidsInspected,
 	FieldScheduled,
 	FieldSeatLeft,
+	FieldRate,
+	FieldDiscount,
 	FieldStatus,
 }
 
@@ -199,6 +205,10 @@ var (
 	DefaultScheduled bool
 	// DefaultSeatLeft holds the default value on creation for the "seat_left" field.
 	DefaultSeatLeft int
+	// DefaultRate holds the default value on creation for the "rate" field.
+	DefaultRate float64
+	// DefaultDiscount holds the default value on creation for the "discount" field.
+	DefaultDiscount float32
 )
 
 // Type defines the type for the "type" enum field.
@@ -326,6 +336,16 @@ func ByScheduled(opts ...sql.OrderTermOption) OrderOption {
 // BySeatLeft orders the results by the seat_left field.
 func BySeatLeft(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSeatLeft, opts...).ToFunc()
+}
+
+// ByRate orders the results by the rate field.
+func ByRate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRate, opts...).ToFunc()
+}
+
+// ByDiscount orders the results by the discount field.
+func ByDiscount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDiscount, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

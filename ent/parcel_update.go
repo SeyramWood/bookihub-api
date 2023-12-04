@@ -16,6 +16,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/parcel"
 	"github.com/SeyramWood/bookibus/ent/parcelimage"
 	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
@@ -114,61 +115,6 @@ func (pu *ParcelUpdate) ClearWeight() *ParcelUpdate {
 	return pu
 }
 
-// SetAmount sets the "amount" field.
-func (pu *ParcelUpdate) SetAmount(f float64) *ParcelUpdate {
-	pu.mutation.ResetAmount()
-	pu.mutation.SetAmount(f)
-	return pu
-}
-
-// SetNillableAmount sets the "amount" field if the given value is not nil.
-func (pu *ParcelUpdate) SetNillableAmount(f *float64) *ParcelUpdate {
-	if f != nil {
-		pu.SetAmount(*f)
-	}
-	return pu
-}
-
-// AddAmount adds f to the "amount" field.
-func (pu *ParcelUpdate) AddAmount(f float64) *ParcelUpdate {
-	pu.mutation.AddAmount(f)
-	return pu
-}
-
-// SetPaidAt sets the "paid_at" field.
-func (pu *ParcelUpdate) SetPaidAt(t time.Time) *ParcelUpdate {
-	pu.mutation.SetPaidAt(t)
-	return pu
-}
-
-// SetNillablePaidAt sets the "paid_at" field if the given value is not nil.
-func (pu *ParcelUpdate) SetNillablePaidAt(t *time.Time) *ParcelUpdate {
-	if t != nil {
-		pu.SetPaidAt(*t)
-	}
-	return pu
-}
-
-// ClearPaidAt clears the value of the "paid_at" field.
-func (pu *ParcelUpdate) ClearPaidAt() *ParcelUpdate {
-	pu.mutation.ClearPaidAt()
-	return pu
-}
-
-// SetTansType sets the "tans_type" field.
-func (pu *ParcelUpdate) SetTansType(pt parcel.TansType) *ParcelUpdate {
-	pu.mutation.SetTansType(pt)
-	return pu
-}
-
-// SetNillableTansType sets the "tans_type" field if the given value is not nil.
-func (pu *ParcelUpdate) SetNillableTansType(pt *parcel.TansType) *ParcelUpdate {
-	if pt != nil {
-		pu.SetTansType(*pt)
-	}
-	return pu
-}
-
 // SetStatus sets the "status" field.
 func (pu *ParcelUpdate) SetStatus(pa parcel.Status) *ParcelUpdate {
 	pu.mutation.SetStatus(pa)
@@ -196,6 +142,25 @@ func (pu *ParcelUpdate) AddImages(p ...*ParcelImage) *ParcelUpdate {
 		ids[i] = p[i].ID
 	}
 	return pu.AddImageIDs(ids...)
+}
+
+// SetTransactionID sets the "transaction" edge to the Transaction entity by ID.
+func (pu *ParcelUpdate) SetTransactionID(id int) *ParcelUpdate {
+	pu.mutation.SetTransactionID(id)
+	return pu
+}
+
+// SetNillableTransactionID sets the "transaction" edge to the Transaction entity by ID if the given value is not nil.
+func (pu *ParcelUpdate) SetNillableTransactionID(id *int) *ParcelUpdate {
+	if id != nil {
+		pu = pu.SetTransactionID(*id)
+	}
+	return pu
+}
+
+// SetTransaction sets the "transaction" edge to the Transaction entity.
+func (pu *ParcelUpdate) SetTransaction(t *Transaction) *ParcelUpdate {
+	return pu.SetTransactionID(t.ID)
 }
 
 // SetTripID sets the "trip" edge to the Trip entity by ID.
@@ -279,6 +244,12 @@ func (pu *ParcelUpdate) RemoveImages(p ...*ParcelImage) *ParcelUpdate {
 		ids[i] = p[i].ID
 	}
 	return pu.RemoveImageIDs(ids...)
+}
+
+// ClearTransaction clears the "transaction" edge to the Transaction entity.
+func (pu *ParcelUpdate) ClearTransaction() *ParcelUpdate {
+	pu.mutation.ClearTransaction()
+	return pu
 }
 
 // ClearTrip clears the "trip" edge to the Trip entity.
@@ -377,11 +348,6 @@ func (pu *ParcelUpdate) check() error {
 			return &ValidationError{Name: "recipient_location", err: fmt.Errorf(`ent: validator failed for field "Parcel.recipient_location": %w`, err)}
 		}
 	}
-	if v, ok := pu.mutation.TansType(); ok {
-		if err := parcel.TansTypeValidator(v); err != nil {
-			return &ValidationError{Name: "tans_type", err: fmt.Errorf(`ent: validator failed for field "Parcel.tans_type": %w`, err)}
-		}
-	}
 	if v, ok := pu.mutation.Status(); ok {
 		if err := parcel.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Parcel.status": %w`, err)}
@@ -444,21 +410,6 @@ func (pu *ParcelUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if pu.mutation.WeightCleared() {
 		_spec.ClearField(parcel.FieldWeight, field.TypeFloat32)
 	}
-	if value, ok := pu.mutation.Amount(); ok {
-		_spec.SetField(parcel.FieldAmount, field.TypeFloat64, value)
-	}
-	if value, ok := pu.mutation.AddedAmount(); ok {
-		_spec.AddField(parcel.FieldAmount, field.TypeFloat64, value)
-	}
-	if value, ok := pu.mutation.PaidAt(); ok {
-		_spec.SetField(parcel.FieldPaidAt, field.TypeTime, value)
-	}
-	if pu.mutation.PaidAtCleared() {
-		_spec.ClearField(parcel.FieldPaidAt, field.TypeTime)
-	}
-	if value, ok := pu.mutation.TansType(); ok {
-		_spec.SetField(parcel.FieldTansType, field.TypeEnum, value)
-	}
 	if value, ok := pu.mutation.Status(); ok {
 		_spec.SetField(parcel.FieldStatus, field.TypeEnum, value)
 	}
@@ -500,6 +451,35 @@ func (pu *ParcelUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(parcelimage.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pu.mutation.TransactionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   parcel.TransactionTable,
+			Columns: []string{parcel.TransactionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.TransactionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   parcel.TransactionTable,
+			Columns: []string{parcel.TransactionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -697,61 +677,6 @@ func (puo *ParcelUpdateOne) ClearWeight() *ParcelUpdateOne {
 	return puo
 }
 
-// SetAmount sets the "amount" field.
-func (puo *ParcelUpdateOne) SetAmount(f float64) *ParcelUpdateOne {
-	puo.mutation.ResetAmount()
-	puo.mutation.SetAmount(f)
-	return puo
-}
-
-// SetNillableAmount sets the "amount" field if the given value is not nil.
-func (puo *ParcelUpdateOne) SetNillableAmount(f *float64) *ParcelUpdateOne {
-	if f != nil {
-		puo.SetAmount(*f)
-	}
-	return puo
-}
-
-// AddAmount adds f to the "amount" field.
-func (puo *ParcelUpdateOne) AddAmount(f float64) *ParcelUpdateOne {
-	puo.mutation.AddAmount(f)
-	return puo
-}
-
-// SetPaidAt sets the "paid_at" field.
-func (puo *ParcelUpdateOne) SetPaidAt(t time.Time) *ParcelUpdateOne {
-	puo.mutation.SetPaidAt(t)
-	return puo
-}
-
-// SetNillablePaidAt sets the "paid_at" field if the given value is not nil.
-func (puo *ParcelUpdateOne) SetNillablePaidAt(t *time.Time) *ParcelUpdateOne {
-	if t != nil {
-		puo.SetPaidAt(*t)
-	}
-	return puo
-}
-
-// ClearPaidAt clears the value of the "paid_at" field.
-func (puo *ParcelUpdateOne) ClearPaidAt() *ParcelUpdateOne {
-	puo.mutation.ClearPaidAt()
-	return puo
-}
-
-// SetTansType sets the "tans_type" field.
-func (puo *ParcelUpdateOne) SetTansType(pt parcel.TansType) *ParcelUpdateOne {
-	puo.mutation.SetTansType(pt)
-	return puo
-}
-
-// SetNillableTansType sets the "tans_type" field if the given value is not nil.
-func (puo *ParcelUpdateOne) SetNillableTansType(pt *parcel.TansType) *ParcelUpdateOne {
-	if pt != nil {
-		puo.SetTansType(*pt)
-	}
-	return puo
-}
-
 // SetStatus sets the "status" field.
 func (puo *ParcelUpdateOne) SetStatus(pa parcel.Status) *ParcelUpdateOne {
 	puo.mutation.SetStatus(pa)
@@ -779,6 +704,25 @@ func (puo *ParcelUpdateOne) AddImages(p ...*ParcelImage) *ParcelUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return puo.AddImageIDs(ids...)
+}
+
+// SetTransactionID sets the "transaction" edge to the Transaction entity by ID.
+func (puo *ParcelUpdateOne) SetTransactionID(id int) *ParcelUpdateOne {
+	puo.mutation.SetTransactionID(id)
+	return puo
+}
+
+// SetNillableTransactionID sets the "transaction" edge to the Transaction entity by ID if the given value is not nil.
+func (puo *ParcelUpdateOne) SetNillableTransactionID(id *int) *ParcelUpdateOne {
+	if id != nil {
+		puo = puo.SetTransactionID(*id)
+	}
+	return puo
+}
+
+// SetTransaction sets the "transaction" edge to the Transaction entity.
+func (puo *ParcelUpdateOne) SetTransaction(t *Transaction) *ParcelUpdateOne {
+	return puo.SetTransactionID(t.ID)
 }
 
 // SetTripID sets the "trip" edge to the Trip entity by ID.
@@ -862,6 +806,12 @@ func (puo *ParcelUpdateOne) RemoveImages(p ...*ParcelImage) *ParcelUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return puo.RemoveImageIDs(ids...)
+}
+
+// ClearTransaction clears the "transaction" edge to the Transaction entity.
+func (puo *ParcelUpdateOne) ClearTransaction() *ParcelUpdateOne {
+	puo.mutation.ClearTransaction()
+	return puo
 }
 
 // ClearTrip clears the "trip" edge to the Trip entity.
@@ -973,11 +923,6 @@ func (puo *ParcelUpdateOne) check() error {
 			return &ValidationError{Name: "recipient_location", err: fmt.Errorf(`ent: validator failed for field "Parcel.recipient_location": %w`, err)}
 		}
 	}
-	if v, ok := puo.mutation.TansType(); ok {
-		if err := parcel.TansTypeValidator(v); err != nil {
-			return &ValidationError{Name: "tans_type", err: fmt.Errorf(`ent: validator failed for field "Parcel.tans_type": %w`, err)}
-		}
-	}
 	if v, ok := puo.mutation.Status(); ok {
 		if err := parcel.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Parcel.status": %w`, err)}
@@ -1057,21 +1002,6 @@ func (puo *ParcelUpdateOne) sqlSave(ctx context.Context) (_node *Parcel, err err
 	if puo.mutation.WeightCleared() {
 		_spec.ClearField(parcel.FieldWeight, field.TypeFloat32)
 	}
-	if value, ok := puo.mutation.Amount(); ok {
-		_spec.SetField(parcel.FieldAmount, field.TypeFloat64, value)
-	}
-	if value, ok := puo.mutation.AddedAmount(); ok {
-		_spec.AddField(parcel.FieldAmount, field.TypeFloat64, value)
-	}
-	if value, ok := puo.mutation.PaidAt(); ok {
-		_spec.SetField(parcel.FieldPaidAt, field.TypeTime, value)
-	}
-	if puo.mutation.PaidAtCleared() {
-		_spec.ClearField(parcel.FieldPaidAt, field.TypeTime)
-	}
-	if value, ok := puo.mutation.TansType(); ok {
-		_spec.SetField(parcel.FieldTansType, field.TypeEnum, value)
-	}
 	if value, ok := puo.mutation.Status(); ok {
 		_spec.SetField(parcel.FieldStatus, field.TypeEnum, value)
 	}
@@ -1113,6 +1043,35 @@ func (puo *ParcelUpdateOne) sqlSave(ctx context.Context) (_node *Parcel, err err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(parcelimage.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if puo.mutation.TransactionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   parcel.TransactionTable,
+			Columns: []string{parcel.TransactionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.TransactionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   parcel.TransactionTable,
+			Columns: []string{parcel.TransactionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

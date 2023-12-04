@@ -17,6 +17,13 @@ type (
 		CreatedAt  any    `json:"createdAt"`
 		UpdatedAt  any    `json:"updatedAt"`
 	}
+	ChargeResponseData struct {
+		ID                       int     `json:"id"`
+		PaymentGatewayServiceFee float32 `json:"paymentGatewayServiceFee"`
+		TripServiceFee           float32 `json:"tripServiceFee"`
+		ParcelServiceFee         float32 `json:"deliveryServiceFee"`
+		TripCancellationFee      float32 `json:"tripCancellationFee"`
+	}
 )
 
 func BookibusUserResponse(data *ent.BookibusUser) *fiber.Map {
@@ -47,4 +54,17 @@ func BookibusUsersResponse(data *PaginationResponse) *fiber.Map {
 	}
 	data.Data = response
 	return SuccessResponse(data)
+}
+
+func ChargeResponse(data *ent.Configuration) *fiber.Map {
+	if data == nil {
+		return SuccessResponse(nil)
+	}
+	return SuccessResponse(&ChargeResponseData{
+		ID:                       data.ID,
+		PaymentGatewayServiceFee: data.Charge.PaymentGatewayServiceFee,
+		TripServiceFee:           data.Charge.TripServiceFee,
+		ParcelServiceFee:         data.Charge.ParcelServiceFee,
+		TripCancellationFee:      data.Charge.TripCancellationFee,
+	})
 }

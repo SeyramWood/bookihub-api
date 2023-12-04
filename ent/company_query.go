@@ -20,6 +20,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/predicate"
 	"github.com/SeyramWood/bookibus/ent/route"
 	"github.com/SeyramWood/bookibus/ent/terminal"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
@@ -39,6 +40,7 @@ type CompanyQuery struct {
 	withBookings      *BookingQuery
 	withIncidents     *IncidentQuery
 	withParcels       *ParcelQuery
+	withTransactions  *TransactionQuery
 	withNotifications *NotificationQuery
 	modifiers         []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
@@ -246,6 +248,28 @@ func (cq *CompanyQuery) QueryParcels() *ParcelQuery {
 			sqlgraph.From(company.Table, company.FieldID, selector),
 			sqlgraph.To(parcel.Table, parcel.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, company.ParcelsTable, company.ParcelsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTransactions chains the current query on the "transactions" edge.
+func (cq *CompanyQuery) QueryTransactions() *TransactionQuery {
+	query := (&TransactionClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, selector),
+			sqlgraph.To(transaction.Table, transaction.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, company.TransactionsTable, company.TransactionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -475,6 +499,7 @@ func (cq *CompanyQuery) Clone() *CompanyQuery {
 		withBookings:      cq.withBookings.Clone(),
 		withIncidents:     cq.withIncidents.Clone(),
 		withParcels:       cq.withParcels.Clone(),
+		withTransactions:  cq.withTransactions.Clone(),
 		withNotifications: cq.withNotifications.Clone(),
 		// clone intermediate query.
 		sql:  cq.sql.Clone(),
@@ -570,6 +595,17 @@ func (cq *CompanyQuery) WithParcels(opts ...func(*ParcelQuery)) *CompanyQuery {
 	return cq
 }
 
+// WithTransactions tells the query-builder to eager-load the nodes that are connected to
+// the "transactions" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CompanyQuery) WithTransactions(opts ...func(*TransactionQuery)) *CompanyQuery {
+	query := (&TransactionClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withTransactions = query
+	return cq
+}
+
 // WithNotifications tells the query-builder to eager-load the nodes that are connected to
 // the "notifications" edge. The optional arguments are used to configure the query builder of the edge.
 func (cq *CompanyQuery) WithNotifications(opts ...func(*NotificationQuery)) *CompanyQuery {
@@ -659,7 +695,7 @@ func (cq *CompanyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Comp
 	var (
 		nodes       = []*Company{}
 		_spec       = cq.querySpec()
-		loadedTypes = [9]bool{
+		loadedTypes = [10]bool{
 			cq.withProfile != nil,
 			cq.withTerminals != nil,
 			cq.withVehicles != nil,
@@ -668,6 +704,7 @@ func (cq *CompanyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Comp
 			cq.withBookings != nil,
 			cq.withIncidents != nil,
 			cq.withParcels != nil,
+			cq.withTransactions != nil,
 			cq.withNotifications != nil,
 		}
 	)
@@ -745,6 +782,13 @@ func (cq *CompanyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Comp
 		if err := cq.loadParcels(ctx, query, nodes,
 			func(n *Company) { n.Edges.Parcels = []*Parcel{} },
 			func(n *Company, e *Parcel) { n.Edges.Parcels = append(n.Edges.Parcels, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withTransactions; query != nil {
+		if err := cq.loadTransactions(ctx, query, nodes,
+			func(n *Company) { n.Edges.Transactions = []*Transaction{} },
+			func(n *Company, e *Transaction) { n.Edges.Transactions = append(n.Edges.Transactions, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1001,6 +1045,37 @@ func (cq *CompanyQuery) loadParcels(ctx context.Context, query *ParcelQuery, nod
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "company_parcels" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (cq *CompanyQuery) loadTransactions(ctx context.Context, query *TransactionQuery, nodes []*Company, init func(*Company), assign func(*Company, *Transaction)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Company)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Transaction(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(company.TransactionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.company_transactions
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "company_transactions" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "company_transactions" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -43,7 +43,7 @@ func (Company) Fields() []ent.Field {
 		field.String("certificate").Optional(),
 		field.JSON("bank_account", &BankAccount{}).Optional(),
 		field.JSON("contact_person", &ContactPerson{}).Optional(),
-		field.Enum("status").Values("unverified", "verified").Default("unverified"),
+		field.Enum("onboarding_status").Values("pending", "approved", "rejected").Default("pending"),
 	}
 }
 
@@ -65,6 +65,8 @@ func (Company) Edges() []ent.Edge {
 		edge.To("incidents", Incident.Type).
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.To("parcels", Parcel.Type).
+			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
+		edge.To("transactions", Transaction.Type).
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.To("notifications", Notification.Type).
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),

@@ -61,6 +61,10 @@ type (
 		APIKey string
 		URL    string
 	}
+	contact struct {
+		Email string
+		Phone string
+	}
 )
 
 func App() *app {
@@ -185,4 +189,16 @@ func Paystack() *paystack {
 		Domain: env.Get("PAYSTACK_DOMAIN", ""),
 	}
 
+}
+func Contact() *contact {
+	if os.Getenv("APP_ENV") == "production" {
+		return &contact{
+			Email: os.Getenv("APP_EMAIL"),
+			Phone: os.Getenv("APP_PHONE"),
+		}
+	}
+	return &contact{
+		Email: env.Get("APP_EMAIL", "tech@bookihub.com"),
+		Phone: env.Get("APP_PHONE", ""),
+	}
 }

@@ -11,16 +11,20 @@ import (
 	"github.com/SeyramWood/bookibus/app/adapters/gateways"
 	"github.com/SeyramWood/bookibus/app/adapters/presenters"
 	"github.com/SeyramWood/bookibus/app/application"
+	"github.com/SeyramWood/bookibus/app/domain"
 	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
 	"github.com/SeyramWood/bookibus/app/framework/database"
 	"github.com/SeyramWood/bookibus/ent"
 	"github.com/SeyramWood/bookibus/ent/booking"
 	"github.com/SeyramWood/bookibus/ent/company"
+	"github.com/SeyramWood/bookibus/ent/configuration"
 	"github.com/SeyramWood/bookibus/ent/customer"
 	"github.com/SeyramWood/bookibus/ent/customercontact"
 	"github.com/SeyramWood/bookibus/ent/customerluggage"
 	"github.com/SeyramWood/bookibus/ent/passenger"
 	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/schema"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 	"github.com/SeyramWood/bookibus/ent/user"
 )
@@ -39,7 +43,23 @@ func NewRepository(db *database.Adapter) gateways.BookingRepo {
 
 // CancelBooking implements gateways.BookingRepo.
 func (r *repository) CancelBooking(id int, request *requeststructs.BookingCancelRequest) (*ent.Booking, error) {
-	return r.db.Booking.UpdateOneID(id).SetRefundAmount(request.Amount).SetStatus(booking.StatusCanceled).SetRefundAt(time.Now()).Save(r.ctx)
+	tx, err := r.db.Tx(r.ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error starting a transaction: %w", err)
+	}
+	_, err = tx.Booking.UpdateOneID(id).SetStatus(booking.StatusCanceled).Save(r.ctx)
+	if err != nil {
+		return nil, application.Rollback(tx, fmt.Errorf("failed updating booking: %w", err))
+	}
+	_, err = tx.Transaction.Update().
+		Where(transaction.HasBookingWith(booking.ID(id))).
+		SetCancellationFee(domain.ComputeCancellationFee(r.readCharge().TripCancellationFee, request.Amount)).
+		SetCanceledAt(time.Now()).
+		Save(r.ctx)
+	if err != nil {
+		return nil, application.Rollback(tx, fmt.Errorf("failed updating transaction: %w", err))
+	}
+	return r.Read(id)
 }
 
 // Delete implements gateways.BookingRepo.
@@ -54,24 +74,19 @@ func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse 
 		return nil, fmt.Errorf("no available seats")
 	}
 	if len(request.Passenger) > seatLeft {
-		return nil, fmt.Errorf("passengers are more than available seats")
+		return nil, fmt.Errorf("only %d seats available", seatLeft)
 	}
 	tx, err := r.db.Tx(r.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error starting a transaction: %w", err)
 	}
+
 	var result *ent.Booking
 	if request.CustomerID != 0 {
 		res, err := tx.Booking.Create().
-			SetReference(request.Reference).
-			SetBookingNumber(application.OTP(12)).
-			SetVat(request.VAT).
-			SetSmsFee(request.SMSFee).
-			SetAmount(request.Amount).
-			SetTansType(booking.TansType(refResponse.TransType)).
+			SetBookingNumber(domain.ComputeUniqueCode("T")).
 			SetSmsNotification(request.SMSNotification).
 			SetStatus(booking.StatusSuccessful).
-			SetPaidAt(application.ParseRFC3339Datetime(refResponse.PaidAt)).
 			SetTripID(request.TripID).
 			SetCompanyID(request.CompanyID).
 			SetCustomerID(r.db.User.Query().Where(user.ID(request.CustomerID)).QueryCustomer().OnlyIDX(r.ctx)).
@@ -82,15 +97,9 @@ func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse 
 		result = res
 	} else {
 		res, err := tx.Booking.Create().
-			SetReference(request.Reference).
-			SetBookingNumber(application.OTP(12)).
-			SetVat(request.VAT).
-			SetSmsFee(request.SMSFee).
-			SetAmount(request.Amount).
-			SetTansType(booking.TansType(refResponse.TransType)).
+			SetBookingNumber(domain.ComputeUniqueCode("T")).
 			SetSmsNotification(request.SMSNotification).
 			SetStatus(booking.StatusSuccessful).
-			SetPaidAt(application.ParseRFC3339Datetime(refResponse.PaidAt)).
 			SetTripID(request.TripID).
 			SetCompanyID(request.CompanyID).
 			Save(r.ctx)
@@ -130,9 +139,23 @@ func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse 
 			return nil, application.Rollback(tx, fmt.Errorf("failed creating customer luggage: %w", err))
 		}
 	}
+
+	_, err = tx.Transaction.Create().
+		SetReference(request.Reference).
+		SetAmount(request.Amount).
+		SetVat(request.VAT).
+		SetTransactionFee(domain.ComputeTransactionFee(r.readCharge().PaymentGatewayServiceFee, r.readCharge().TripServiceFee, request.Amount)).
+		SetPaidAt(application.ParseRFC3339Datetime(refResponse.PaidAt)).
+		SetChannel(transaction.Channel(refResponse.TransType)).
+		SetBooking(result).
+		SetCompanyID(request.CompanyID).
+		Save(r.ctx)
+	if err != nil {
+		return nil, application.Rollback(tx, fmt.Errorf("failed creating transaction: %w", err))
+	}
 	_, err = tx.Trip.UpdateOneID(request.TripID).SetSeatLeft(seatLeft - len(request.Passenger)).Save(r.ctx)
 	if err != nil {
-		return nil, application.Rollback(tx, fmt.Errorf("failed creating booking on seat left update: %w", err))
+		return nil, application.Rollback(tx, fmt.Errorf("failed updating booking on seat left update: %w", err))
 	}
 	if err = tx.Commit(); err != nil {
 		return nil, fmt.Errorf("failed committing booking creation transaction: %w", err)
@@ -159,7 +182,39 @@ func (r *repository) Read(id int) (*ent.Booking, error) {
 			})
 			tq.WithDriver()
 			tq.WithCompany()
+			tq.WithFromTerminal()
+			tq.WithToTerminal()
 		}).
+		WithTransaction().
+		Only(r.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// ReadByBookingNumber implements gateways.BookingRepo.
+func (r *repository) ReadByBookingNumber(id string) (*ent.Booking, error) {
+	result, err := r.db.Booking.Query().Where(booking.BookingNumber(id)).
+		WithPassengers().
+		WithLuggages().
+		WithContact().
+		WithCustomer(func(cq *ent.CustomerQuery) {
+			cq.WithProfile()
+		}).
+		WithTrip(func(tq *ent.TripQuery) {
+			tq.WithVehicle(func(vq *ent.VehicleQuery) {
+				vq.WithImages()
+			})
+			tq.WithRoute(func(rq *ent.RouteQuery) {
+				rq.WithStops()
+			})
+			tq.WithDriver()
+			tq.WithCompany()
+			tq.WithFromTerminal()
+			tq.WithToTerminal()
+		}).
+		WithTransaction().
 		Only(r.ctx)
 	if err != nil {
 		return nil, err
@@ -373,13 +428,15 @@ func (r *repository) Update(id int, request *requeststructs.BookingUpdateRequest
 	if err != nil {
 		return nil, fmt.Errorf("error starting a transaction: %w", err)
 	}
-
 	result, err := tx.Booking.UpdateOneID(id).
-		SetVat(request.VAT).
-		SetSmsFee(request.SMSFee).
-		SetAmount(request.Amount).
-		SetTansType(booking.TansType(request.TransactionType)).
 		SetSmsNotification(request.SMSNotification).
+		Save(r.ctx)
+	if err != nil {
+		return nil, application.Rollback(tx, fmt.Errorf("failed update booking: %w", err))
+	}
+	_, err = tx.Transaction.UpdateOneID(id).
+		SetAmount(request.Amount).
+		SetChannel(transaction.Channel(request.TransactionType)).
 		Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed update booking: %w", err))
@@ -424,6 +481,10 @@ func (r *repository) Update(id int, request *requeststructs.BookingUpdateRequest
 	return r.Read(result.ID)
 }
 
+func (r *repository) readCharge() *schema.Charge {
+	return r.db.Configuration.Query().Select(configuration.FieldCharge).AllX(r.ctx)[0].Charge
+}
+
 func (r *repository) filterBooking(query *ent.BookingQuery, limit, offset int) (*presenters.PaginationResponse, error) {
 	count := query.CountX(r.ctx)
 	results, err := query.
@@ -445,7 +506,10 @@ func (r *repository) filterBooking(query *ent.BookingQuery, limit, offset int) (
 			})
 			tq.WithDriver()
 			tq.WithCompany()
+			tq.WithFromTerminal()
+			tq.WithToTerminal()
 		}).
+		WithTransaction().
 		All(r.ctx)
 	if err != nil {
 		return nil, err

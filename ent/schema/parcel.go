@@ -31,9 +31,6 @@ func (Parcel) Fields() []ent.Field {
 		field.String("recipient_phone").NotEmpty(),
 		field.String("recipient_location").NotEmpty(),
 		field.Float32("weight").Optional(),
-		field.Float("amount").Default(0.00),
-		field.Time("paid_at").Optional(),
-		field.Enum("tans_type").Values("momo", "card", "cash").Default("cash"),
 		field.Enum("status").Values("outgoing", "delivered").Default("outgoing"),
 	}
 }
@@ -42,6 +39,8 @@ func (Parcel) Fields() []ent.Field {
 func (Parcel) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("images", ParcelImage.Type).
+			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
+		edge.To("transaction", Transaction.Type).Unique().
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.From("trip", Trip.Type).
 			Ref("parcels").

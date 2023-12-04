@@ -219,7 +219,7 @@ func (r *repository) UpdateContactPerson(id int, request *requeststructs.Company
 // UpdateStatus implements gateways.CompanyRepo.
 func (r *repository) UpdateStatus(id int, status string) (*ent.Company, error) {
 	_, err := r.db.Company.UpdateOneID(id).
-		SetStatus(company.Status(status)).
+		SetOnboardingStatus(company.OnboardingStatus(status)).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err

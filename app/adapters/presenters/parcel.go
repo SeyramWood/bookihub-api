@@ -18,12 +18,11 @@ type (
 		RecipientPhone    string                     `json:"recipientPhone"`
 		RecipientLocation string                     `json:"recipientLocation"`
 		Weight            float32                    `json:"weight"`
-		Amount            float64                    `json:"amount"`
-		TransType         string                     `json:"transType"`
 		Status            string                     `json:"status"`
 		Type              string                     `json:"type"`
 		ParcelImages      []*ParcelImageResponseData `json:"packageImages"`
 		RecipientImages   []*ParcelImageResponseData `json:"recipientImages"`
+		Transaction       *TransactionResponseData   `json:"transaction"`
 		Trip              *TripResponseData          `json:"trip"`
 		CreatedAt         any                        `json:"createdAt,omitempty"`
 		UpdatedAt         any                        `json:"updatedAt,omitempty"`
@@ -45,8 +44,6 @@ func ParcelResponse(data *ent.Parcel) *fiber.Map {
 		RecipientPhone:    data.RecipientPhone,
 		RecipientLocation: data.RecipientLocation,
 		Weight:            data.Weight,
-		Amount:            data.Amount,
-		TransType:         string(data.TansType),
 		Status:            string(data.Status),
 		Type:              data.Type,
 		ParcelImages: func() []*ParcelImageResponseData {
@@ -75,9 +72,21 @@ func ParcelResponse(data *ent.Parcel) *fiber.Map {
 			}
 			return nil
 		}(),
+		Transaction: func() *TransactionResponseData {
+			if t, err := data.Edges.TransactionOrErr(); err == nil && t != nil {
+				return &TransactionResponseData{
+					Reference:       t.Reference,
+					TransactionType: string(t.Channel),
+					Amount:          t.Amount,
+					TransactionFee:  t.TransactionFee,
+					PaidAt:          parseNullDatetime(t.PaidAt),
+				}
+			}
+			return nil
+		}(),
 		Trip: func() *TripResponseData {
 			if t, err := data.Edges.TripOrErr(); err == nil {
-				return &TripResponseData{ID: t.ID, DepartureDate: t.DepartureDate, ArrivalDate: t.ArrivalDate, ReturnDate: parseNullDatetime(t.ReturnDate), Type: string(t.Type), InspectionStatus: &TripInspectionStatus{Exterior: t.ExteriorInspected, Interior: t.InteriorInspected, EngineCompartment: t.EngineCompartmentInspected, BrakeAndSteering: t.BrakeAndSteeringInspected, EmergencyEquipment: t.EmergencyEquipmentInspected, FuelAndFluid: t.FuelAndFluidsInspected}, Status: string(t.Status), Scheduled: t.Scheduled, SeatLeft: t.SeatLeft, Vehicle: func() *VehicleResponseData {
+				return &TripResponseData{ID: t.ID, DepartureDate: t.DepartureDate, ArrivalDate: t.ArrivalDate, ReturnDate: parseNullDatetime(t.ReturnDate), Type: string(t.Type), InspectionStatus: &TripInspectionStatus{Exterior: t.ExteriorInspected, Interior: t.InteriorInspected, EngineCompartment: t.EngineCompartmentInspected, BrakeAndSteering: t.BrakeAndSteeringInspected, EmergencyEquipment: t.EmergencyEquipmentInspected, FuelAndFluid: t.FuelAndFluidsInspected}, Status: string(t.Status), Scheduled: t.Scheduled, SeatLeft: t.SeatLeft, Rate: t.Rate, Discount: t.Discount, Terminal: &TripTerminalResponseData{}, Vehicle: func() *VehicleResponseData {
 					if v, err := t.Edges.VehicleOrErr(); err == nil {
 						return &VehicleResponseData{ID: v.ID, RegistrationNumber: v.RegistrationNumber, Model: v.Model, Seat: v.Seat, Images: func() []*VehicleImageResponseData {
 							if images, err := v.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
@@ -93,7 +102,7 @@ func ParcelResponse(data *ent.Parcel) *fiber.Map {
 					return nil
 				}(), Route: func() *RouteResponseData {
 					if r, err := t.Edges.RouteOrErr(); err == nil {
-						return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Rate: r.Rate, Discount: r.Discount, Stops: func() []*RouteStopResponseData {
+						return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Stops: func() []*RouteStopResponseData {
 							if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
 								response := make([]*RouteStopResponseData, 0, len(stops))
 								for _, s := range stops {
@@ -136,8 +145,6 @@ func ParcelsResponse(data *PaginationResponse) *fiber.Map {
 			RecipientPhone:    p.RecipientPhone,
 			RecipientLocation: p.RecipientLocation,
 			Weight:            p.Weight,
-			Amount:            p.Amount,
-			TransType:         string(p.TansType),
 			Status:            string(p.Status),
 			Type:              p.Type,
 			ParcelImages: func() []*ParcelImageResponseData {
@@ -166,9 +173,21 @@ func ParcelsResponse(data *PaginationResponse) *fiber.Map {
 				}
 				return nil
 			}(),
+			Transaction: func() *TransactionResponseData {
+				if t, err := p.Edges.TransactionOrErr(); err == nil && t != nil {
+					return &TransactionResponseData{
+						Reference:       t.Reference,
+						TransactionType: string(t.Channel),
+						Amount:          t.Amount,
+						TransactionFee:  t.TransactionFee,
+						PaidAt:          parseNullDatetime(t.PaidAt),
+					}
+				}
+				return nil
+			}(),
 			Trip: func() *TripResponseData {
 				if t, err := p.Edges.TripOrErr(); err == nil {
-					return &TripResponseData{ID: t.ID, DepartureDate: t.DepartureDate, ArrivalDate: t.ArrivalDate, ReturnDate: parseNullDatetime(t.ReturnDate), Type: string(t.Type), InspectionStatus: &TripInspectionStatus{Exterior: t.ExteriorInspected, Interior: t.InteriorInspected, EngineCompartment: t.EngineCompartmentInspected, BrakeAndSteering: t.BrakeAndSteeringInspected, EmergencyEquipment: t.EmergencyEquipmentInspected, FuelAndFluid: t.FuelAndFluidsInspected}, Status: string(t.Status), Scheduled: t.Scheduled, SeatLeft: t.SeatLeft, Vehicle: func() *VehicleResponseData {
+					return &TripResponseData{ID: t.ID, DepartureDate: t.DepartureDate, ArrivalDate: t.ArrivalDate, ReturnDate: parseNullDatetime(t.ReturnDate), Type: string(t.Type), InspectionStatus: &TripInspectionStatus{Exterior: t.ExteriorInspected, Interior: t.InteriorInspected, EngineCompartment: t.EngineCompartmentInspected, BrakeAndSteering: t.BrakeAndSteeringInspected, EmergencyEquipment: t.EmergencyEquipmentInspected, FuelAndFluid: t.FuelAndFluidsInspected}, Status: string(t.Status), Scheduled: t.Scheduled, SeatLeft: t.SeatLeft, Rate: t.Rate, Discount: t.Discount, Terminal: &TripTerminalResponseData{}, Vehicle: func() *VehicleResponseData {
 						if v, err := t.Edges.VehicleOrErr(); err == nil {
 							return &VehicleResponseData{ID: v.ID, RegistrationNumber: v.RegistrationNumber, Model: v.Model, Seat: v.Seat, Images: func() []*VehicleImageResponseData {
 								if images, err := v.Edges.ImagesOrErr(); err == nil && len(images) > 0 {
@@ -184,7 +203,7 @@ func ParcelsResponse(data *PaginationResponse) *fiber.Map {
 						return nil
 					}(), Route: func() *RouteResponseData {
 						if r, err := t.Edges.RouteOrErr(); err == nil {
-							return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Rate: r.Rate, Discount: r.Discount, Stops: func() []*RouteStopResponseData {
+							return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Stops: func() []*RouteStopResponseData {
 								if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
 									response := make([]*RouteStopResponseData, 0, len(stops))
 									for _, s := range stops {

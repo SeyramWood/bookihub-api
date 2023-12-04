@@ -7,12 +7,11 @@ type (
 		Luggage         []*BookingLuggagesRequest  `json:"luggage" validate:"slice:max:2"`
 		Contact         *BookingContactRequest     `json:"contact" validate:"required"`
 		SMSNotification bool                       `json:"smsNotification" validate:""`
-		VAT             float64                    `json:"vat" validate:""`
-		SMSFee          float64                    `json:"smsFee" validate:""`
-		Amount          float64                    `json:"amount" validate:"required"`
-		TripID          int                        `json:"tripId" validate:"required"`
-		CompanyID       int                        `json:"companyId" validate:"required"`
-		CustomerID      int                        `json:"customerId" validate:""`
+		VAT             float64                    `json:"vat" validate:"float"`
+		Amount          float64                    `json:"amount" validate:"required|float"`
+		TripID          int                        `json:"tripId" validate:"required|int"`
+		CompanyID       int                        `json:"companyId" validate:"required|int"`
+		CustomerID      int                        `json:"customerId" validate:"int"`
 	}
 	BookingUpdateRequest struct {
 		Passenger       []*BookingPassengerUpdateRequest `json:"passenger" validate:"required"`
@@ -20,9 +19,8 @@ type (
 		Contact         *BookingContactUpdateRequest     `json:"contact" validate:"required"`
 		SMSNotification bool                             `json:"smsNotification" validate:""`
 		TransactionType string                           `json:"transactionType" validate:"string"`
-		VAT             float64                          `json:"vat" validate:""`
-		SMSFee          float64                          `json:"smsFee" validate:""`
-		Amount          float64                          `json:"amount" validate:"required"`
+		VAT             float64                          `json:"vat" validate:"float"`
+		Amount          float64                          `json:"amount" validate:"required|float"`
 	}
 	BookingPassengerRequest struct {
 		FullName string  `json:"fullName" validate:"required|ascii"`
@@ -38,7 +36,7 @@ type (
 	BookingContactRequest struct {
 		FullName string `json:"fullName" validate:"required|ascii"`
 		Email    string `json:"email" validate:"email"`
-		Phone    string `json:"phone" validate:"required|phone"`
+		Phone    string `json:"phone" validate:"required|phone_with_code"`
 	}
 	BookingPassengerUpdateRequest struct {
 		ID       int     `json:"id" validate:"required|int"`
@@ -57,10 +55,10 @@ type (
 		ID       int    `json:"id" validate:"required"`
 		FullName string `json:"fullName" validate:"required|ascii"`
 		Email    string `json:"email" validate:"required|email"`
-		Phone    string `json:"phone" validate:"required|phone"`
+		Phone    string `json:"phone" validate:"required|phone_with_code"`
 	}
 	BookingCancelRequest struct {
-		Amount float64 `json:"amount" validate:"required"`
+		Amount float64 `json:"amount" validate:"required|float"`
 	}
 	BookingFilterRequest struct {
 		BookingNumber string

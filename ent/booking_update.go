@@ -18,6 +18,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/customerluggage"
 	"github.com/SeyramWood/bookibus/ent/passenger"
 	"github.com/SeyramWood/bookibus/ent/predicate"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
@@ -41,173 +42,9 @@ func (bu *BookingUpdate) SetUpdatedAt(t time.Time) *BookingUpdate {
 	return bu
 }
 
-// SetReference sets the "reference" field.
-func (bu *BookingUpdate) SetReference(s string) *BookingUpdate {
-	bu.mutation.SetReference(s)
-	return bu
-}
-
-// SetNillableReference sets the "reference" field if the given value is not nil.
-func (bu *BookingUpdate) SetNillableReference(s *string) *BookingUpdate {
-	if s != nil {
-		bu.SetReference(*s)
-	}
-	return bu
-}
-
-// ClearReference clears the value of the "reference" field.
-func (bu *BookingUpdate) ClearReference() *BookingUpdate {
-	bu.mutation.ClearReference()
-	return bu
-}
-
 // SetBookingNumber sets the "booking_number" field.
 func (bu *BookingUpdate) SetBookingNumber(s string) *BookingUpdate {
 	bu.mutation.SetBookingNumber(s)
-	return bu
-}
-
-// SetVat sets the "vat" field.
-func (bu *BookingUpdate) SetVat(f float64) *BookingUpdate {
-	bu.mutation.ResetVat()
-	bu.mutation.SetVat(f)
-	return bu
-}
-
-// SetNillableVat sets the "vat" field if the given value is not nil.
-func (bu *BookingUpdate) SetNillableVat(f *float64) *BookingUpdate {
-	if f != nil {
-		bu.SetVat(*f)
-	}
-	return bu
-}
-
-// AddVat adds f to the "vat" field.
-func (bu *BookingUpdate) AddVat(f float64) *BookingUpdate {
-	bu.mutation.AddVat(f)
-	return bu
-}
-
-// SetSmsFee sets the "sms_fee" field.
-func (bu *BookingUpdate) SetSmsFee(f float64) *BookingUpdate {
-	bu.mutation.ResetSmsFee()
-	bu.mutation.SetSmsFee(f)
-	return bu
-}
-
-// SetNillableSmsFee sets the "sms_fee" field if the given value is not nil.
-func (bu *BookingUpdate) SetNillableSmsFee(f *float64) *BookingUpdate {
-	if f != nil {
-		bu.SetSmsFee(*f)
-	}
-	return bu
-}
-
-// AddSmsFee adds f to the "sms_fee" field.
-func (bu *BookingUpdate) AddSmsFee(f float64) *BookingUpdate {
-	bu.mutation.AddSmsFee(f)
-	return bu
-}
-
-// SetAmount sets the "amount" field.
-func (bu *BookingUpdate) SetAmount(f float64) *BookingUpdate {
-	bu.mutation.ResetAmount()
-	bu.mutation.SetAmount(f)
-	return bu
-}
-
-// SetNillableAmount sets the "amount" field if the given value is not nil.
-func (bu *BookingUpdate) SetNillableAmount(f *float64) *BookingUpdate {
-	if f != nil {
-		bu.SetAmount(*f)
-	}
-	return bu
-}
-
-// AddAmount adds f to the "amount" field.
-func (bu *BookingUpdate) AddAmount(f float64) *BookingUpdate {
-	bu.mutation.AddAmount(f)
-	return bu
-}
-
-// SetRefundAmount sets the "refund_amount" field.
-func (bu *BookingUpdate) SetRefundAmount(f float64) *BookingUpdate {
-	bu.mutation.ResetRefundAmount()
-	bu.mutation.SetRefundAmount(f)
-	return bu
-}
-
-// SetNillableRefundAmount sets the "refund_amount" field if the given value is not nil.
-func (bu *BookingUpdate) SetNillableRefundAmount(f *float64) *BookingUpdate {
-	if f != nil {
-		bu.SetRefundAmount(*f)
-	}
-	return bu
-}
-
-// AddRefundAmount adds f to the "refund_amount" field.
-func (bu *BookingUpdate) AddRefundAmount(f float64) *BookingUpdate {
-	bu.mutation.AddRefundAmount(f)
-	return bu
-}
-
-// ClearRefundAmount clears the value of the "refund_amount" field.
-func (bu *BookingUpdate) ClearRefundAmount() *BookingUpdate {
-	bu.mutation.ClearRefundAmount()
-	return bu
-}
-
-// SetPaidAt sets the "paid_at" field.
-func (bu *BookingUpdate) SetPaidAt(t time.Time) *BookingUpdate {
-	bu.mutation.SetPaidAt(t)
-	return bu
-}
-
-// SetNillablePaidAt sets the "paid_at" field if the given value is not nil.
-func (bu *BookingUpdate) SetNillablePaidAt(t *time.Time) *BookingUpdate {
-	if t != nil {
-		bu.SetPaidAt(*t)
-	}
-	return bu
-}
-
-// ClearPaidAt clears the value of the "paid_at" field.
-func (bu *BookingUpdate) ClearPaidAt() *BookingUpdate {
-	bu.mutation.ClearPaidAt()
-	return bu
-}
-
-// SetRefundAt sets the "refund_at" field.
-func (bu *BookingUpdate) SetRefundAt(t time.Time) *BookingUpdate {
-	bu.mutation.SetRefundAt(t)
-	return bu
-}
-
-// SetNillableRefundAt sets the "refund_at" field if the given value is not nil.
-func (bu *BookingUpdate) SetNillableRefundAt(t *time.Time) *BookingUpdate {
-	if t != nil {
-		bu.SetRefundAt(*t)
-	}
-	return bu
-}
-
-// ClearRefundAt clears the value of the "refund_at" field.
-func (bu *BookingUpdate) ClearRefundAt() *BookingUpdate {
-	bu.mutation.ClearRefundAt()
-	return bu
-}
-
-// SetTansType sets the "tans_type" field.
-func (bu *BookingUpdate) SetTansType(bt booking.TansType) *BookingUpdate {
-	bu.mutation.SetTansType(bt)
-	return bu
-}
-
-// SetNillableTansType sets the "tans_type" field if the given value is not nil.
-func (bu *BookingUpdate) SetNillableTansType(bt *booking.TansType) *BookingUpdate {
-	if bt != nil {
-		bu.SetTansType(*bt)
-	}
 	return bu
 }
 
@@ -286,6 +123,25 @@ func (bu *BookingUpdate) SetNillableContactID(id *int) *BookingUpdate {
 // SetContact sets the "contact" edge to the CustomerContact entity.
 func (bu *BookingUpdate) SetContact(c *CustomerContact) *BookingUpdate {
 	return bu.SetContactID(c.ID)
+}
+
+// SetTransactionID sets the "transaction" edge to the Transaction entity by ID.
+func (bu *BookingUpdate) SetTransactionID(id int) *BookingUpdate {
+	bu.mutation.SetTransactionID(id)
+	return bu
+}
+
+// SetNillableTransactionID sets the "transaction" edge to the Transaction entity by ID if the given value is not nil.
+func (bu *BookingUpdate) SetNillableTransactionID(id *int) *BookingUpdate {
+	if id != nil {
+		bu = bu.SetTransactionID(*id)
+	}
+	return bu
+}
+
+// SetTransaction sets the "transaction" edge to the Transaction entity.
+func (bu *BookingUpdate) SetTransaction(t *Transaction) *BookingUpdate {
+	return bu.SetTransactionID(t.ID)
 }
 
 // SetTripID sets the "trip" edge to the Trip entity by ID.
@@ -398,6 +254,12 @@ func (bu *BookingUpdate) ClearContact() *BookingUpdate {
 	return bu
 }
 
+// ClearTransaction clears the "transaction" edge to the Transaction entity.
+func (bu *BookingUpdate) ClearTransaction() *BookingUpdate {
+	bu.mutation.ClearTransaction()
+	return bu
+}
+
 // ClearTrip clears the "trip" edge to the Trip entity.
 func (bu *BookingUpdate) ClearTrip() *BookingUpdate {
 	bu.mutation.ClearTrip()
@@ -459,11 +321,6 @@ func (bu *BookingUpdate) check() error {
 			return &ValidationError{Name: "booking_number", err: fmt.Errorf(`ent: validator failed for field "Booking.booking_number": %w`, err)}
 		}
 	}
-	if v, ok := bu.mutation.TansType(); ok {
-		if err := booking.TansTypeValidator(v); err != nil {
-			return &ValidationError{Name: "tans_type", err: fmt.Errorf(`ent: validator failed for field "Booking.tans_type": %w`, err)}
-		}
-	}
 	if v, ok := bu.mutation.Status(); ok {
 		if err := booking.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Booking.status": %w`, err)}
@@ -493,56 +350,8 @@ func (bu *BookingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := bu.mutation.UpdatedAt(); ok {
 		_spec.SetField(booking.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := bu.mutation.Reference(); ok {
-		_spec.SetField(booking.FieldReference, field.TypeString, value)
-	}
-	if bu.mutation.ReferenceCleared() {
-		_spec.ClearField(booking.FieldReference, field.TypeString)
-	}
 	if value, ok := bu.mutation.BookingNumber(); ok {
 		_spec.SetField(booking.FieldBookingNumber, field.TypeString, value)
-	}
-	if value, ok := bu.mutation.Vat(); ok {
-		_spec.SetField(booking.FieldVat, field.TypeFloat64, value)
-	}
-	if value, ok := bu.mutation.AddedVat(); ok {
-		_spec.AddField(booking.FieldVat, field.TypeFloat64, value)
-	}
-	if value, ok := bu.mutation.SmsFee(); ok {
-		_spec.SetField(booking.FieldSmsFee, field.TypeFloat64, value)
-	}
-	if value, ok := bu.mutation.AddedSmsFee(); ok {
-		_spec.AddField(booking.FieldSmsFee, field.TypeFloat64, value)
-	}
-	if value, ok := bu.mutation.Amount(); ok {
-		_spec.SetField(booking.FieldAmount, field.TypeFloat64, value)
-	}
-	if value, ok := bu.mutation.AddedAmount(); ok {
-		_spec.AddField(booking.FieldAmount, field.TypeFloat64, value)
-	}
-	if value, ok := bu.mutation.RefundAmount(); ok {
-		_spec.SetField(booking.FieldRefundAmount, field.TypeFloat64, value)
-	}
-	if value, ok := bu.mutation.AddedRefundAmount(); ok {
-		_spec.AddField(booking.FieldRefundAmount, field.TypeFloat64, value)
-	}
-	if bu.mutation.RefundAmountCleared() {
-		_spec.ClearField(booking.FieldRefundAmount, field.TypeFloat64)
-	}
-	if value, ok := bu.mutation.PaidAt(); ok {
-		_spec.SetField(booking.FieldPaidAt, field.TypeTime, value)
-	}
-	if bu.mutation.PaidAtCleared() {
-		_spec.ClearField(booking.FieldPaidAt, field.TypeTime)
-	}
-	if value, ok := bu.mutation.RefundAt(); ok {
-		_spec.SetField(booking.FieldRefundAt, field.TypeTime, value)
-	}
-	if bu.mutation.RefundAtCleared() {
-		_spec.ClearField(booking.FieldRefundAt, field.TypeTime)
-	}
-	if value, ok := bu.mutation.TansType(); ok {
-		_spec.SetField(booking.FieldTansType, field.TypeEnum, value)
 	}
 	if value, ok := bu.mutation.SmsNotification(); ok {
 		_spec.SetField(booking.FieldSmsNotification, field.TypeBool, value)
@@ -669,6 +478,35 @@ func (bu *BookingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if bu.mutation.TransactionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   booking.TransactionTable,
+			Columns: []string{booking.TransactionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := bu.mutation.TransactionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   booking.TransactionTable,
+			Columns: []string{booking.TransactionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if bu.mutation.TripCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -784,173 +622,9 @@ func (buo *BookingUpdateOne) SetUpdatedAt(t time.Time) *BookingUpdateOne {
 	return buo
 }
 
-// SetReference sets the "reference" field.
-func (buo *BookingUpdateOne) SetReference(s string) *BookingUpdateOne {
-	buo.mutation.SetReference(s)
-	return buo
-}
-
-// SetNillableReference sets the "reference" field if the given value is not nil.
-func (buo *BookingUpdateOne) SetNillableReference(s *string) *BookingUpdateOne {
-	if s != nil {
-		buo.SetReference(*s)
-	}
-	return buo
-}
-
-// ClearReference clears the value of the "reference" field.
-func (buo *BookingUpdateOne) ClearReference() *BookingUpdateOne {
-	buo.mutation.ClearReference()
-	return buo
-}
-
 // SetBookingNumber sets the "booking_number" field.
 func (buo *BookingUpdateOne) SetBookingNumber(s string) *BookingUpdateOne {
 	buo.mutation.SetBookingNumber(s)
-	return buo
-}
-
-// SetVat sets the "vat" field.
-func (buo *BookingUpdateOne) SetVat(f float64) *BookingUpdateOne {
-	buo.mutation.ResetVat()
-	buo.mutation.SetVat(f)
-	return buo
-}
-
-// SetNillableVat sets the "vat" field if the given value is not nil.
-func (buo *BookingUpdateOne) SetNillableVat(f *float64) *BookingUpdateOne {
-	if f != nil {
-		buo.SetVat(*f)
-	}
-	return buo
-}
-
-// AddVat adds f to the "vat" field.
-func (buo *BookingUpdateOne) AddVat(f float64) *BookingUpdateOne {
-	buo.mutation.AddVat(f)
-	return buo
-}
-
-// SetSmsFee sets the "sms_fee" field.
-func (buo *BookingUpdateOne) SetSmsFee(f float64) *BookingUpdateOne {
-	buo.mutation.ResetSmsFee()
-	buo.mutation.SetSmsFee(f)
-	return buo
-}
-
-// SetNillableSmsFee sets the "sms_fee" field if the given value is not nil.
-func (buo *BookingUpdateOne) SetNillableSmsFee(f *float64) *BookingUpdateOne {
-	if f != nil {
-		buo.SetSmsFee(*f)
-	}
-	return buo
-}
-
-// AddSmsFee adds f to the "sms_fee" field.
-func (buo *BookingUpdateOne) AddSmsFee(f float64) *BookingUpdateOne {
-	buo.mutation.AddSmsFee(f)
-	return buo
-}
-
-// SetAmount sets the "amount" field.
-func (buo *BookingUpdateOne) SetAmount(f float64) *BookingUpdateOne {
-	buo.mutation.ResetAmount()
-	buo.mutation.SetAmount(f)
-	return buo
-}
-
-// SetNillableAmount sets the "amount" field if the given value is not nil.
-func (buo *BookingUpdateOne) SetNillableAmount(f *float64) *BookingUpdateOne {
-	if f != nil {
-		buo.SetAmount(*f)
-	}
-	return buo
-}
-
-// AddAmount adds f to the "amount" field.
-func (buo *BookingUpdateOne) AddAmount(f float64) *BookingUpdateOne {
-	buo.mutation.AddAmount(f)
-	return buo
-}
-
-// SetRefundAmount sets the "refund_amount" field.
-func (buo *BookingUpdateOne) SetRefundAmount(f float64) *BookingUpdateOne {
-	buo.mutation.ResetRefundAmount()
-	buo.mutation.SetRefundAmount(f)
-	return buo
-}
-
-// SetNillableRefundAmount sets the "refund_amount" field if the given value is not nil.
-func (buo *BookingUpdateOne) SetNillableRefundAmount(f *float64) *BookingUpdateOne {
-	if f != nil {
-		buo.SetRefundAmount(*f)
-	}
-	return buo
-}
-
-// AddRefundAmount adds f to the "refund_amount" field.
-func (buo *BookingUpdateOne) AddRefundAmount(f float64) *BookingUpdateOne {
-	buo.mutation.AddRefundAmount(f)
-	return buo
-}
-
-// ClearRefundAmount clears the value of the "refund_amount" field.
-func (buo *BookingUpdateOne) ClearRefundAmount() *BookingUpdateOne {
-	buo.mutation.ClearRefundAmount()
-	return buo
-}
-
-// SetPaidAt sets the "paid_at" field.
-func (buo *BookingUpdateOne) SetPaidAt(t time.Time) *BookingUpdateOne {
-	buo.mutation.SetPaidAt(t)
-	return buo
-}
-
-// SetNillablePaidAt sets the "paid_at" field if the given value is not nil.
-func (buo *BookingUpdateOne) SetNillablePaidAt(t *time.Time) *BookingUpdateOne {
-	if t != nil {
-		buo.SetPaidAt(*t)
-	}
-	return buo
-}
-
-// ClearPaidAt clears the value of the "paid_at" field.
-func (buo *BookingUpdateOne) ClearPaidAt() *BookingUpdateOne {
-	buo.mutation.ClearPaidAt()
-	return buo
-}
-
-// SetRefundAt sets the "refund_at" field.
-func (buo *BookingUpdateOne) SetRefundAt(t time.Time) *BookingUpdateOne {
-	buo.mutation.SetRefundAt(t)
-	return buo
-}
-
-// SetNillableRefundAt sets the "refund_at" field if the given value is not nil.
-func (buo *BookingUpdateOne) SetNillableRefundAt(t *time.Time) *BookingUpdateOne {
-	if t != nil {
-		buo.SetRefundAt(*t)
-	}
-	return buo
-}
-
-// ClearRefundAt clears the value of the "refund_at" field.
-func (buo *BookingUpdateOne) ClearRefundAt() *BookingUpdateOne {
-	buo.mutation.ClearRefundAt()
-	return buo
-}
-
-// SetTansType sets the "tans_type" field.
-func (buo *BookingUpdateOne) SetTansType(bt booking.TansType) *BookingUpdateOne {
-	buo.mutation.SetTansType(bt)
-	return buo
-}
-
-// SetNillableTansType sets the "tans_type" field if the given value is not nil.
-func (buo *BookingUpdateOne) SetNillableTansType(bt *booking.TansType) *BookingUpdateOne {
-	if bt != nil {
-		buo.SetTansType(*bt)
-	}
 	return buo
 }
 
@@ -1029,6 +703,25 @@ func (buo *BookingUpdateOne) SetNillableContactID(id *int) *BookingUpdateOne {
 // SetContact sets the "contact" edge to the CustomerContact entity.
 func (buo *BookingUpdateOne) SetContact(c *CustomerContact) *BookingUpdateOne {
 	return buo.SetContactID(c.ID)
+}
+
+// SetTransactionID sets the "transaction" edge to the Transaction entity by ID.
+func (buo *BookingUpdateOne) SetTransactionID(id int) *BookingUpdateOne {
+	buo.mutation.SetTransactionID(id)
+	return buo
+}
+
+// SetNillableTransactionID sets the "transaction" edge to the Transaction entity by ID if the given value is not nil.
+func (buo *BookingUpdateOne) SetNillableTransactionID(id *int) *BookingUpdateOne {
+	if id != nil {
+		buo = buo.SetTransactionID(*id)
+	}
+	return buo
+}
+
+// SetTransaction sets the "transaction" edge to the Transaction entity.
+func (buo *BookingUpdateOne) SetTransaction(t *Transaction) *BookingUpdateOne {
+	return buo.SetTransactionID(t.ID)
 }
 
 // SetTripID sets the "trip" edge to the Trip entity by ID.
@@ -1141,6 +834,12 @@ func (buo *BookingUpdateOne) ClearContact() *BookingUpdateOne {
 	return buo
 }
 
+// ClearTransaction clears the "transaction" edge to the Transaction entity.
+func (buo *BookingUpdateOne) ClearTransaction() *BookingUpdateOne {
+	buo.mutation.ClearTransaction()
+	return buo
+}
+
 // ClearTrip clears the "trip" edge to the Trip entity.
 func (buo *BookingUpdateOne) ClearTrip() *BookingUpdateOne {
 	buo.mutation.ClearTrip()
@@ -1215,11 +914,6 @@ func (buo *BookingUpdateOne) check() error {
 			return &ValidationError{Name: "booking_number", err: fmt.Errorf(`ent: validator failed for field "Booking.booking_number": %w`, err)}
 		}
 	}
-	if v, ok := buo.mutation.TansType(); ok {
-		if err := booking.TansTypeValidator(v); err != nil {
-			return &ValidationError{Name: "tans_type", err: fmt.Errorf(`ent: validator failed for field "Booking.tans_type": %w`, err)}
-		}
-	}
 	if v, ok := buo.mutation.Status(); ok {
 		if err := booking.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Booking.status": %w`, err)}
@@ -1266,56 +960,8 @@ func (buo *BookingUpdateOne) sqlSave(ctx context.Context) (_node *Booking, err e
 	if value, ok := buo.mutation.UpdatedAt(); ok {
 		_spec.SetField(booking.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := buo.mutation.Reference(); ok {
-		_spec.SetField(booking.FieldReference, field.TypeString, value)
-	}
-	if buo.mutation.ReferenceCleared() {
-		_spec.ClearField(booking.FieldReference, field.TypeString)
-	}
 	if value, ok := buo.mutation.BookingNumber(); ok {
 		_spec.SetField(booking.FieldBookingNumber, field.TypeString, value)
-	}
-	if value, ok := buo.mutation.Vat(); ok {
-		_spec.SetField(booking.FieldVat, field.TypeFloat64, value)
-	}
-	if value, ok := buo.mutation.AddedVat(); ok {
-		_spec.AddField(booking.FieldVat, field.TypeFloat64, value)
-	}
-	if value, ok := buo.mutation.SmsFee(); ok {
-		_spec.SetField(booking.FieldSmsFee, field.TypeFloat64, value)
-	}
-	if value, ok := buo.mutation.AddedSmsFee(); ok {
-		_spec.AddField(booking.FieldSmsFee, field.TypeFloat64, value)
-	}
-	if value, ok := buo.mutation.Amount(); ok {
-		_spec.SetField(booking.FieldAmount, field.TypeFloat64, value)
-	}
-	if value, ok := buo.mutation.AddedAmount(); ok {
-		_spec.AddField(booking.FieldAmount, field.TypeFloat64, value)
-	}
-	if value, ok := buo.mutation.RefundAmount(); ok {
-		_spec.SetField(booking.FieldRefundAmount, field.TypeFloat64, value)
-	}
-	if value, ok := buo.mutation.AddedRefundAmount(); ok {
-		_spec.AddField(booking.FieldRefundAmount, field.TypeFloat64, value)
-	}
-	if buo.mutation.RefundAmountCleared() {
-		_spec.ClearField(booking.FieldRefundAmount, field.TypeFloat64)
-	}
-	if value, ok := buo.mutation.PaidAt(); ok {
-		_spec.SetField(booking.FieldPaidAt, field.TypeTime, value)
-	}
-	if buo.mutation.PaidAtCleared() {
-		_spec.ClearField(booking.FieldPaidAt, field.TypeTime)
-	}
-	if value, ok := buo.mutation.RefundAt(); ok {
-		_spec.SetField(booking.FieldRefundAt, field.TypeTime, value)
-	}
-	if buo.mutation.RefundAtCleared() {
-		_spec.ClearField(booking.FieldRefundAt, field.TypeTime)
-	}
-	if value, ok := buo.mutation.TansType(); ok {
-		_spec.SetField(booking.FieldTansType, field.TypeEnum, value)
 	}
 	if value, ok := buo.mutation.SmsNotification(); ok {
 		_spec.SetField(booking.FieldSmsNotification, field.TypeBool, value)
@@ -1435,6 +1081,35 @@ func (buo *BookingUpdateOne) sqlSave(ctx context.Context) (_node *Booking, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(customercontact.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if buo.mutation.TransactionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   booking.TransactionTable,
+			Columns: []string{booking.TransactionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := buo.mutation.TransactionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   booking.TransactionTable,
+			Columns: []string{booking.TransactionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

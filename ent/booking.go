@@ -13,6 +13,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/customer"
 	"github.com/SeyramWood/bookibus/ent/customercontact"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
@@ -25,24 +26,8 @@ type Booking struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// Reference holds the value of the "reference" field.
-	Reference string `json:"reference,omitempty"`
 	// BookingNumber holds the value of the "booking_number" field.
 	BookingNumber string `json:"booking_number,omitempty"`
-	// Vat holds the value of the "vat" field.
-	Vat float64 `json:"vat,omitempty"`
-	// SmsFee holds the value of the "sms_fee" field.
-	SmsFee float64 `json:"sms_fee,omitempty"`
-	// Amount holds the value of the "amount" field.
-	Amount float64 `json:"amount,omitempty"`
-	// RefundAmount holds the value of the "refund_amount" field.
-	RefundAmount float64 `json:"refund_amount,omitempty"`
-	// PaidAt holds the value of the "paid_at" field.
-	PaidAt time.Time `json:"paid_at,omitempty"`
-	// RefundAt holds the value of the "refund_at" field.
-	RefundAt time.Time `json:"refund_at,omitempty"`
-	// TansType holds the value of the "tans_type" field.
-	TansType booking.TansType `json:"tans_type,omitempty"`
 	// SmsNotification holds the value of the "sms_notification" field.
 	SmsNotification bool `json:"sms_notification,omitempty"`
 	// Status holds the value of the "status" field.
@@ -64,6 +49,8 @@ type BookingEdges struct {
 	Luggages []*CustomerLuggage `json:"luggages,omitempty"`
 	// Contact holds the value of the contact edge.
 	Contact *CustomerContact `json:"contact,omitempty"`
+	// Transaction holds the value of the transaction edge.
+	Transaction *Transaction `json:"transaction,omitempty"`
 	// Trip holds the value of the trip edge.
 	Trip *Trip `json:"trip,omitempty"`
 	// Company holds the value of the company edge.
@@ -72,7 +59,7 @@ type BookingEdges struct {
 	Customer *Customer `json:"customer,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [7]bool
 }
 
 // PassengersOrErr returns the Passengers value or an error if the edge
@@ -106,10 +93,23 @@ func (e BookingEdges) ContactOrErr() (*CustomerContact, error) {
 	return nil, &NotLoadedError{edge: "contact"}
 }
 
+// TransactionOrErr returns the Transaction value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e BookingEdges) TransactionOrErr() (*Transaction, error) {
+	if e.loadedTypes[3] {
+		if e.Transaction == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: transaction.Label}
+		}
+		return e.Transaction, nil
+	}
+	return nil, &NotLoadedError{edge: "transaction"}
+}
+
 // TripOrErr returns the Trip value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e BookingEdges) TripOrErr() (*Trip, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		if e.Trip == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: trip.Label}
@@ -122,7 +122,7 @@ func (e BookingEdges) TripOrErr() (*Trip, error) {
 // CompanyOrErr returns the Company value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e BookingEdges) CompanyOrErr() (*Company, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[5] {
 		if e.Company == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: company.Label}
@@ -135,7 +135,7 @@ func (e BookingEdges) CompanyOrErr() (*Company, error) {
 // CustomerOrErr returns the Customer value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e BookingEdges) CustomerOrErr() (*Customer, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[6] {
 		if e.Customer == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: customer.Label}
@@ -152,13 +152,11 @@ func (*Booking) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case booking.FieldSmsNotification:
 			values[i] = new(sql.NullBool)
-		case booking.FieldVat, booking.FieldSmsFee, booking.FieldAmount, booking.FieldRefundAmount:
-			values[i] = new(sql.NullFloat64)
 		case booking.FieldID:
 			values[i] = new(sql.NullInt64)
-		case booking.FieldReference, booking.FieldBookingNumber, booking.FieldTansType, booking.FieldStatus:
+		case booking.FieldBookingNumber, booking.FieldStatus:
 			values[i] = new(sql.NullString)
-		case booking.FieldCreatedAt, booking.FieldUpdatedAt, booking.FieldPaidAt, booking.FieldRefundAt:
+		case booking.FieldCreatedAt, booking.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case booking.ForeignKeys[0]: // company_bookings
 			values[i] = new(sql.NullInt64)
@@ -199,59 +197,11 @@ func (b *Booking) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				b.UpdatedAt = value.Time
 			}
-		case booking.FieldReference:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field reference", values[i])
-			} else if value.Valid {
-				b.Reference = value.String
-			}
 		case booking.FieldBookingNumber:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field booking_number", values[i])
 			} else if value.Valid {
 				b.BookingNumber = value.String
-			}
-		case booking.FieldVat:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field vat", values[i])
-			} else if value.Valid {
-				b.Vat = value.Float64
-			}
-		case booking.FieldSmsFee:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field sms_fee", values[i])
-			} else if value.Valid {
-				b.SmsFee = value.Float64
-			}
-		case booking.FieldAmount:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field amount", values[i])
-			} else if value.Valid {
-				b.Amount = value.Float64
-			}
-		case booking.FieldRefundAmount:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field refund_amount", values[i])
-			} else if value.Valid {
-				b.RefundAmount = value.Float64
-			}
-		case booking.FieldPaidAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field paid_at", values[i])
-			} else if value.Valid {
-				b.PaidAt = value.Time
-			}
-		case booking.FieldRefundAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field refund_at", values[i])
-			} else if value.Valid {
-				b.RefundAt = value.Time
-			}
-		case booking.FieldTansType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field tans_type", values[i])
-			} else if value.Valid {
-				b.TansType = booking.TansType(value.String)
 			}
 		case booking.FieldSmsNotification:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -314,6 +264,11 @@ func (b *Booking) QueryContact() *CustomerContactQuery {
 	return NewBookingClient(b.config).QueryContact(b)
 }
 
+// QueryTransaction queries the "transaction" edge of the Booking entity.
+func (b *Booking) QueryTransaction() *TransactionQuery {
+	return NewBookingClient(b.config).QueryTransaction(b)
+}
+
 // QueryTrip queries the "trip" edge of the Booking entity.
 func (b *Booking) QueryTrip() *TripQuery {
 	return NewBookingClient(b.config).QueryTrip(b)
@@ -358,32 +313,8 @@ func (b *Booking) String() string {
 	builder.WriteString("updated_at=")
 	builder.WriteString(b.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("reference=")
-	builder.WriteString(b.Reference)
-	builder.WriteString(", ")
 	builder.WriteString("booking_number=")
 	builder.WriteString(b.BookingNumber)
-	builder.WriteString(", ")
-	builder.WriteString("vat=")
-	builder.WriteString(fmt.Sprintf("%v", b.Vat))
-	builder.WriteString(", ")
-	builder.WriteString("sms_fee=")
-	builder.WriteString(fmt.Sprintf("%v", b.SmsFee))
-	builder.WriteString(", ")
-	builder.WriteString("amount=")
-	builder.WriteString(fmt.Sprintf("%v", b.Amount))
-	builder.WriteString(", ")
-	builder.WriteString("refund_amount=")
-	builder.WriteString(fmt.Sprintf("%v", b.RefundAmount))
-	builder.WriteString(", ")
-	builder.WriteString("paid_at=")
-	builder.WriteString(b.PaidAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("refund_at=")
-	builder.WriteString(b.RefundAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("tans_type=")
-	builder.WriteString(fmt.Sprintf("%v", b.TansType))
 	builder.WriteString(", ")
 	builder.WriteString("sms_notification=")
 	builder.WriteString(fmt.Sprintf("%v", b.SmsNotification))

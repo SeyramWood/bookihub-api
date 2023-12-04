@@ -75,8 +75,12 @@ func (s *service) Create(companyId int, request *requeststructs.ParcelRequest, t
 			return nil, err
 		}
 		s.producer.Queue("notification:sms", domain.SMSPayload{
-			Message:    fmt.Sprintf("Thanks for your trusting us. Kindly mention the package code to only the recipient.\n Package Code: %s", result.ParcelCode),
+			Message:    fmt.Sprintf("Hi %s, %s received your package successfully. Kindly mention the package code only to the recipient for a successful package retrieval.\n Package Code: %s\nThank you.", result.SenderName, result.Edges.Company.Name, result.ParcelCode),
 			Recipients: []string{request.SenderPhone},
+		})
+		s.producer.Queue("notification:sms", domain.SMSPayload{
+			Message:    fmt.Sprintf("Hi %s, you received a package from %s. Wait patiently for it arrival. Thank you.", result.RecipientName, result.SenderName),
+			Recipients: []string{request.RecipientPhone},
 		})
 		return result, nil
 	}
@@ -95,8 +99,12 @@ func (s *service) Create(companyId int, request *requeststructs.ParcelRequest, t
 			return nil, err
 		}
 		s.producer.Queue("notification:sms", domain.SMSPayload{
-			Message:    fmt.Sprintf("Thanks for your trusting us. Kindly mention the package code to only the recipient.\n Package Code: %s", result.ParcelCode),
+			Message:    fmt.Sprintf("Hi %s, %s received your package successfully. Kindly mention the package code only to the recipient for a successful package retrieval.\n Package Code: %s\nThank you.", result.SenderName, result.Edges.Company.Name, result.ParcelCode),
 			Recipients: []string{request.SenderPhone},
+		})
+		s.producer.Queue("notification:sms", domain.SMSPayload{
+			Message:    fmt.Sprintf("Hi %s, you received a package from %s. Wait patiently for it arrival. Thank you.", result.RecipientName, result.SenderName),
+			Recipients: []string{request.RecipientPhone},
 		})
 		return result, nil
 	}

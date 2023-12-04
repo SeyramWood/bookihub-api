@@ -236,6 +236,48 @@ func (tu *TripUpdate) AddSeatLeft(i int) *TripUpdate {
 	return tu
 }
 
+// SetRate sets the "rate" field.
+func (tu *TripUpdate) SetRate(f float64) *TripUpdate {
+	tu.mutation.ResetRate()
+	tu.mutation.SetRate(f)
+	return tu
+}
+
+// SetNillableRate sets the "rate" field if the given value is not nil.
+func (tu *TripUpdate) SetNillableRate(f *float64) *TripUpdate {
+	if f != nil {
+		tu.SetRate(*f)
+	}
+	return tu
+}
+
+// AddRate adds f to the "rate" field.
+func (tu *TripUpdate) AddRate(f float64) *TripUpdate {
+	tu.mutation.AddRate(f)
+	return tu
+}
+
+// SetDiscount sets the "discount" field.
+func (tu *TripUpdate) SetDiscount(f float32) *TripUpdate {
+	tu.mutation.ResetDiscount()
+	tu.mutation.SetDiscount(f)
+	return tu
+}
+
+// SetNillableDiscount sets the "discount" field if the given value is not nil.
+func (tu *TripUpdate) SetNillableDiscount(f *float32) *TripUpdate {
+	if f != nil {
+		tu.SetDiscount(*f)
+	}
+	return tu
+}
+
+// AddDiscount adds f to the "discount" field.
+func (tu *TripUpdate) AddDiscount(f float32) *TripUpdate {
+	tu.mutation.AddDiscount(f)
+	return tu
+}
+
 // SetStatus sets the "status" field.
 func (tu *TripUpdate) SetStatus(t trip.Status) *TripUpdate {
 	tu.mutation.SetStatus(t)
@@ -638,6 +680,18 @@ func (tu *TripUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tu.mutation.AddedSeatLeft(); ok {
 		_spec.AddField(trip.FieldSeatLeft, field.TypeInt, value)
+	}
+	if value, ok := tu.mutation.Rate(); ok {
+		_spec.SetField(trip.FieldRate, field.TypeFloat64, value)
+	}
+	if value, ok := tu.mutation.AddedRate(); ok {
+		_spec.AddField(trip.FieldRate, field.TypeFloat64, value)
+	}
+	if value, ok := tu.mutation.Discount(); ok {
+		_spec.SetField(trip.FieldDiscount, field.TypeFloat32, value)
+	}
+	if value, ok := tu.mutation.AddedDiscount(); ok {
+		_spec.AddField(trip.FieldDiscount, field.TypeFloat32, value)
 	}
 	if value, ok := tu.mutation.Status(); ok {
 		_spec.SetField(trip.FieldStatus, field.TypeEnum, value)
@@ -1175,6 +1229,48 @@ func (tuo *TripUpdateOne) AddSeatLeft(i int) *TripUpdateOne {
 	return tuo
 }
 
+// SetRate sets the "rate" field.
+func (tuo *TripUpdateOne) SetRate(f float64) *TripUpdateOne {
+	tuo.mutation.ResetRate()
+	tuo.mutation.SetRate(f)
+	return tuo
+}
+
+// SetNillableRate sets the "rate" field if the given value is not nil.
+func (tuo *TripUpdateOne) SetNillableRate(f *float64) *TripUpdateOne {
+	if f != nil {
+		tuo.SetRate(*f)
+	}
+	return tuo
+}
+
+// AddRate adds f to the "rate" field.
+func (tuo *TripUpdateOne) AddRate(f float64) *TripUpdateOne {
+	tuo.mutation.AddRate(f)
+	return tuo
+}
+
+// SetDiscount sets the "discount" field.
+func (tuo *TripUpdateOne) SetDiscount(f float32) *TripUpdateOne {
+	tuo.mutation.ResetDiscount()
+	tuo.mutation.SetDiscount(f)
+	return tuo
+}
+
+// SetNillableDiscount sets the "discount" field if the given value is not nil.
+func (tuo *TripUpdateOne) SetNillableDiscount(f *float32) *TripUpdateOne {
+	if f != nil {
+		tuo.SetDiscount(*f)
+	}
+	return tuo
+}
+
+// AddDiscount adds f to the "discount" field.
+func (tuo *TripUpdateOne) AddDiscount(f float32) *TripUpdateOne {
+	tuo.mutation.AddDiscount(f)
+	return tuo
+}
+
 // SetStatus sets the "status" field.
 func (tuo *TripUpdateOne) SetStatus(t trip.Status) *TripUpdateOne {
 	tuo.mutation.SetStatus(t)
@@ -1607,6 +1703,18 @@ func (tuo *TripUpdateOne) sqlSave(ctx context.Context) (_node *Trip, err error) 
 	}
 	if value, ok := tuo.mutation.AddedSeatLeft(); ok {
 		_spec.AddField(trip.FieldSeatLeft, field.TypeInt, value)
+	}
+	if value, ok := tuo.mutation.Rate(); ok {
+		_spec.SetField(trip.FieldRate, field.TypeFloat64, value)
+	}
+	if value, ok := tuo.mutation.AddedRate(); ok {
+		_spec.AddField(trip.FieldRate, field.TypeFloat64, value)
+	}
+	if value, ok := tuo.mutation.Discount(); ok {
+		_spec.SetField(trip.FieldDiscount, field.TypeFloat32, value)
+	}
+	if value, ok := tuo.mutation.AddedDiscount(); ok {
+		_spec.AddField(trip.FieldDiscount, field.TypeFloat32, value)
 	}
 	if value, ok := tuo.mutation.Status(); ok {
 		_spec.SetField(trip.FieldStatus, field.TypeEnum, value)

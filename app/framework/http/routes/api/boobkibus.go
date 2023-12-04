@@ -18,4 +18,10 @@ func BookibusRoutes(r fiber.Router, router *apiRouter) {
 	userGroup.Put("/:id", adaptor.HTTPMiddleware(requests.ValidateBookibusUserUpdate), handler.Update())
 	userGroup.Delete("/:id", handler.Remove())
 
+	confHandler := api.NewConfigurationHandler(router.Adapter)
+	confGroup := r.Group("/configurations")
+	confGroup.Get("/charge", confHandler.FetchCharge())
+	confGroup.Post("/charge", adaptor.HTTPMiddleware(requests.ValidateTransCharge), confHandler.CreateCharge())
+	confGroup.Put("/charge", adaptor.HTTPMiddleware(requests.ValidateTransCharge), confHandler.UpdateCharge())
+
 }

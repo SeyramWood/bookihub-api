@@ -14,6 +14,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/companyuser"
 	"github.com/SeyramWood/bookibus/ent/parcel"
 	"github.com/SeyramWood/bookibus/ent/parcelimage"
+	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
@@ -114,48 +115,6 @@ func (pc *ParcelCreate) SetNillableWeight(f *float32) *ParcelCreate {
 	return pc
 }
 
-// SetAmount sets the "amount" field.
-func (pc *ParcelCreate) SetAmount(f float64) *ParcelCreate {
-	pc.mutation.SetAmount(f)
-	return pc
-}
-
-// SetNillableAmount sets the "amount" field if the given value is not nil.
-func (pc *ParcelCreate) SetNillableAmount(f *float64) *ParcelCreate {
-	if f != nil {
-		pc.SetAmount(*f)
-	}
-	return pc
-}
-
-// SetPaidAt sets the "paid_at" field.
-func (pc *ParcelCreate) SetPaidAt(t time.Time) *ParcelCreate {
-	pc.mutation.SetPaidAt(t)
-	return pc
-}
-
-// SetNillablePaidAt sets the "paid_at" field if the given value is not nil.
-func (pc *ParcelCreate) SetNillablePaidAt(t *time.Time) *ParcelCreate {
-	if t != nil {
-		pc.SetPaidAt(*t)
-	}
-	return pc
-}
-
-// SetTansType sets the "tans_type" field.
-func (pc *ParcelCreate) SetTansType(pt parcel.TansType) *ParcelCreate {
-	pc.mutation.SetTansType(pt)
-	return pc
-}
-
-// SetNillableTansType sets the "tans_type" field if the given value is not nil.
-func (pc *ParcelCreate) SetNillableTansType(pt *parcel.TansType) *ParcelCreate {
-	if pt != nil {
-		pc.SetTansType(*pt)
-	}
-	return pc
-}
-
 // SetStatus sets the "status" field.
 func (pc *ParcelCreate) SetStatus(pa parcel.Status) *ParcelCreate {
 	pc.mutation.SetStatus(pa)
@@ -183,6 +142,25 @@ func (pc *ParcelCreate) AddImages(p ...*ParcelImage) *ParcelCreate {
 		ids[i] = p[i].ID
 	}
 	return pc.AddImageIDs(ids...)
+}
+
+// SetTransactionID sets the "transaction" edge to the Transaction entity by ID.
+func (pc *ParcelCreate) SetTransactionID(id int) *ParcelCreate {
+	pc.mutation.SetTransactionID(id)
+	return pc
+}
+
+// SetNillableTransactionID sets the "transaction" edge to the Transaction entity by ID if the given value is not nil.
+func (pc *ParcelCreate) SetNillableTransactionID(id *int) *ParcelCreate {
+	if id != nil {
+		pc = pc.SetTransactionID(*id)
+	}
+	return pc
+}
+
+// SetTransaction sets the "transaction" edge to the Transaction entity.
+func (pc *ParcelCreate) SetTransaction(t *Transaction) *ParcelCreate {
+	return pc.SetTransactionID(t.ID)
 }
 
 // SetTripID sets the "trip" edge to the Trip entity by ID.
@@ -285,14 +263,6 @@ func (pc *ParcelCreate) defaults() {
 		v := parcel.DefaultUpdatedAt()
 		pc.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := pc.mutation.Amount(); !ok {
-		v := parcel.DefaultAmount
-		pc.mutation.SetAmount(v)
-	}
-	if _, ok := pc.mutation.TansType(); !ok {
-		v := parcel.DefaultTansType
-		pc.mutation.SetTansType(v)
-	}
 	if _, ok := pc.mutation.Status(); !ok {
 		v := parcel.DefaultStatus
 		pc.mutation.SetStatus(v)
@@ -369,17 +339,6 @@ func (pc *ParcelCreate) check() error {
 	if v, ok := pc.mutation.RecipientLocation(); ok {
 		if err := parcel.RecipientLocationValidator(v); err != nil {
 			return &ValidationError{Name: "recipient_location", err: fmt.Errorf(`ent: validator failed for field "Parcel.recipient_location": %w`, err)}
-		}
-	}
-	if _, ok := pc.mutation.Amount(); !ok {
-		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Parcel.amount"`)}
-	}
-	if _, ok := pc.mutation.TansType(); !ok {
-		return &ValidationError{Name: "tans_type", err: errors.New(`ent: missing required field "Parcel.tans_type"`)}
-	}
-	if v, ok := pc.mutation.TansType(); ok {
-		if err := parcel.TansTypeValidator(v); err != nil {
-			return &ValidationError{Name: "tans_type", err: fmt.Errorf(`ent: validator failed for field "Parcel.tans_type": %w`, err)}
 		}
 	}
 	if _, ok := pc.mutation.Status(); !ok {
@@ -460,18 +419,6 @@ func (pc *ParcelCreate) createSpec() (*Parcel, *sqlgraph.CreateSpec) {
 		_spec.SetField(parcel.FieldWeight, field.TypeFloat32, value)
 		_node.Weight = value
 	}
-	if value, ok := pc.mutation.Amount(); ok {
-		_spec.SetField(parcel.FieldAmount, field.TypeFloat64, value)
-		_node.Amount = value
-	}
-	if value, ok := pc.mutation.PaidAt(); ok {
-		_spec.SetField(parcel.FieldPaidAt, field.TypeTime, value)
-		_node.PaidAt = value
-	}
-	if value, ok := pc.mutation.TansType(); ok {
-		_spec.SetField(parcel.FieldTansType, field.TypeEnum, value)
-		_node.TansType = value
-	}
 	if value, ok := pc.mutation.Status(); ok {
 		_spec.SetField(parcel.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
@@ -485,6 +432,22 @@ func (pc *ParcelCreate) createSpec() (*Parcel, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(parcelimage.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.TransactionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   parcel.TransactionTable,
+			Columns: []string{parcel.TransactionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

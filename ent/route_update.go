@@ -158,48 +158,6 @@ func (ru *RouteUpdate) ClearToLongitude() *RouteUpdate {
 	return ru
 }
 
-// SetRate sets the "rate" field.
-func (ru *RouteUpdate) SetRate(f float64) *RouteUpdate {
-	ru.mutation.ResetRate()
-	ru.mutation.SetRate(f)
-	return ru
-}
-
-// SetNillableRate sets the "rate" field if the given value is not nil.
-func (ru *RouteUpdate) SetNillableRate(f *float64) *RouteUpdate {
-	if f != nil {
-		ru.SetRate(*f)
-	}
-	return ru
-}
-
-// AddRate adds f to the "rate" field.
-func (ru *RouteUpdate) AddRate(f float64) *RouteUpdate {
-	ru.mutation.AddRate(f)
-	return ru
-}
-
-// SetDiscount sets the "discount" field.
-func (ru *RouteUpdate) SetDiscount(f float32) *RouteUpdate {
-	ru.mutation.ResetDiscount()
-	ru.mutation.SetDiscount(f)
-	return ru
-}
-
-// SetNillableDiscount sets the "discount" field if the given value is not nil.
-func (ru *RouteUpdate) SetNillableDiscount(f *float32) *RouteUpdate {
-	if f != nil {
-		ru.SetDiscount(*f)
-	}
-	return ru
-}
-
-// AddDiscount adds f to the "discount" field.
-func (ru *RouteUpdate) AddDiscount(f float32) *RouteUpdate {
-	ru.mutation.AddDiscount(f)
-	return ru
-}
-
 // SetPopularity sets the "popularity" field.
 func (ru *RouteUpdate) SetPopularity(i int) *RouteUpdate {
 	ru.mutation.ResetPopularity()
@@ -436,18 +394,6 @@ func (ru *RouteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ru.mutation.ToLongitudeCleared() {
 		_spec.ClearField(route.FieldToLongitude, field.TypeFloat64)
-	}
-	if value, ok := ru.mutation.Rate(); ok {
-		_spec.SetField(route.FieldRate, field.TypeFloat64, value)
-	}
-	if value, ok := ru.mutation.AddedRate(); ok {
-		_spec.AddField(route.FieldRate, field.TypeFloat64, value)
-	}
-	if value, ok := ru.mutation.Discount(); ok {
-		_spec.SetField(route.FieldDiscount, field.TypeFloat32, value)
-	}
-	if value, ok := ru.mutation.AddedDiscount(); ok {
-		_spec.AddField(route.FieldDiscount, field.TypeFloat32, value)
 	}
 	if value, ok := ru.mutation.Popularity(); ok {
 		_spec.SetField(route.FieldPopularity, field.TypeInt, value)
@@ -722,48 +668,6 @@ func (ruo *RouteUpdateOne) ClearToLongitude() *RouteUpdateOne {
 	return ruo
 }
 
-// SetRate sets the "rate" field.
-func (ruo *RouteUpdateOne) SetRate(f float64) *RouteUpdateOne {
-	ruo.mutation.ResetRate()
-	ruo.mutation.SetRate(f)
-	return ruo
-}
-
-// SetNillableRate sets the "rate" field if the given value is not nil.
-func (ruo *RouteUpdateOne) SetNillableRate(f *float64) *RouteUpdateOne {
-	if f != nil {
-		ruo.SetRate(*f)
-	}
-	return ruo
-}
-
-// AddRate adds f to the "rate" field.
-func (ruo *RouteUpdateOne) AddRate(f float64) *RouteUpdateOne {
-	ruo.mutation.AddRate(f)
-	return ruo
-}
-
-// SetDiscount sets the "discount" field.
-func (ruo *RouteUpdateOne) SetDiscount(f float32) *RouteUpdateOne {
-	ruo.mutation.ResetDiscount()
-	ruo.mutation.SetDiscount(f)
-	return ruo
-}
-
-// SetNillableDiscount sets the "discount" field if the given value is not nil.
-func (ruo *RouteUpdateOne) SetNillableDiscount(f *float32) *RouteUpdateOne {
-	if f != nil {
-		ruo.SetDiscount(*f)
-	}
-	return ruo
-}
-
-// AddDiscount adds f to the "discount" field.
-func (ruo *RouteUpdateOne) AddDiscount(f float32) *RouteUpdateOne {
-	ruo.mutation.AddDiscount(f)
-	return ruo
-}
-
 // SetPopularity sets the "popularity" field.
 func (ruo *RouteUpdateOne) SetPopularity(i int) *RouteUpdateOne {
 	ruo.mutation.ResetPopularity()
@@ -1030,18 +934,6 @@ func (ruo *RouteUpdateOne) sqlSave(ctx context.Context) (_node *Route, err error
 	}
 	if ruo.mutation.ToLongitudeCleared() {
 		_spec.ClearField(route.FieldToLongitude, field.TypeFloat64)
-	}
-	if value, ok := ruo.mutation.Rate(); ok {
-		_spec.SetField(route.FieldRate, field.TypeFloat64, value)
-	}
-	if value, ok := ruo.mutation.AddedRate(); ok {
-		_spec.AddField(route.FieldRate, field.TypeFloat64, value)
-	}
-	if value, ok := ruo.mutation.Discount(); ok {
-		_spec.SetField(route.FieldDiscount, field.TypeFloat32, value)
-	}
-	if value, ok := ruo.mutation.AddedDiscount(); ok {
-		_spec.AddField(route.FieldDiscount, field.TypeFloat32, value)
 	}
 	if value, ok := ruo.mutation.Popularity(); ok {
 		_spec.SetField(route.FieldPopularity, field.TypeInt, value)

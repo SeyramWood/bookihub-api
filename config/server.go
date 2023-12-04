@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
 	"go.uber.org/zap"
 )
 
@@ -40,6 +41,7 @@ func NewServer() *server {
 				StreamRequestBody: true,
 				JSONEncoder:       json.Marshal,
 				JSONDecoder:       json.Unmarshal,
+				Views:             html.New("./app/framework/http/templates", ".html"),
 			},
 		),
 		WG:     &wg,

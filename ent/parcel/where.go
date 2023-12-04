@@ -110,16 +110,6 @@ func Weight(v float32) predicate.Parcel {
 	return predicate.Parcel(sql.FieldEQ(FieldWeight, v))
 }
 
-// Amount applies equality check predicate on the "amount" field. It's identical to AmountEQ.
-func Amount(v float64) predicate.Parcel {
-	return predicate.Parcel(sql.FieldEQ(FieldAmount, v))
-}
-
-// PaidAt applies equality check predicate on the "paid_at" field. It's identical to PaidAtEQ.
-func PaidAt(v time.Time) predicate.Parcel {
-	return predicate.Parcel(sql.FieldEQ(FieldPaidAt, v))
-}
-
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Parcel {
 	return predicate.Parcel(sql.FieldEQ(FieldCreatedAt, v))
@@ -770,116 +760,6 @@ func WeightNotNil() predicate.Parcel {
 	return predicate.Parcel(sql.FieldNotNull(FieldWeight))
 }
 
-// AmountEQ applies the EQ predicate on the "amount" field.
-func AmountEQ(v float64) predicate.Parcel {
-	return predicate.Parcel(sql.FieldEQ(FieldAmount, v))
-}
-
-// AmountNEQ applies the NEQ predicate on the "amount" field.
-func AmountNEQ(v float64) predicate.Parcel {
-	return predicate.Parcel(sql.FieldNEQ(FieldAmount, v))
-}
-
-// AmountIn applies the In predicate on the "amount" field.
-func AmountIn(vs ...float64) predicate.Parcel {
-	return predicate.Parcel(sql.FieldIn(FieldAmount, vs...))
-}
-
-// AmountNotIn applies the NotIn predicate on the "amount" field.
-func AmountNotIn(vs ...float64) predicate.Parcel {
-	return predicate.Parcel(sql.FieldNotIn(FieldAmount, vs...))
-}
-
-// AmountGT applies the GT predicate on the "amount" field.
-func AmountGT(v float64) predicate.Parcel {
-	return predicate.Parcel(sql.FieldGT(FieldAmount, v))
-}
-
-// AmountGTE applies the GTE predicate on the "amount" field.
-func AmountGTE(v float64) predicate.Parcel {
-	return predicate.Parcel(sql.FieldGTE(FieldAmount, v))
-}
-
-// AmountLT applies the LT predicate on the "amount" field.
-func AmountLT(v float64) predicate.Parcel {
-	return predicate.Parcel(sql.FieldLT(FieldAmount, v))
-}
-
-// AmountLTE applies the LTE predicate on the "amount" field.
-func AmountLTE(v float64) predicate.Parcel {
-	return predicate.Parcel(sql.FieldLTE(FieldAmount, v))
-}
-
-// PaidAtEQ applies the EQ predicate on the "paid_at" field.
-func PaidAtEQ(v time.Time) predicate.Parcel {
-	return predicate.Parcel(sql.FieldEQ(FieldPaidAt, v))
-}
-
-// PaidAtNEQ applies the NEQ predicate on the "paid_at" field.
-func PaidAtNEQ(v time.Time) predicate.Parcel {
-	return predicate.Parcel(sql.FieldNEQ(FieldPaidAt, v))
-}
-
-// PaidAtIn applies the In predicate on the "paid_at" field.
-func PaidAtIn(vs ...time.Time) predicate.Parcel {
-	return predicate.Parcel(sql.FieldIn(FieldPaidAt, vs...))
-}
-
-// PaidAtNotIn applies the NotIn predicate on the "paid_at" field.
-func PaidAtNotIn(vs ...time.Time) predicate.Parcel {
-	return predicate.Parcel(sql.FieldNotIn(FieldPaidAt, vs...))
-}
-
-// PaidAtGT applies the GT predicate on the "paid_at" field.
-func PaidAtGT(v time.Time) predicate.Parcel {
-	return predicate.Parcel(sql.FieldGT(FieldPaidAt, v))
-}
-
-// PaidAtGTE applies the GTE predicate on the "paid_at" field.
-func PaidAtGTE(v time.Time) predicate.Parcel {
-	return predicate.Parcel(sql.FieldGTE(FieldPaidAt, v))
-}
-
-// PaidAtLT applies the LT predicate on the "paid_at" field.
-func PaidAtLT(v time.Time) predicate.Parcel {
-	return predicate.Parcel(sql.FieldLT(FieldPaidAt, v))
-}
-
-// PaidAtLTE applies the LTE predicate on the "paid_at" field.
-func PaidAtLTE(v time.Time) predicate.Parcel {
-	return predicate.Parcel(sql.FieldLTE(FieldPaidAt, v))
-}
-
-// PaidAtIsNil applies the IsNil predicate on the "paid_at" field.
-func PaidAtIsNil() predicate.Parcel {
-	return predicate.Parcel(sql.FieldIsNull(FieldPaidAt))
-}
-
-// PaidAtNotNil applies the NotNil predicate on the "paid_at" field.
-func PaidAtNotNil() predicate.Parcel {
-	return predicate.Parcel(sql.FieldNotNull(FieldPaidAt))
-}
-
-// TansTypeEQ applies the EQ predicate on the "tans_type" field.
-func TansTypeEQ(v TansType) predicate.Parcel {
-	return predicate.Parcel(sql.FieldEQ(FieldTansType, v))
-}
-
-// TansTypeNEQ applies the NEQ predicate on the "tans_type" field.
-func TansTypeNEQ(v TansType) predicate.Parcel {
-	return predicate.Parcel(sql.FieldNEQ(FieldTansType, v))
-}
-
-// TansTypeIn applies the In predicate on the "tans_type" field.
-func TansTypeIn(vs ...TansType) predicate.Parcel {
-	return predicate.Parcel(sql.FieldIn(FieldTansType, vs...))
-}
-
-// TansTypeNotIn applies the NotIn predicate on the "tans_type" field.
-func TansTypeNotIn(vs ...TansType) predicate.Parcel {
-	return predicate.Parcel(sql.FieldNotIn(FieldTansType, vs...))
-}
-
 // StatusEQ applies the EQ predicate on the "status" field.
 func StatusEQ(v Status) predicate.Parcel {
 	return predicate.Parcel(sql.FieldEQ(FieldStatus, v))
@@ -915,6 +795,29 @@ func HasImages() predicate.Parcel {
 func HasImagesWith(preds ...predicate.ParcelImage) predicate.Parcel {
 	return predicate.Parcel(func(s *sql.Selector) {
 		step := newImagesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTransaction applies the HasEdge predicate on the "transaction" edge.
+func HasTransaction() predicate.Parcel {
+	return predicate.Parcel(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, TransactionTable, TransactionColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTransactionWith applies the HasEdge predicate on the "transaction" edge with a given conditions (other predicates).
+func HasTransactionWith(preds ...predicate.Transaction) predicate.Parcel {
+	return predicate.Parcel(func(s *sql.Selector) {
+		step := newTransactionStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

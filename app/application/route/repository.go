@@ -52,8 +52,6 @@ func (r *repository) Insert(companyId int, request *requeststructs.RouteRequest)
 		SetFromLongitude(request.FromLongitude).
 		SetToLatitude(request.ToLatitude).
 		SetToLongitude(request.ToLongitude).
-		SetRate(request.Rate).
-		SetDiscount(request.Discount).
 		Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed creating route: %w", err))
@@ -146,8 +144,6 @@ func (r *repository) Update(id int, request *requeststructs.RouteUpdateRequest) 
 		SetFromLongitude(request.FromLongitude).
 		SetToLatitude(request.ToLatitude).
 		SetToLongitude(request.ToLongitude).
-		SetRate(request.Rate).
-		SetDiscount(request.Discount).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err
