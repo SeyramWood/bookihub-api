@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -47,6 +48,7 @@ func (h *authHandler) Login() fiber.Handler {
 }
 func (h *authHandler) GetSession() fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		log.Println(c.Locals("user"))
 		return c.Status(fiber.StatusOK).JSON(presenters.SuccessResponse(c.Locals("user")))
 	}
 }
