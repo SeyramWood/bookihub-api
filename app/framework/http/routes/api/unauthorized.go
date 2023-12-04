@@ -16,6 +16,7 @@ func UnauthorizedRoutes(r fiber.Router, router *apiRouter) {
 	customerHandler := api.NewCustomerHandler(router.Adapter)
 	bookingHandler := api.NewBookingHandler(router.Adapter, router.EventProducer, router.CacheSrv, router.Payment)
 	parcelHandler := api.NewParcelHandler(router.Adapter, router.StorageSrv, router.Payment, router.EventProducer)
+	routeHandler := api.NewRouteHandler(router.Adapter)
 
 	authGroup := r.Group("/auth")
 	authGroup.Post("/login", authHandler.Login())
@@ -42,5 +43,8 @@ func UnauthorizedRoutes(r fiber.Router, router *apiRouter) {
 
 	packageGroup := r.Group("/packages")
 	packageGroup.Get("/code/:code", parcelHandler.FetchByCode())
+
+	routeGroup := r.Group("/routes")
+	routeGroup.Get("/distinct", routeHandler.FetchAllDistinct())
 
 }

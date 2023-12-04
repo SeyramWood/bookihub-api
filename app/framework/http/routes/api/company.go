@@ -59,7 +59,6 @@ func CompanyRoutes(r fiber.Router, router *apiRouter) {
 
 	routeGroup := r.Group("/routes")
 	routeGroup.Get("", routeHandler.FetchAll())
-	routeGroup.Get("/distinct", routeHandler.FetchAllDistinct())
 	routeGroup.Get("/company/:id", routeHandler.FetchAllByCompany())
 	routeGroup.Get("/:id", routeHandler.Fetch())
 	routeGroup.Post("/company/:id", adaptor.HTTPMiddleware(requests.ValidateRoute), routeHandler.Create())
