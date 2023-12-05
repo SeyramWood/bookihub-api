@@ -116,7 +116,7 @@ func (s *service) SendPasswordResetCode(request *requeststructs.UsernameRequest)
 	if application.UsernameType(request.Username, "email") {
 		s.producer.Queue("notification:email", domain.MailerMessage{
 			To:       request.Username,
-			Subject:  "PASSWORD RESET - Booki Rides",
+			Subject:  "PASSWORD RESET - BookiRide",
 			Data:     code,
 			Template: "resetpassword",
 		})

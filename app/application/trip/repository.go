@@ -3,7 +3,6 @@ package trip
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
@@ -725,7 +724,6 @@ func (r *repository) filterTrip(query *ent.TripQuery, limit, offset int) (*prese
 	if err != nil {
 		return nil, err
 	}
-	log.Println(results)
 	return application.Paginate(count, results)
 }
 
