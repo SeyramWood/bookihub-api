@@ -101,11 +101,6 @@ func IncidentResponse(data *ent.Incident) *fiber.Map {
 						}
 						return nil
 					}(),
-					Bookings:  []*BookingResponseData{},
-					Delivery:  []*ParcelResponseData{},
-					Incident:  []*IncidentResponseData{},
-					CreatedAt: nil,
-					UpdatedAt: data,
 				}
 			}
 			return nil
@@ -192,11 +187,6 @@ func IncidentsResponse(data *PaginationResponse) *fiber.Map {
 							}
 							return nil
 						}(),
-						Bookings:  []*BookingResponseData{},
-						Delivery:  []*ParcelResponseData{},
-						Incident:  []*IncidentResponseData{},
-						CreatedAt: nil,
-						UpdatedAt: data,
 					}
 				}
 				return nil
