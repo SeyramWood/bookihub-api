@@ -735,6 +735,7 @@ func TripsResponse(data *PaginationResponse) *fiber.Map {
 			UpdatedAt: t.UpdatedAt,
 		})
 	}
+
 	data.Data = response
 	return SuccessResponse(data)
 }

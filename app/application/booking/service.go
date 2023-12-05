@@ -59,20 +59,27 @@ func (s *service) Create(request *requeststructs.BookingRequest, transType strin
 				Recipients: []string{result.Edges.Contact.Phone},
 			})
 		} else {
-			s.producer.Queue("notification:email", domain.MailerMessage{
-				To:      result.Edges.Contact.Email,
-				Subject: "Trip Ticket - BookiRide",
-				Data: map[string]any{
-					"data":   presenters.BookingTicketResponse(result),
-					"url":    config.App().AppWebsiteURL,
-					"appUrl": config.App().AppURL,
-					"bookiContact": map[string]string{
-						"email": config.Contact().Email,
-						"phone": config.Contact().Phone,
+			if result.Edges.Contact.Email == "" {
+				s.producer.Queue("notification:sms", domain.SMSPayload{
+					Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
+					Recipients: []string{result.Edges.Contact.Phone},
+				})
+			} else {
+				s.producer.Queue("notification:email", domain.MailerMessage{
+					To:      result.Edges.Contact.Email,
+					Subject: "Trip Ticket - BookiRide",
+					Data: map[string]any{
+						"data":   presenters.BookingTicketResponse(result),
+						"url":    config.App().AppWebsiteURL,
+						"appUrl": config.App().AppURL,
+						"bookiContact": map[string]string{
+							"email": config.Contact().Email,
+							"phone": config.Contact().Phone,
+						},
 					},
-				},
-				Template: "newbooking",
-			})
+					Template: "newbooking",
+				})
+			}
 		}
 
 		return result, nil
@@ -94,20 +101,27 @@ func (s *service) Create(request *requeststructs.BookingRequest, transType strin
 				Recipients: []string{result.Edges.Contact.Phone},
 			})
 		} else {
-			s.producer.Queue("notification:email", domain.MailerMessage{
-				To:      result.Edges.Contact.Email,
-				Subject: "Trip Ticket - BookiRide",
-				Data: map[string]any{
-					"data":   presenters.BookingTicketResponse(result),
-					"url":    config.App().AppWebsiteURL,
-					"appUrl": config.App().AppURL,
-					"bookiContact": map[string]string{
-						"email": config.Contact().Email,
-						"phone": config.Contact().Phone,
+			if result.Edges.Contact.Email == "" {
+				s.producer.Queue("notification:sms", domain.SMSPayload{
+					Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
+					Recipients: []string{result.Edges.Contact.Phone},
+				})
+			} else {
+				s.producer.Queue("notification:email", domain.MailerMessage{
+					To:      result.Edges.Contact.Email,
+					Subject: "Trip Ticket - BookiRide",
+					Data: map[string]any{
+						"data":   presenters.BookingTicketResponse(result),
+						"url":    config.App().AppWebsiteURL,
+						"appUrl": config.App().AppURL,
+						"bookiContact": map[string]string{
+							"email": config.Contact().Email,
+							"phone": config.Contact().Phone,
+						},
 					},
-				},
-				Template: "newbooking",
-			})
+					Template: "newbooking",
+				})
+			}
 		}
 		return result, nil
 	}

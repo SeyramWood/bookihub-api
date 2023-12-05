@@ -80,7 +80,6 @@ func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse 
 	if err != nil {
 		return nil, fmt.Errorf("error starting a transaction: %w", err)
 	}
-
 	var result *ent.Booking
 	if request.CustomerID != 0 {
 		res, err := tx.Booking.Create().
