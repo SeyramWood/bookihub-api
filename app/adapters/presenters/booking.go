@@ -232,14 +232,24 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 					Rate:             t.Rate,
 					Discount:         t.Discount,
 					Terminal: &TripTerminalResponseData{
-						From: &TerminalResponseData{
-							ID:   t.Edges.FromTerminal.ID,
-							Name: t.Edges.FromTerminal.Name,
-						},
-						To: &TerminalResponseData{
-							ID:   t.Edges.ToTerminal.ID,
-							Name: t.Edges.ToTerminal.Name,
-						},
+						From: func() *TerminalResponseData {
+							if tr, err := t.Edges.FromTerminalOrErr(); err == nil && tr != nil {
+								return &TerminalResponseData{
+									ID:   tr.ID,
+									Name: tr.Name,
+								}
+							}
+							return nil
+						}(),
+						To: func() *TerminalResponseData {
+							if tr, err := t.Edges.ToTerminalOrErr(); err == nil && tr != nil {
+								return &TerminalResponseData{
+									ID:   tr.ID,
+									Name: tr.Name,
+								}
+							}
+							return nil
+						}(),
 					},
 					Vehicle: func() *VehicleResponseData {
 						if v, err := t.Edges.VehicleOrErr(); err == nil {
@@ -283,8 +293,6 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 						}
 						return nil
 					}(),
-					CreatedAt: nil,
-					UpdatedAt: data,
 				}
 			}
 			return nil
@@ -360,14 +368,24 @@ func BookingsResponse(data *PaginationResponse) *fiber.Map {
 						Rate:             t.Rate,
 						Discount:         t.Discount,
 						Terminal: &TripTerminalResponseData{
-							From: &TerminalResponseData{
-								ID:   t.Edges.FromTerminal.ID,
-								Name: t.Edges.FromTerminal.Name,
-							},
-							To: &TerminalResponseData{
-								ID:   t.Edges.ToTerminal.ID,
-								Name: t.Edges.ToTerminal.Name,
-							},
+							From: func() *TerminalResponseData {
+								if tr, err := t.Edges.FromTerminalOrErr(); err == nil && tr != nil {
+									return &TerminalResponseData{
+										ID:   tr.ID,
+										Name: tr.Name,
+									}
+								}
+								return nil
+							}(),
+							To: func() *TerminalResponseData {
+								if tr, err := t.Edges.ToTerminalOrErr(); err == nil && tr != nil {
+									return &TerminalResponseData{
+										ID:   tr.ID,
+										Name: tr.Name,
+									}
+								}
+								return nil
+							}(),
 						},
 						Vehicle: func() *VehicleResponseData {
 							if v, err := t.Edges.VehicleOrErr(); err == nil {
@@ -411,8 +429,6 @@ func BookingsResponse(data *PaginationResponse) *fiber.Map {
 							}
 							return nil
 						}(),
-						CreatedAt: nil,
-						UpdatedAt: data,
 					}
 				}
 				return nil

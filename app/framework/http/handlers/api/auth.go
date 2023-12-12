@@ -63,6 +63,7 @@ func (h *authHandler) UpdateAvatar() fiber.Handler {
 		request.Avatar = avatarFile
 		userID, _ := c.ParamsInt("id")
 		avatar, err := h.service.UpdateAvatar(userID, request)
+
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))

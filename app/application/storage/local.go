@@ -65,10 +65,10 @@ func (l *local) uploadResizeImage(dir string, fh *multipart.FileHeader, width, h
 }
 func (l *local) deleteFile(path any) error {
 	fPath := path.(string)
-	if err := os.RemoveAll(fmt.Sprintf("./storage/%s", fPath)); err != nil {
+	if err := os.Remove(fmt.Sprintf("./storage/%s", fPath)); err != nil {
 		return err
 	}
-	if err := os.RemoveAll(fmt.Sprintf("./storage/%s.fiber.gz", fPath)); err != nil {
+	if err := os.Remove(fmt.Sprintf("./storage/%s.fiber.gz", fPath)); err != nil {
 		return err
 	}
 	return nil

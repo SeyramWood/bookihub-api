@@ -59,6 +59,7 @@ func (h *bookingHandler) FetchAll() fiber.Handler {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}
+
 		return c.Status(fiber.StatusOK).JSON(presenters.BookingsResponse(results))
 	}
 }
