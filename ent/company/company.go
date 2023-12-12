@@ -31,6 +31,8 @@ const (
 	FieldBankAccount = "bank_account"
 	// FieldContactPerson holds the string denoting the contact_person field in the database.
 	FieldContactPerson = "contact_person"
+	// FieldLogo holds the string denoting the logo field in the database.
+	FieldLogo = "logo"
 	// FieldOnboardingStatus holds the string denoting the onboarding_status field in the database.
 	FieldOnboardingStatus = "onboarding_status"
 	// EdgeProfile holds the string denoting the profile edge name in mutations.
@@ -138,6 +140,7 @@ var Columns = []string{
 	FieldCertificate,
 	FieldBankAccount,
 	FieldContactPerson,
+	FieldLogo,
 	FieldOnboardingStatus,
 }
 
@@ -229,6 +232,11 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 // ByCertificate orders the results by the certificate field.
 func ByCertificate(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCertificate, opts...).ToFunc()
+}
+
+// ByLogo orders the results by the logo field.
+func ByLogo(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLogo, opts...).ToFunc()
 }
 
 // ByOnboardingStatus orders the results by the onboarding_status field.

@@ -25,7 +25,7 @@ func NewService(repo gateways.CompanyRepo, producer gateways.EventProducer, stor
 		repo:        repo,
 		producer:    producer,
 		storage:     storage,
-		storagePath: "public/company/certificates",
+		storagePath: "public/company",
 	}
 }
 
@@ -57,11 +57,11 @@ func (s *service) BookiOnboard(request *requeststructs.BookiOnboardingRequest) (
 		return nil, err
 	}
 	s.producer.Queue("notification:email", domain.MailerMessage{
-		To:      request.AdminUsername,
-		Subject: "COMPANY ADMIN ACCOUNT - Booki Rides",
+		To:      request.ManagerUsername,
+		Subject: "COMPANY MANAGER ACCOUNT - BookiRide",
 		Data: map[string]string{
 			"company":  request.CompanyName,
-			"username": request.AdminUsername,
+			"username": request.ManagerUsername,
 			"password": password,
 			"url":      config.App().AppCompanyURL,
 		},
@@ -90,7 +90,7 @@ func (s *service) UpdateCertificate(id int, request *requeststructs.CompanyCerti
 	if err != nil {
 		return nil, err
 	}
-	certificate, err := s.storage.UploadFile(s.storagePath, request.BusinessCertificate)
+	certificate, err := s.storage.UploadFile(fmt.Sprintf("%s/certificates", s.storagePath), request.BusinessCertificate)
 	if err != nil {
 		return nil, err
 	}
@@ -100,6 +100,25 @@ func (s *service) UpdateCertificate(id int, request *requeststructs.CompanyCerti
 		return nil, err
 	}
 	go s.storage.ExecuteTask(strings.Replace(com.Certificate, config.App().AppURL, "public", 1), "delete_file")
+	return result, nil
+}
+
+// UpdateLogo implements gateways.CompanyService.
+func (s *service) UpdateLogo(id int, request *requeststructs.CompanyLogoUpdateRequest) (*ent.Company, error) {
+	com, err := s.repo.Read(id)
+	if err != nil {
+		return nil, err
+	}
+	logo, err := s.storage.UploadFile(fmt.Sprintf("%s/logos", s.storagePath), request.BusinessLogo)
+	if err != nil {
+		return nil, err
+	}
+	result, err := s.repo.UpdateLogo(id, logo)
+	if err != nil {
+		go s.storage.ExecuteTask(strings.Replace(logo, config.App().AppURL, "public", 1), "delete_file")
+		return nil, err
+	}
+	go s.storage.ExecuteTask(strings.Replace(com.Logo, config.App().AppURL, "public", 1), "delete_file")
 	return result, nil
 }
 

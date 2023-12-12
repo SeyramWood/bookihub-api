@@ -26,7 +26,7 @@ func (CompanyUser) Fields() []ent.Field {
 		field.String("other_name").Optional(),
 		field.String("phone").Optional(),
 		field.String("other_phone").Optional(),
-		field.Enum("role").Values("admin", "manager", "teller", "driver").Default("admin"),
+		field.Enum("user_role").Values("manager", "teller", "driver").Default("manager"),
 	}
 }
 

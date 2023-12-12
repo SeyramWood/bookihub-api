@@ -79,6 +79,9 @@ func ValidateCompanyBankAccountUpdate(next http.Handler) http.Handler {
 func ValidateCompanyContactPersonUpdate(next http.Handler) http.Handler {
 	return valid.New(validConfig()).RequestStruct(new(requeststructs.CompanyContactPersonUpdateRequest)).ValidateRequest(next)
 }
+func ValidateCompanyLogoUpdate(next http.Handler) http.Handler {
+	return valid.New(validConfig()).RequestStruct(new(requeststructs.CompanyLogoUpdateRequest)).ValidateRequest(next)
+}
 func ValidateCompanyCertificateUpdate(next http.Handler) http.Handler {
 	return valid.New(validConfig()).RequestStruct(new(requeststructs.CompanyCertificateUpdateRequest)).ValidateRequest(next)
 }

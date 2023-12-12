@@ -465,24 +465,24 @@ func OtherPhoneContainsFold(v string) predicate.CompanyUser {
 	return predicate.CompanyUser(sql.FieldContainsFold(FieldOtherPhone, v))
 }
 
-// RoleEQ applies the EQ predicate on the "role" field.
-func RoleEQ(v Role) predicate.CompanyUser {
-	return predicate.CompanyUser(sql.FieldEQ(FieldRole, v))
+// UserRoleEQ applies the EQ predicate on the "user_role" field.
+func UserRoleEQ(v UserRole) predicate.CompanyUser {
+	return predicate.CompanyUser(sql.FieldEQ(FieldUserRole, v))
 }
 
-// RoleNEQ applies the NEQ predicate on the "role" field.
-func RoleNEQ(v Role) predicate.CompanyUser {
-	return predicate.CompanyUser(sql.FieldNEQ(FieldRole, v))
+// UserRoleNEQ applies the NEQ predicate on the "user_role" field.
+func UserRoleNEQ(v UserRole) predicate.CompanyUser {
+	return predicate.CompanyUser(sql.FieldNEQ(FieldUserRole, v))
 }
 
-// RoleIn applies the In predicate on the "role" field.
-func RoleIn(vs ...Role) predicate.CompanyUser {
-	return predicate.CompanyUser(sql.FieldIn(FieldRole, vs...))
+// UserRoleIn applies the In predicate on the "user_role" field.
+func UserRoleIn(vs ...UserRole) predicate.CompanyUser {
+	return predicate.CompanyUser(sql.FieldIn(FieldUserRole, vs...))
 }
 
-// RoleNotIn applies the NotIn predicate on the "role" field.
-func RoleNotIn(vs ...Role) predicate.CompanyUser {
-	return predicate.CompanyUser(sql.FieldNotIn(FieldRole, vs...))
+// UserRoleNotIn applies the NotIn predicate on the "user_role" field.
+func UserRoleNotIn(vs ...UserRole) predicate.CompanyUser {
+	return predicate.CompanyUser(sql.FieldNotIn(FieldUserRole, vs...))
 }
 
 // HasProfile applies the HasEdge predicate on the "profile" edge.

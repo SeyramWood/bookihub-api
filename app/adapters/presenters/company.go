@@ -117,7 +117,7 @@ func CompanyUserResponse(data *ent.CompanyUser) *fiber.Map {
 		OtherName:  data.OtherName,
 		Phone:      data.Phone,
 		OtherPhone: data.OtherPhone,
-		Role:       string(data.Role),
+		Role:       string(data.UserRole),
 		CreatedAt:  data.CreatedAt,
 		UpdatedAt:  data.UpdatedAt,
 	})
@@ -131,7 +131,7 @@ func CompanyUsersResponse(data *PaginationResponse) *fiber.Map {
 			OtherName:  u.OtherName,
 			Phone:      u.Phone,
 			OtherPhone: u.OtherPhone,
-			Role:       string(u.Role),
+			Role:       string(u.UserRole),
 			CreatedAt:  u.CreatedAt,
 			UpdatedAt:  u.UpdatedAt,
 		})

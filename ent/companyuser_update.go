@@ -121,16 +121,16 @@ func (cuu *CompanyUserUpdate) ClearOtherPhone() *CompanyUserUpdate {
 	return cuu
 }
 
-// SetRole sets the "role" field.
-func (cuu *CompanyUserUpdate) SetRole(c companyuser.Role) *CompanyUserUpdate {
-	cuu.mutation.SetRole(c)
+// SetUserRole sets the "user_role" field.
+func (cuu *CompanyUserUpdate) SetUserRole(cr companyuser.UserRole) *CompanyUserUpdate {
+	cuu.mutation.SetUserRole(cr)
 	return cuu
 }
 
-// SetNillableRole sets the "role" field if the given value is not nil.
-func (cuu *CompanyUserUpdate) SetNillableRole(c *companyuser.Role) *CompanyUserUpdate {
-	if c != nil {
-		cuu.SetRole(*c)
+// SetNillableUserRole sets the "user_role" field if the given value is not nil.
+func (cuu *CompanyUserUpdate) SetNillableUserRole(cr *companyuser.UserRole) *CompanyUserUpdate {
+	if cr != nil {
+		cuu.SetUserRole(*cr)
 	}
 	return cuu
 }
@@ -372,9 +372,9 @@ func (cuu *CompanyUserUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (cuu *CompanyUserUpdate) check() error {
-	if v, ok := cuu.mutation.Role(); ok {
-		if err := companyuser.RoleValidator(v); err != nil {
-			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "CompanyUser.role": %w`, err)}
+	if v, ok := cuu.mutation.UserRole(); ok {
+		if err := companyuser.UserRoleValidator(v); err != nil {
+			return &ValidationError{Name: "user_role", err: fmt.Errorf(`ent: validator failed for field "CompanyUser.user_role": %w`, err)}
 		}
 	}
 	return nil
@@ -425,8 +425,8 @@ func (cuu *CompanyUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if cuu.mutation.OtherPhoneCleared() {
 		_spec.ClearField(companyuser.FieldOtherPhone, field.TypeString)
 	}
-	if value, ok := cuu.mutation.Role(); ok {
-		_spec.SetField(companyuser.FieldRole, field.TypeEnum, value)
+	if value, ok := cuu.mutation.UserRole(); ok {
+		_spec.SetField(companyuser.FieldUserRole, field.TypeEnum, value)
 	}
 	if cuu.mutation.ProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -774,16 +774,16 @@ func (cuuo *CompanyUserUpdateOne) ClearOtherPhone() *CompanyUserUpdateOne {
 	return cuuo
 }
 
-// SetRole sets the "role" field.
-func (cuuo *CompanyUserUpdateOne) SetRole(c companyuser.Role) *CompanyUserUpdateOne {
-	cuuo.mutation.SetRole(c)
+// SetUserRole sets the "user_role" field.
+func (cuuo *CompanyUserUpdateOne) SetUserRole(cr companyuser.UserRole) *CompanyUserUpdateOne {
+	cuuo.mutation.SetUserRole(cr)
 	return cuuo
 }
 
-// SetNillableRole sets the "role" field if the given value is not nil.
-func (cuuo *CompanyUserUpdateOne) SetNillableRole(c *companyuser.Role) *CompanyUserUpdateOne {
-	if c != nil {
-		cuuo.SetRole(*c)
+// SetNillableUserRole sets the "user_role" field if the given value is not nil.
+func (cuuo *CompanyUserUpdateOne) SetNillableUserRole(cr *companyuser.UserRole) *CompanyUserUpdateOne {
+	if cr != nil {
+		cuuo.SetUserRole(*cr)
 	}
 	return cuuo
 }
@@ -1038,9 +1038,9 @@ func (cuuo *CompanyUserUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (cuuo *CompanyUserUpdateOne) check() error {
-	if v, ok := cuuo.mutation.Role(); ok {
-		if err := companyuser.RoleValidator(v); err != nil {
-			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "CompanyUser.role": %w`, err)}
+	if v, ok := cuuo.mutation.UserRole(); ok {
+		if err := companyuser.UserRoleValidator(v); err != nil {
+			return &ValidationError{Name: "user_role", err: fmt.Errorf(`ent: validator failed for field "CompanyUser.user_role": %w`, err)}
 		}
 	}
 	return nil
@@ -1108,8 +1108,8 @@ func (cuuo *CompanyUserUpdateOne) sqlSave(ctx context.Context) (_node *CompanyUs
 	if cuuo.mutation.OtherPhoneCleared() {
 		_spec.ClearField(companyuser.FieldOtherPhone, field.TypeString)
 	}
-	if value, ok := cuuo.mutation.Role(); ok {
-		_spec.SetField(companyuser.FieldRole, field.TypeEnum, value)
+	if value, ok := cuuo.mutation.UserRole(); ok {
+		_spec.SetField(companyuser.FieldUserRole, field.TypeEnum, value)
 	}
 	if cuuo.mutation.ProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -35,6 +35,8 @@ type Company struct {
 	BankAccount *schema.BankAccount `json:"bank_account,omitempty"`
 	// ContactPerson holds the value of the "contact_person" field.
 	ContactPerson *schema.ContactPerson `json:"contact_person,omitempty"`
+	// Logo holds the value of the "logo" field.
+	Logo string `json:"logo,omitempty"`
 	// OnboardingStatus holds the value of the "onboarding_status" field.
 	OnboardingStatus company.OnboardingStatus `json:"onboarding_status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -169,7 +171,7 @@ func (*Company) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case company.FieldID:
 			values[i] = new(sql.NullInt64)
-		case company.FieldName, company.FieldPhone, company.FieldEmail, company.FieldCertificate, company.FieldOnboardingStatus:
+		case company.FieldName, company.FieldPhone, company.FieldEmail, company.FieldCertificate, company.FieldLogo, company.FieldOnboardingStatus:
 			values[i] = new(sql.NullString)
 		case company.FieldCreatedAt, company.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -245,6 +247,12 @@ func (c *Company) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &c.ContactPerson); err != nil {
 					return fmt.Errorf("unmarshal field contact_person: %w", err)
 				}
+			}
+		case company.FieldLogo:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field logo", values[i])
+			} else if value.Valid {
+				c.Logo = value.String
 			}
 		case company.FieldOnboardingStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -361,6 +369,9 @@ func (c *Company) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("contact_person=")
 	builder.WriteString(fmt.Sprintf("%v", c.ContactPerson))
+	builder.WriteString(", ")
+	builder.WriteString("logo=")
+	builder.WriteString(c.Logo)
 	builder.WriteString(", ")
 	builder.WriteString("onboarding_status=")
 	builder.WriteString(fmt.Sprintf("%v", c.OnboardingStatus))

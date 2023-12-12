@@ -31,7 +31,7 @@ func (s *service) Create(request *requeststructs.BookibusUserRequest) (*ent.Book
 	}
 	s.producer.Queue("notification:email", domain.MailerMessage{
 		To:      request.Username,
-		Subject: "NEW USER ACCOUNT - Booki Rides",
+		Subject: "NEW USER ACCOUNT - BookiRide",
 		Data: map[string]string{
 			"username": request.Username,
 			"password": password,

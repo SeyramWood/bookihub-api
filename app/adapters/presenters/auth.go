@@ -46,7 +46,7 @@ func FormatSession(data *ent.User) *AuthSession {
 			DisplayName:   strings.Split(profile.OtherName, " ")[0],
 			Username:      data.Username,
 			Avatar:        data.Avatar,
-			Role:          string(profile.Role),
+			Role:          string(profile.UserRole),
 		}
 	}
 	if profile, err := data.Edges.CustomerOrErr(); err == nil {

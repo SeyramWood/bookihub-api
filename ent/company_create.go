@@ -103,6 +103,20 @@ func (cc *CompanyCreate) SetContactPerson(sp *schema.ContactPerson) *CompanyCrea
 	return cc
 }
 
+// SetLogo sets the "logo" field.
+func (cc *CompanyCreate) SetLogo(s string) *CompanyCreate {
+	cc.mutation.SetLogo(s)
+	return cc
+}
+
+// SetNillableLogo sets the "logo" field if the given value is not nil.
+func (cc *CompanyCreate) SetNillableLogo(s *string) *CompanyCreate {
+	if s != nil {
+		cc.SetLogo(*s)
+	}
+	return cc
+}
+
 // SetOnboardingStatus sets the "onboarding_status" field.
 func (cc *CompanyCreate) SetOnboardingStatus(cs company.OnboardingStatus) *CompanyCreate {
 	cc.mutation.SetOnboardingStatus(cs)
@@ -413,6 +427,10 @@ func (cc *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 	if value, ok := cc.mutation.ContactPerson(); ok {
 		_spec.SetField(company.FieldContactPerson, field.TypeJSON, value)
 		_node.ContactPerson = value
+	}
+	if value, ok := cc.mutation.Logo(); ok {
+		_spec.SetField(company.FieldLogo, field.TypeString, value)
+		_node.Logo = value
 	}
 	if value, ok := cc.mutation.OnboardingStatus(); ok {
 		_spec.SetField(company.FieldOnboardingStatus, field.TypeEnum, value)

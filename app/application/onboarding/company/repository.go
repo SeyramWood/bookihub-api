@@ -54,7 +54,7 @@ func (r *repository) Insert(request *requeststructs.CompanyRequest) (*ent.Compan
 		SetCompany(c).
 		SetLastName("Company").
 		SetOtherName("Administrator").
-		SetRole(companyuser.DefaultRole).
+		SetUserRole(companyuser.DefaultUserRole).
 		Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed creating company user: %w", err))
@@ -123,7 +123,7 @@ func (r *repository) Onboard(id int, request *requeststructs.CompanyOnboardingRe
 }
 
 // BookiOnboard implements gateways.CompanyRepo.
-func (r *repository) BookiOnboard(adminPassword string, request *requeststructs.BookiOnboardingRequest) (*ent.Company, error) {
+func (r *repository) BookiOnboard(managerPassword string, request *requeststructs.BookiOnboardingRequest) (*ent.Company, error) {
 	tx, err := r.db.Tx(r.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error starting a transaction: %w", err)
@@ -148,19 +148,19 @@ func (r *repository) BookiOnboard(adminPassword string, request *requeststructs.
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed onboarding company: %w", err))
 	}
-	admin, err := tx.CompanyUser.Create().
+	manager, err := tx.CompanyUser.Create().
 		SetCompany(c).
 		SetLastName("Company").
-		SetOtherName("Administrator").
-		SetRole(companyuser.DefaultRole).
+		SetOtherName("Manager").
+		SetUserRole(companyuser.DefaultUserRole).
 		Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed creating company user: %w", err))
 	}
-	password, _ := bcrypt.GenerateFromPassword([]byte(strings.TrimSpace(adminPassword)), 16)
+	password, _ := bcrypt.GenerateFromPassword([]byte(strings.TrimSpace(managerPassword)), 16)
 	_, err = tx.User.Create().
-		SetCompanyUser(admin).
-		SetUsername(request.AdminUsername).
+		SetCompanyUser(manager).
+		SetUsername(request.ManagerUsername).
 		SetPassword(password).
 		SetType(user.TypeCompany).
 		Save(r.ctx)
@@ -182,6 +182,17 @@ func (r *repository) UpdateBankAccount(id int, request *requeststructs.CompanyBa
 			Bank:          request.Bank,
 			Branch:        request.Branch,
 		}).
+		Save(r.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return r.Read(id)
+}
+
+// UpdateCertificate implements gateways.CompanyRepo.
+func (r *repository) UpdateLogo(id int, logo string) (*ent.Company, error) {
+	_, err := r.db.Company.UpdateOneID(id).
+		SetLogo(logo).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err

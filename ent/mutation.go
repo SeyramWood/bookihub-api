@@ -1921,6 +1921,7 @@ type CompanyMutation struct {
 	certificate          *string
 	bank_account         **schema.BankAccount
 	contact_person       **schema.ContactPerson
+	logo                 *string
 	onboarding_status    *company.OnboardingStatus
 	clearedFields        map[string]struct{}
 	profile              map[int]struct{}
@@ -2381,6 +2382,55 @@ func (m *CompanyMutation) ContactPersonCleared() bool {
 func (m *CompanyMutation) ResetContactPerson() {
 	m.contact_person = nil
 	delete(m.clearedFields, company.FieldContactPerson)
+}
+
+// SetLogo sets the "logo" field.
+func (m *CompanyMutation) SetLogo(s string) {
+	m.logo = &s
+}
+
+// Logo returns the value of the "logo" field in the mutation.
+func (m *CompanyMutation) Logo() (r string, exists bool) {
+	v := m.logo
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLogo returns the old "logo" field's value of the Company entity.
+// If the Company object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompanyMutation) OldLogo(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLogo is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLogo requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLogo: %w", err)
+	}
+	return oldValue.Logo, nil
+}
+
+// ClearLogo clears the value of the "logo" field.
+func (m *CompanyMutation) ClearLogo() {
+	m.logo = nil
+	m.clearedFields[company.FieldLogo] = struct{}{}
+}
+
+// LogoCleared returns if the "logo" field was cleared in this mutation.
+func (m *CompanyMutation) LogoCleared() bool {
+	_, ok := m.clearedFields[company.FieldLogo]
+	return ok
+}
+
+// ResetLogo resets all changes to the "logo" field.
+func (m *CompanyMutation) ResetLogo() {
+	m.logo = nil
+	delete(m.clearedFields, company.FieldLogo)
 }
 
 // SetOnboardingStatus sets the "onboarding_status" field.
@@ -2993,7 +3043,7 @@ func (m *CompanyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CompanyMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, company.FieldCreatedAt)
 	}
@@ -3017,6 +3067,9 @@ func (m *CompanyMutation) Fields() []string {
 	}
 	if m.contact_person != nil {
 		fields = append(fields, company.FieldContactPerson)
+	}
+	if m.logo != nil {
+		fields = append(fields, company.FieldLogo)
 	}
 	if m.onboarding_status != nil {
 		fields = append(fields, company.FieldOnboardingStatus)
@@ -3045,6 +3098,8 @@ func (m *CompanyMutation) Field(name string) (ent.Value, bool) {
 		return m.BankAccount()
 	case company.FieldContactPerson:
 		return m.ContactPerson()
+	case company.FieldLogo:
+		return m.Logo()
 	case company.FieldOnboardingStatus:
 		return m.OnboardingStatus()
 	}
@@ -3072,6 +3127,8 @@ func (m *CompanyMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldBankAccount(ctx)
 	case company.FieldContactPerson:
 		return m.OldContactPerson(ctx)
+	case company.FieldLogo:
+		return m.OldLogo(ctx)
 	case company.FieldOnboardingStatus:
 		return m.OldOnboardingStatus(ctx)
 	}
@@ -3139,6 +3196,13 @@ func (m *CompanyMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetContactPerson(v)
 		return nil
+	case company.FieldLogo:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLogo(v)
+		return nil
 	case company.FieldOnboardingStatus:
 		v, ok := value.(company.OnboardingStatus)
 		if !ok {
@@ -3185,6 +3249,9 @@ func (m *CompanyMutation) ClearedFields() []string {
 	if m.FieldCleared(company.FieldContactPerson) {
 		fields = append(fields, company.FieldContactPerson)
 	}
+	if m.FieldCleared(company.FieldLogo) {
+		fields = append(fields, company.FieldLogo)
+	}
 	return fields
 }
 
@@ -3207,6 +3274,9 @@ func (m *CompanyMutation) ClearField(name string) error {
 		return nil
 	case company.FieldContactPerson:
 		m.ClearContactPerson()
+		return nil
+	case company.FieldLogo:
+		m.ClearLogo()
 		return nil
 	}
 	return fmt.Errorf("unknown Company nullable field %s", name)
@@ -3239,6 +3309,9 @@ func (m *CompanyMutation) ResetField(name string) error {
 		return nil
 	case company.FieldContactPerson:
 		m.ResetContactPerson()
+		return nil
+	case company.FieldLogo:
+		m.ResetLogo()
 		return nil
 	case company.FieldOnboardingStatus:
 		m.ResetOnboardingStatus()
@@ -3577,7 +3650,7 @@ type CompanyUserMutation struct {
 	other_name           *string
 	phone                *string
 	other_phone          *string
-	role                 *companyuser.Role
+	user_role            *companyuser.UserRole
 	clearedFields        map[string]struct{}
 	profile              *int
 	clearedprofile       bool
@@ -3966,40 +4039,40 @@ func (m *CompanyUserMutation) ResetOtherPhone() {
 	delete(m.clearedFields, companyuser.FieldOtherPhone)
 }
 
-// SetRole sets the "role" field.
-func (m *CompanyUserMutation) SetRole(c companyuser.Role) {
-	m.role = &c
+// SetUserRole sets the "user_role" field.
+func (m *CompanyUserMutation) SetUserRole(cr companyuser.UserRole) {
+	m.user_role = &cr
 }
 
-// Role returns the value of the "role" field in the mutation.
-func (m *CompanyUserMutation) Role() (r companyuser.Role, exists bool) {
-	v := m.role
+// UserRole returns the value of the "user_role" field in the mutation.
+func (m *CompanyUserMutation) UserRole() (r companyuser.UserRole, exists bool) {
+	v := m.user_role
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldRole returns the old "role" field's value of the CompanyUser entity.
+// OldUserRole returns the old "user_role" field's value of the CompanyUser entity.
 // If the CompanyUser object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompanyUserMutation) OldRole(ctx context.Context) (v companyuser.Role, err error) {
+func (m *CompanyUserMutation) OldUserRole(ctx context.Context) (v companyuser.UserRole, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRole is only allowed on UpdateOne operations")
+		return v, errors.New("OldUserRole is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRole requires an ID field in the mutation")
+		return v, errors.New("OldUserRole requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRole: %w", err)
+		return v, fmt.Errorf("querying old value for OldUserRole: %w", err)
 	}
-	return oldValue.Role, nil
+	return oldValue.UserRole, nil
 }
 
-// ResetRole resets all changes to the "role" field.
-func (m *CompanyUserMutation) ResetRole() {
-	m.role = nil
+// ResetUserRole resets all changes to the "user_role" field.
+func (m *CompanyUserMutation) ResetUserRole() {
+	m.user_role = nil
 }
 
 // SetProfileID sets the "profile" edge to the User entity by id.
@@ -4349,8 +4422,8 @@ func (m *CompanyUserMutation) Fields() []string {
 	if m.other_phone != nil {
 		fields = append(fields, companyuser.FieldOtherPhone)
 	}
-	if m.role != nil {
-		fields = append(fields, companyuser.FieldRole)
+	if m.user_role != nil {
+		fields = append(fields, companyuser.FieldUserRole)
 	}
 	return fields
 }
@@ -4372,8 +4445,8 @@ func (m *CompanyUserMutation) Field(name string) (ent.Value, bool) {
 		return m.Phone()
 	case companyuser.FieldOtherPhone:
 		return m.OtherPhone()
-	case companyuser.FieldRole:
-		return m.Role()
+	case companyuser.FieldUserRole:
+		return m.UserRole()
 	}
 	return nil, false
 }
@@ -4395,8 +4468,8 @@ func (m *CompanyUserMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldPhone(ctx)
 	case companyuser.FieldOtherPhone:
 		return m.OldOtherPhone(ctx)
-	case companyuser.FieldRole:
-		return m.OldRole(ctx)
+	case companyuser.FieldUserRole:
+		return m.OldUserRole(ctx)
 	}
 	return nil, fmt.Errorf("unknown CompanyUser field %s", name)
 }
@@ -4448,12 +4521,12 @@ func (m *CompanyUserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetOtherPhone(v)
 		return nil
-	case companyuser.FieldRole:
-		v, ok := value.(companyuser.Role)
+	case companyuser.FieldUserRole:
+		v, ok := value.(companyuser.UserRole)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetRole(v)
+		m.SetUserRole(v)
 		return nil
 	}
 	return fmt.Errorf("unknown CompanyUser field %s", name)
@@ -4549,8 +4622,8 @@ func (m *CompanyUserMutation) ResetField(name string) error {
 	case companyuser.FieldOtherPhone:
 		m.ResetOtherPhone()
 		return nil
-	case companyuser.FieldRole:
-		m.ResetRole()
+	case companyuser.FieldUserRole:
+		m.ResetUserRole()
 		return nil
 	}
 	return fmt.Errorf("unknown CompanyUser field %s", name)

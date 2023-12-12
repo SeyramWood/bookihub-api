@@ -108,6 +108,26 @@ func (cu *CompanyUpdate) ClearContactPerson() *CompanyUpdate {
 	return cu
 }
 
+// SetLogo sets the "logo" field.
+func (cu *CompanyUpdate) SetLogo(s string) *CompanyUpdate {
+	cu.mutation.SetLogo(s)
+	return cu
+}
+
+// SetNillableLogo sets the "logo" field if the given value is not nil.
+func (cu *CompanyUpdate) SetNillableLogo(s *string) *CompanyUpdate {
+	if s != nil {
+		cu.SetLogo(*s)
+	}
+	return cu
+}
+
+// ClearLogo clears the value of the "logo" field.
+func (cu *CompanyUpdate) ClearLogo() *CompanyUpdate {
+	cu.mutation.ClearLogo()
+	return cu
+}
+
 // SetOnboardingStatus sets the "onboarding_status" field.
 func (cu *CompanyUpdate) SetOnboardingStatus(cs company.OnboardingStatus) *CompanyUpdate {
 	cu.mutation.SetOnboardingStatus(cs)
@@ -595,6 +615,12 @@ func (cu *CompanyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if cu.mutation.ContactPersonCleared() {
 		_spec.ClearField(company.FieldContactPerson, field.TypeJSON)
+	}
+	if value, ok := cu.mutation.Logo(); ok {
+		_spec.SetField(company.FieldLogo, field.TypeString, value)
+	}
+	if cu.mutation.LogoCleared() {
+		_spec.ClearField(company.FieldLogo, field.TypeString)
 	}
 	if value, ok := cu.mutation.OnboardingStatus(); ok {
 		_spec.SetField(company.FieldOnboardingStatus, field.TypeEnum, value)
@@ -1139,6 +1165,26 @@ func (cuo *CompanyUpdateOne) ClearContactPerson() *CompanyUpdateOne {
 	return cuo
 }
 
+// SetLogo sets the "logo" field.
+func (cuo *CompanyUpdateOne) SetLogo(s string) *CompanyUpdateOne {
+	cuo.mutation.SetLogo(s)
+	return cuo
+}
+
+// SetNillableLogo sets the "logo" field if the given value is not nil.
+func (cuo *CompanyUpdateOne) SetNillableLogo(s *string) *CompanyUpdateOne {
+	if s != nil {
+		cuo.SetLogo(*s)
+	}
+	return cuo
+}
+
+// ClearLogo clears the value of the "logo" field.
+func (cuo *CompanyUpdateOne) ClearLogo() *CompanyUpdateOne {
+	cuo.mutation.ClearLogo()
+	return cuo
+}
+
 // SetOnboardingStatus sets the "onboarding_status" field.
 func (cuo *CompanyUpdateOne) SetOnboardingStatus(cs company.OnboardingStatus) *CompanyUpdateOne {
 	cuo.mutation.SetOnboardingStatus(cs)
@@ -1656,6 +1702,12 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 	}
 	if cuo.mutation.ContactPersonCleared() {
 		_spec.ClearField(company.FieldContactPerson, field.TypeJSON)
+	}
+	if value, ok := cuo.mutation.Logo(); ok {
+		_spec.SetField(company.FieldLogo, field.TypeString, value)
+	}
+	if cuo.mutation.LogoCleared() {
+		_spec.ClearField(company.FieldLogo, field.TypeString)
 	}
 	if value, ok := cuo.mutation.OnboardingStatus(); ok {
 		_spec.SetField(company.FieldOnboardingStatus, field.TypeEnum, value)

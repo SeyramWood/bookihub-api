@@ -47,7 +47,7 @@ func (r *repository) Insert(request *requeststructs.CompanyUserRequest, password
 		SetOtherName(request.OtherName).
 		SetPhone(request.Phone).
 		SetOtherPhone(request.OtherPhone).
-		SetRole(companyuser.Role(request.Role)).
+		SetUserRole(companyuser.UserRole(request.Role)).
 		Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed creating company user user: %w", err))

@@ -6,8 +6,8 @@ type (
 	CompanyUserRequest struct {
 		LastName   string `json:"lastName" validate:"required"`
 		OtherName  string `json:"otherName" validate:"required"`
-		Phone      string `json:"phone" validate:"required|phone"`
-		OtherPhone string `json:"otherPhone" validate:"phone"`
+		Phone      string `json:"phone" validate:"required|phone_with_code"`
+		OtherPhone string `json:"otherPhone" validate:"phone_with_code"`
 		Role       string `json:"role" validate:"required|string"`
 		CompanyID  int    `json:"companyId" validate:"required"`
 		Username   string `json:"username" validate:"required|email|unique:users.username"`
@@ -15,21 +15,21 @@ type (
 	CompanyUserUpdateRequest struct {
 		LastName   string `json:"lastName" validate:"required"`
 		OtherName  string `json:"otherName" validate:"required"`
-		Phone      string `json:"phone" validate:"required|phone"`
-		OtherPhone string `json:"otherPhone" validate:"phone"`
+		Phone      string `json:"phone" validate:"required|phone_with_code"`
+		OtherPhone string `json:"otherPhone" validate:"phone_with_code"`
 	}
 	CompanyRequest struct {
 		CompanyName     string `json:"companyName" validate:"required|unique:companies.name"`
 		CompanyPhone    string `json:"companyPhone" validate:"required|phone|unique:companies.phone"`
 		CompanyEmail    string `json:"companyEmail" validate:"required|email|unique:companies.email"`
-		Username        string `json:"username" validate:"required|email|unique:users"`
+		Username        string `json:"username" validate:"required|email|unique:users.username"`
 		Password        string `json:"password" validate:"required|min:8"`
 		ConfirmPassword string `json:"confirmPassword" validate:"required|min:8|match:password"`
 		Terms           bool   `json:"terms" validate:"required|bool"`
 	}
 	CompanyUpdateRequest struct {
 		CompanyName  string `json:"companyName" validate:"required"`
-		CompanyPhone string `json:"companyPhone" validate:"required|phone"`
+		CompanyPhone string `json:"companyPhone" validate:"required|phone_with_code"`
 		CompanyEmail string `json:"companyEmail" validate:"required|email"`
 	}
 	CompanyOnboardingRequest struct {
@@ -37,12 +37,12 @@ type (
 		ContactPerson *CompanyContactPersonRequest `json:"contactPerson" validate:"-"`
 	}
 	BookiOnboardingRequest struct {
-		CompanyName   string                       `json:"companyName" validate:"required|unique:companies.name"`
-		CompanyPhone  string                       `json:"companyPhone" validate:"required|phone|unique:companies.phone"`
-		CompanyEmail  string                       `json:"companyEmail" validate:"required|email|unique:companies.email"`
-		BankAccount   *CompanyBankAccountRequest   `json:"bankAccount" validate:"-"`
-		ContactPerson *CompanyContactPersonRequest `json:"contactPerson" validate:"-"`
-		AdminUsername string                       `json:"adminUsername" validate:"required|email|unique:users"`
+		CompanyName     string                       `json:"companyName" validate:"required|unique:companies.name"`
+		CompanyPhone    string                       `json:"companyPhone" validate:"required|phone_with_code|unique:companies.phone"`
+		CompanyEmail    string                       `json:"companyEmail" validate:"required|email|unique:companies.email"`
+		BankAccount     *CompanyBankAccountRequest   `json:"bankAccount" validate:"-"`
+		ContactPerson   *CompanyContactPersonRequest `json:"contactPerson" validate:"-"`
+		ManagerUsername string                       `json:"managerUsername" validate:"required|email|unique:users.username"`
 	}
 	CompanyBankAccountRequest struct {
 		AccountName   string `json:"accountName" validate:"required|ascii"`
@@ -58,7 +58,7 @@ type (
 	CompanyContactPersonRequest struct {
 		Name     string `json:"name" validate:"ascii"`
 		Position string `json:"position" validate:"ascii"`
-		Phone    string `json:"phone" validate:"phone"`
+		Phone    string `json:"phone" validate:"phone_with_code"`
 		Email    string `json:"email" validate:"email"`
 	}
 	CompanyContactPersonUpdateRequest struct {
@@ -68,7 +68,10 @@ type (
 		Email    string `json:"email" validate:"email"`
 	}
 	CompanyCertificateUpdateRequest struct {
-		BusinessCertificate *multipart.FileHeader `json:"businessCertificate" form:"businessCertificate" validate:"required|image|size:2MB"`
+		BusinessCertificate *multipart.FileHeader `json:"businessCertificate" form:"businessCertificate" validate:"required|image|size:3MB"`
+	}
+	CompanyLogoUpdateRequest struct {
+		BusinessLogo *multipart.FileHeader `json:"businessLogo" form:"businessLogo" validate:"required|image|size:2MB"`
 	}
 	VehicleRequest struct {
 		RegistrationNumber string                  `json:"registrationNumber" validate:"required|ascii"`

@@ -74,6 +74,7 @@ var (
 		{Name: "certificate", Type: field.TypeString, Nullable: true},
 		{Name: "bank_account", Type: field.TypeJSON, Nullable: true},
 		{Name: "contact_person", Type: field.TypeJSON, Nullable: true},
+		{Name: "logo", Type: field.TypeString, Nullable: true},
 		{Name: "onboarding_status", Type: field.TypeEnum, Enums: []string{"pending", "approved", "rejected"}, Default: "pending"},
 	}
 	// CompaniesTable holds the schema information for the "companies" table.
@@ -91,7 +92,7 @@ var (
 		{Name: "other_name", Type: field.TypeString, Nullable: true},
 		{Name: "phone", Type: field.TypeString, Nullable: true},
 		{Name: "other_phone", Type: field.TypeString, Nullable: true},
-		{Name: "role", Type: field.TypeEnum, Enums: []string{"admin", "manager", "teller", "driver"}, Default: "admin"},
+		{Name: "user_role", Type: field.TypeEnum, Enums: []string{"manager", "teller", "driver"}, Default: "manager"},
 		{Name: "company_profile", Type: field.TypeInt, Nullable: true},
 	}
 	// CompanyUsersTable holds the schema information for the "company_users" table.

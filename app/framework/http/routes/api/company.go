@@ -33,6 +33,7 @@ func CompanyRoutes(r fiber.Router, router *apiRouter) {
 	companyGroup.Put("/:id/onboard", adaptor.HTTPMiddleware(requests.ValidateOnboarding), handler.Onboard())
 	companyGroup.Put("/:id/update-bank-account", adaptor.HTTPMiddleware(requests.ValidateCompanyBankAccountUpdate), handler.UpdateBankAccount())
 	companyGroup.Put("/:id/update-contact-person", adaptor.HTTPMiddleware(requests.ValidateCompanyContactPersonUpdate), handler.UpdateContactPerson())
+	companyGroup.Put("/:id/update-logo", adaptor.HTTPMiddleware(requests.ValidateCompanyLogoUpdate), handler.UpdateLogo())
 	companyGroup.Put("/:id/update-certificate", adaptor.HTTPMiddleware(requests.ValidateCompanyCertificateUpdate), handler.UpdateCertificate())
 	companyGroup.Put("/:id/update-status", handler.UpdateStatus())
 	companyGroup.Put("/:id", adaptor.HTTPMiddleware(requests.ValidateCompanyUpdate), handler.Update())

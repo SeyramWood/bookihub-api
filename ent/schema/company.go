@@ -43,6 +43,7 @@ func (Company) Fields() []ent.Field {
 		field.String("certificate").Optional(),
 		field.JSON("bank_account", &BankAccount{}).Optional(),
 		field.JSON("contact_person", &ContactPerson{}).Optional(),
+		field.String("logo").Optional(),
 		field.Enum("onboarding_status").Values("pending", "approved", "rejected").Default("pending"),
 	}
 }
