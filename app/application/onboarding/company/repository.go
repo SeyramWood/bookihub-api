@@ -54,7 +54,7 @@ func (r *repository) Insert(request *requeststructs.CompanyRequest) (*ent.Compan
 		SetCompany(c).
 		SetLastName("Company").
 		SetOtherName("Administrator").
-		SetUserRole(companyuser.DefaultUserRole).
+		SetRole(companyuser.DefaultRole).
 		Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed creating company user: %w", err))
@@ -152,7 +152,7 @@ func (r *repository) BookiOnboard(managerPassword string, request *requeststruct
 		SetCompany(c).
 		SetLastName("Company").
 		SetOtherName("Manager").
-		SetUserRole(companyuser.DefaultUserRole).
+		SetRole(companyuser.DefaultRole).
 		Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed creating company user: %w", err))

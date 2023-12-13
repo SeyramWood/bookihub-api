@@ -3650,7 +3650,7 @@ type CompanyUserMutation struct {
 	other_name           *string
 	phone                *string
 	other_phone          *string
-	user_role            *companyuser.UserRole
+	role                 *companyuser.Role
 	clearedFields        map[string]struct{}
 	profile              *int
 	clearedprofile       bool
@@ -4039,40 +4039,40 @@ func (m *CompanyUserMutation) ResetOtherPhone() {
 	delete(m.clearedFields, companyuser.FieldOtherPhone)
 }
 
-// SetUserRole sets the "user_role" field.
-func (m *CompanyUserMutation) SetUserRole(cr companyuser.UserRole) {
-	m.user_role = &cr
+// SetRole sets the "role" field.
+func (m *CompanyUserMutation) SetRole(c companyuser.Role) {
+	m.role = &c
 }
 
-// UserRole returns the value of the "user_role" field in the mutation.
-func (m *CompanyUserMutation) UserRole() (r companyuser.UserRole, exists bool) {
-	v := m.user_role
+// Role returns the value of the "role" field in the mutation.
+func (m *CompanyUserMutation) Role() (r companyuser.Role, exists bool) {
+	v := m.role
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUserRole returns the old "user_role" field's value of the CompanyUser entity.
+// OldRole returns the old "role" field's value of the CompanyUser entity.
 // If the CompanyUser object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompanyUserMutation) OldUserRole(ctx context.Context) (v companyuser.UserRole, err error) {
+func (m *CompanyUserMutation) OldRole(ctx context.Context) (v companyuser.Role, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUserRole is only allowed on UpdateOne operations")
+		return v, errors.New("OldRole is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUserRole requires an ID field in the mutation")
+		return v, errors.New("OldRole requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUserRole: %w", err)
+		return v, fmt.Errorf("querying old value for OldRole: %w", err)
 	}
-	return oldValue.UserRole, nil
+	return oldValue.Role, nil
 }
 
-// ResetUserRole resets all changes to the "user_role" field.
-func (m *CompanyUserMutation) ResetUserRole() {
-	m.user_role = nil
+// ResetRole resets all changes to the "role" field.
+func (m *CompanyUserMutation) ResetRole() {
+	m.role = nil
 }
 
 // SetProfileID sets the "profile" edge to the User entity by id.
@@ -4422,8 +4422,8 @@ func (m *CompanyUserMutation) Fields() []string {
 	if m.other_phone != nil {
 		fields = append(fields, companyuser.FieldOtherPhone)
 	}
-	if m.user_role != nil {
-		fields = append(fields, companyuser.FieldUserRole)
+	if m.role != nil {
+		fields = append(fields, companyuser.FieldRole)
 	}
 	return fields
 }
@@ -4445,8 +4445,8 @@ func (m *CompanyUserMutation) Field(name string) (ent.Value, bool) {
 		return m.Phone()
 	case companyuser.FieldOtherPhone:
 		return m.OtherPhone()
-	case companyuser.FieldUserRole:
-		return m.UserRole()
+	case companyuser.FieldRole:
+		return m.Role()
 	}
 	return nil, false
 }
@@ -4468,8 +4468,8 @@ func (m *CompanyUserMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldPhone(ctx)
 	case companyuser.FieldOtherPhone:
 		return m.OldOtherPhone(ctx)
-	case companyuser.FieldUserRole:
-		return m.OldUserRole(ctx)
+	case companyuser.FieldRole:
+		return m.OldRole(ctx)
 	}
 	return nil, fmt.Errorf("unknown CompanyUser field %s", name)
 }
@@ -4521,12 +4521,12 @@ func (m *CompanyUserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetOtherPhone(v)
 		return nil
-	case companyuser.FieldUserRole:
-		v, ok := value.(companyuser.UserRole)
+	case companyuser.FieldRole:
+		v, ok := value.(companyuser.Role)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUserRole(v)
+		m.SetRole(v)
 		return nil
 	}
 	return fmt.Errorf("unknown CompanyUser field %s", name)
@@ -4622,8 +4622,8 @@ func (m *CompanyUserMutation) ResetField(name string) error {
 	case companyuser.FieldOtherPhone:
 		m.ResetOtherPhone()
 		return nil
-	case companyuser.FieldUserRole:
-		m.ResetUserRole()
+	case companyuser.FieldRole:
+		m.ResetRole()
 		return nil
 	}
 	return fmt.Errorf("unknown CompanyUser field %s", name)

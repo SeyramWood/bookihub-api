@@ -110,16 +110,16 @@ func (cuc *CompanyUserCreate) SetNillableOtherPhone(s *string) *CompanyUserCreat
 	return cuc
 }
 
-// SetUserRole sets the "user_role" field.
-func (cuc *CompanyUserCreate) SetUserRole(cr companyuser.UserRole) *CompanyUserCreate {
-	cuc.mutation.SetUserRole(cr)
+// SetRole sets the "role" field.
+func (cuc *CompanyUserCreate) SetRole(c companyuser.Role) *CompanyUserCreate {
+	cuc.mutation.SetRole(c)
 	return cuc
 }
 
-// SetNillableUserRole sets the "user_role" field if the given value is not nil.
-func (cuc *CompanyUserCreate) SetNillableUserRole(cr *companyuser.UserRole) *CompanyUserCreate {
-	if cr != nil {
-		cuc.SetUserRole(*cr)
+// SetNillableRole sets the "role" field if the given value is not nil.
+func (cuc *CompanyUserCreate) SetNillableRole(c *companyuser.Role) *CompanyUserCreate {
+	if c != nil {
+		cuc.SetRole(*c)
 	}
 	return cuc
 }
@@ -265,9 +265,9 @@ func (cuc *CompanyUserCreate) defaults() {
 		v := companyuser.DefaultUpdatedAt()
 		cuc.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := cuc.mutation.UserRole(); !ok {
-		v := companyuser.DefaultUserRole
-		cuc.mutation.SetUserRole(v)
+	if _, ok := cuc.mutation.Role(); !ok {
+		v := companyuser.DefaultRole
+		cuc.mutation.SetRole(v)
 	}
 }
 
@@ -279,12 +279,12 @@ func (cuc *CompanyUserCreate) check() error {
 	if _, ok := cuc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "CompanyUser.updated_at"`)}
 	}
-	if _, ok := cuc.mutation.UserRole(); !ok {
-		return &ValidationError{Name: "user_role", err: errors.New(`ent: missing required field "CompanyUser.user_role"`)}
+	if _, ok := cuc.mutation.Role(); !ok {
+		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "CompanyUser.role"`)}
 	}
-	if v, ok := cuc.mutation.UserRole(); ok {
-		if err := companyuser.UserRoleValidator(v); err != nil {
-			return &ValidationError{Name: "user_role", err: fmt.Errorf(`ent: validator failed for field "CompanyUser.user_role": %w`, err)}
+	if v, ok := cuc.mutation.Role(); ok {
+		if err := companyuser.RoleValidator(v); err != nil {
+			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "CompanyUser.role": %w`, err)}
 		}
 	}
 	return nil
@@ -337,9 +337,9 @@ func (cuc *CompanyUserCreate) createSpec() (*CompanyUser, *sqlgraph.CreateSpec) 
 		_spec.SetField(companyuser.FieldOtherPhone, field.TypeString, value)
 		_node.OtherPhone = value
 	}
-	if value, ok := cuc.mutation.UserRole(); ok {
-		_spec.SetField(companyuser.FieldUserRole, field.TypeEnum, value)
-		_node.UserRole = value
+	if value, ok := cuc.mutation.Role(); ok {
+		_spec.SetField(companyuser.FieldRole, field.TypeEnum, value)
+		_node.Role = value
 	}
 	if nodes := cuc.mutation.ProfileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

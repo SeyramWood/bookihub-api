@@ -20,7 +20,7 @@ type (
 	}
 	CompanyRequest struct {
 		CompanyName     string `json:"companyName" validate:"required|unique:companies.name"`
-		CompanyPhone    string `json:"companyPhone" validate:"required|phone|unique:companies.phone"`
+		CompanyPhone    string `json:"companyPhone" validate:"required|phone_with_code|unique:companies.phone"`
 		CompanyEmail    string `json:"companyEmail" validate:"required|email|unique:companies.email"`
 		Username        string `json:"username" validate:"required|email|unique:users.username"`
 		Password        string `json:"password" validate:"required|min:8"`
@@ -52,7 +52,7 @@ type (
 	}
 	CompanyMomoAccountRequest struct {
 		AccountName string `json:"accountName" validate:"required|ascii"`
-		PhoneNumber string `json:"phoneNumber" validate:"required|phone"`
+		PhoneNumber string `json:"phoneNumber" validate:"required|phone_with_code"`
 		Provider    string `json:"provider" validate:"required|string"`
 	}
 	CompanyContactPersonRequest struct {
@@ -64,7 +64,7 @@ type (
 	CompanyContactPersonUpdateRequest struct {
 		Name     string `json:"name" validate:"required|ascii"`
 		Position string `json:"position" validate:"required|ascii"`
-		Phone    string `json:"phone" validate:"required|phone"`
+		Phone    string `json:"phone" validate:"required|phone_with_code"`
 		Email    string `json:"email" validate:"email"`
 	}
 	CompanyCertificateUpdateRequest struct {

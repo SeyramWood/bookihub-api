@@ -31,8 +31,8 @@ type CompanyUser struct {
 	Phone string `json:"phone,omitempty"`
 	// OtherPhone holds the value of the "other_phone" field.
 	OtherPhone string `json:"other_phone,omitempty"`
-	// UserRole holds the value of the "user_role" field.
-	UserRole companyuser.UserRole `json:"user_role,omitempty"`
+	// Role holds the value of the "role" field.
+	Role companyuser.Role `json:"role,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CompanyUserQuery when eager-loading is set.
 	Edges           CompanyUserEdges `json:"edges"`
@@ -128,7 +128,7 @@ func (*CompanyUser) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case companyuser.FieldID:
 			values[i] = new(sql.NullInt64)
-		case companyuser.FieldLastName, companyuser.FieldOtherName, companyuser.FieldPhone, companyuser.FieldOtherPhone, companyuser.FieldUserRole:
+		case companyuser.FieldLastName, companyuser.FieldOtherName, companyuser.FieldPhone, companyuser.FieldOtherPhone, companyuser.FieldRole:
 			values[i] = new(sql.NullString)
 		case companyuser.FieldCreatedAt, companyuser.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -191,11 +191,11 @@ func (cu *CompanyUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				cu.OtherPhone = value.String
 			}
-		case companyuser.FieldUserRole:
+		case companyuser.FieldRole:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field user_role", values[i])
+				return fmt.Errorf("unexpected type %T for field role", values[i])
 			} else if value.Valid {
-				cu.UserRole = companyuser.UserRole(value.String)
+				cu.Role = companyuser.Role(value.String)
 			}
 		case companyuser.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -288,8 +288,8 @@ func (cu *CompanyUser) String() string {
 	builder.WriteString("other_phone=")
 	builder.WriteString(cu.OtherPhone)
 	builder.WriteString(", ")
-	builder.WriteString("user_role=")
-	builder.WriteString(fmt.Sprintf("%v", cu.UserRole))
+	builder.WriteString("role=")
+	builder.WriteString(fmt.Sprintf("%v", cu.Role))
 	builder.WriteByte(')')
 	return builder.String()
 }

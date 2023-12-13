@@ -92,7 +92,7 @@ var (
 		{Name: "other_name", Type: field.TypeString, Nullable: true},
 		{Name: "phone", Type: field.TypeString, Nullable: true},
 		{Name: "other_phone", Type: field.TypeString, Nullable: true},
-		{Name: "user_role", Type: field.TypeEnum, Enums: []string{"manager", "teller", "driver"}, Default: "manager"},
+		{Name: "role", Type: field.TypeEnum, Enums: []string{"manager", "teller", "driver"}, Default: "manager"},
 		{Name: "company_profile", Type: field.TypeInt, Nullable: true},
 	}
 	// CompanyUsersTable holds the schema information for the "company_users" table.

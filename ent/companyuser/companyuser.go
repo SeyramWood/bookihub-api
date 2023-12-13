@@ -27,8 +27,8 @@ const (
 	FieldPhone = "phone"
 	// FieldOtherPhone holds the string denoting the other_phone field in the database.
 	FieldOtherPhone = "other_phone"
-	// FieldUserRole holds the string denoting the user_role field in the database.
-	FieldUserRole = "user_role"
+	// FieldRole holds the string denoting the role field in the database.
+	FieldRole = "role"
 	// EdgeProfile holds the string denoting the profile edge name in mutations.
 	EdgeProfile = "profile"
 	// EdgeTrips holds the string denoting the trips edge name in mutations.
@@ -94,7 +94,7 @@ var Columns = []string{
 	FieldOtherName,
 	FieldPhone,
 	FieldOtherPhone,
-	FieldUserRole,
+	FieldRole,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "company_users"
@@ -133,30 +133,30 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 )
 
-// UserRole defines the type for the "user_role" enum field.
-type UserRole string
+// Role defines the type for the "role" enum field.
+type Role string
 
-// UserRoleManager is the default value of the UserRole enum.
-const DefaultUserRole = UserRoleManager
+// RoleManager is the default value of the Role enum.
+const DefaultRole = RoleManager
 
-// UserRole values.
+// Role values.
 const (
-	UserRoleManager UserRole = "manager"
-	UserRoleTeller  UserRole = "teller"
-	UserRoleDriver  UserRole = "driver"
+	RoleManager Role = "manager"
+	RoleTeller  Role = "teller"
+	RoleDriver  Role = "driver"
 )
 
-func (ur UserRole) String() string {
-	return string(ur)
+func (r Role) String() string {
+	return string(r)
 }
 
-// UserRoleValidator is a validator for the "user_role" field enum values. It is called by the builders before save.
-func UserRoleValidator(ur UserRole) error {
-	switch ur {
-	case UserRoleManager, UserRoleTeller, UserRoleDriver:
+// RoleValidator is a validator for the "role" field enum values. It is called by the builders before save.
+func RoleValidator(r Role) error {
+	switch r {
+	case RoleManager, RoleTeller, RoleDriver:
 		return nil
 	default:
-		return fmt.Errorf("companyuser: invalid enum value for user_role field: %q", ur)
+		return fmt.Errorf("companyuser: invalid enum value for role field: %q", r)
 	}
 }
 
@@ -198,9 +198,9 @@ func ByOtherPhone(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOtherPhone, opts...).ToFunc()
 }
 
-// ByUserRole orders the results by the user_role field.
-func ByUserRole(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUserRole, opts...).ToFunc()
+// ByRole orders the results by the role field.
+func ByRole(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRole, opts...).ToFunc()
 }
 
 // ByProfileField orders the results by profile field.

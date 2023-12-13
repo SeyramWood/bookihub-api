@@ -25,6 +25,7 @@ type (
 		Phone         string                `json:"phone"`
 		Email         string                `json:"email"`
 		Certificate   string                `json:"certificate"`
+		Logo          string                `json:"logo"`
 		BankAccount   *schema.BankAccount   `json:"bankAccount"`
 		ContactPerson *schema.ContactPerson `json:"contactPerson"`
 		Status        string                `json:"status"`
@@ -117,7 +118,7 @@ func CompanyUserResponse(data *ent.CompanyUser) *fiber.Map {
 		OtherName:  data.OtherName,
 		Phone:      data.Phone,
 		OtherPhone: data.OtherPhone,
-		Role:       string(data.UserRole),
+		Role:       string(data.Role),
 		CreatedAt:  data.CreatedAt,
 		UpdatedAt:  data.UpdatedAt,
 	})
@@ -131,7 +132,7 @@ func CompanyUsersResponse(data *PaginationResponse) *fiber.Map {
 			OtherName:  u.OtherName,
 			Phone:      u.Phone,
 			OtherPhone: u.OtherPhone,
-			Role:       string(u.UserRole),
+			Role:       string(u.Role),
 			CreatedAt:  u.CreatedAt,
 			UpdatedAt:  u.UpdatedAt,
 		})
@@ -146,6 +147,7 @@ func CompanyResponse(data *ent.Company) *fiber.Map {
 		Phone:         data.Phone,
 		Email:         data.Email,
 		Certificate:   data.Certificate,
+		Logo:          data.Logo,
 		BankAccount:   data.BankAccount,
 		ContactPerson: data.ContactPerson,
 		Status:        string(data.OnboardingStatus),
@@ -162,6 +164,7 @@ func CompaniesResponse(data *PaginationResponse) *fiber.Map {
 			Phone:         c.Phone,
 			Email:         c.Email,
 			Certificate:   c.Certificate,
+			Logo:          c.Logo,
 			BankAccount:   c.BankAccount,
 			ContactPerson: c.ContactPerson,
 			Status:        string(c.OnboardingStatus),
