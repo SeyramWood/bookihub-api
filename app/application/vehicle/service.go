@@ -1,6 +1,7 @@
 package vehicle
 
 import (
+	"log"
 	"strings"
 
 	"github.com/SeyramWood/bookibus/app/adapters/gateways"
@@ -115,6 +116,7 @@ func (s *service) RemoveImage(id int) error {
 
 // Update implements gateways.VehicleService.
 func (s *service) Update(id int, request *requeststructs.VehicleUpdateRequest) (*ent.Vehicle, error) {
+	log.Println("request: ", request)
 	return s.repo.Update(id, request)
 }
 

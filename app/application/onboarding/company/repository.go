@@ -78,7 +78,7 @@ func (r *repository) Insert(request *requeststructs.CompanyRequest) (*ent.Compan
 
 // Read implements gateways.CompanyRepo.
 func (r *repository) Read(id int) (*ent.Company, error) {
-	result, err := r.db.Company.Query().Where(company.ID(id)).Only(r.ctx)
+	result, err := r.db.Company.Query().Where(company.ID(id)).WithProfile().Only(r.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +93,7 @@ func (r *repository) ReadAll(limit int, offset int) (*presenters.PaginationRespo
 		Limit(limit).
 		Offset(offset).
 		Order(ent.Desc(company.FieldCreatedAt)).
+		WithProfile().
 		All(r.ctx)
 	if err != nil {
 		return nil, err
@@ -182,6 +183,7 @@ func (r *repository) UpdateBankAccount(id int, request *requeststructs.CompanyBa
 			Bank:          request.Bank,
 			Branch:        request.Branch,
 		}).
+		SetOnboardingStage(3).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err
@@ -192,6 +194,7 @@ func (r *repository) UpdateBankAccount(id int, request *requeststructs.CompanyBa
 // UpdateCertificate implements gateways.CompanyRepo.
 func (r *repository) UpdateLogo(id int, logo string) (*ent.Company, error) {
 	_, err := r.db.Company.UpdateOneID(id).
+		SetOnboardingStage(1).
 		SetLogo(logo).
 		Save(r.ctx)
 	if err != nil {
@@ -203,6 +206,7 @@ func (r *repository) UpdateLogo(id int, logo string) (*ent.Company, error) {
 // UpdateCertificate implements gateways.CompanyRepo.
 func (r *repository) UpdateCertificate(id int, cert string) (*ent.Company, error) {
 	_, err := r.db.Company.UpdateOneID(id).
+		SetOnboardingStage(2).
 		SetCertificate(cert).
 		Save(r.ctx)
 	if err != nil {
@@ -220,6 +224,7 @@ func (r *repository) UpdateContactPerson(id int, request *requeststructs.Company
 			Phone:    request.Phone,
 			Email:    request.Email,
 		}).
+		SetOnboardingStage(4).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err
@@ -229,6 +234,16 @@ func (r *repository) UpdateContactPerson(id int, request *requeststructs.Company
 
 // UpdateStatus implements gateways.CompanyRepo.
 func (r *repository) UpdateStatus(id int, status string) (*ent.Company, error) {
+	if company.OnboardingStatusRejected == company.OnboardingStatus(status) {
+		_, err := r.db.Company.UpdateOneID(id).
+			SetOnboardingStatus(company.OnboardingStatus(status)).
+			SetOnboardingStage(3).
+			Save(r.ctx)
+		if err != nil {
+			return nil, err
+		}
+		return r.Read(id)
+	}
 	_, err := r.db.Company.UpdateOneID(id).
 		SetOnboardingStatus(company.OnboardingStatus(status)).
 		Save(r.ctx)

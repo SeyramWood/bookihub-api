@@ -111,6 +111,10 @@ func init() {
 	companyDescEmail := companyFields[2].Descriptor()
 	// company.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	company.EmailValidator = companyDescEmail.Validators[0].(func(string) error)
+	// companyDescOnboardingStage is the schema descriptor for onboarding_stage field.
+	companyDescOnboardingStage := companyFields[8].Descriptor()
+	// company.DefaultOnboardingStage holds the default value on creation for the onboarding_stage field.
+	company.DefaultOnboardingStage = companyDescOnboardingStage.Default.(int8)
 	companyuserMixin := schema.CompanyUser{}.Mixin()
 	companyuserMixinFields0 := companyuserMixin[0].Fields()
 	_ = companyuserMixinFields0

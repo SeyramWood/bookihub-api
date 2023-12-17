@@ -35,6 +35,8 @@ const (
 	FieldLogo = "logo"
 	// FieldOnboardingStatus holds the string denoting the onboarding_status field in the database.
 	FieldOnboardingStatus = "onboarding_status"
+	// FieldOnboardingStage holds the string denoting the onboarding_stage field in the database.
+	FieldOnboardingStage = "onboarding_stage"
 	// EdgeProfile holds the string denoting the profile edge name in mutations.
 	EdgeProfile = "profile"
 	// EdgeTerminals holds the string denoting the terminals edge name in mutations.
@@ -142,6 +144,7 @@ var Columns = []string{
 	FieldContactPerson,
 	FieldLogo,
 	FieldOnboardingStatus,
+	FieldOnboardingStage,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -167,6 +170,8 @@ var (
 	PhoneValidator func(string) error
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
+	// DefaultOnboardingStage holds the default value on creation for the "onboarding_stage" field.
+	DefaultOnboardingStage int8
 )
 
 // OnboardingStatus defines the type for the "onboarding_status" enum field.
@@ -242,6 +247,11 @@ func ByLogo(opts ...sql.OrderTermOption) OrderOption {
 // ByOnboardingStatus orders the results by the onboarding_status field.
 func ByOnboardingStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOnboardingStatus, opts...).ToFunc()
+}
+
+// ByOnboardingStage orders the results by the onboarding_stage field.
+func ByOnboardingStage(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOnboardingStage, opts...).ToFunc()
 }
 
 // ByProfileCount orders the results by profile count.

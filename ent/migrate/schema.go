@@ -76,6 +76,7 @@ var (
 		{Name: "contact_person", Type: field.TypeJSON, Nullable: true},
 		{Name: "logo", Type: field.TypeString, Nullable: true},
 		{Name: "onboarding_status", Type: field.TypeEnum, Enums: []string{"pending", "approved", "rejected"}, Default: "pending"},
+		{Name: "onboarding_stage", Type: field.TypeInt8, Default: 0},
 	}
 	// CompaniesTable holds the schema information for the "companies" table.
 	CompaniesTable = &schema.Table{

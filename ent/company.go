@@ -39,6 +39,8 @@ type Company struct {
 	Logo string `json:"logo,omitempty"`
 	// OnboardingStatus holds the value of the "onboarding_status" field.
 	OnboardingStatus company.OnboardingStatus `json:"onboarding_status,omitempty"`
+	// OnboardingStage holds the value of the "onboarding_stage" field.
+	OnboardingStage int8 `json:"onboarding_stage,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CompanyQuery when eager-loading is set.
 	Edges        CompanyEdges `json:"edges"`
@@ -169,7 +171,7 @@ func (*Company) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case company.FieldBankAccount, company.FieldContactPerson:
 			values[i] = new([]byte)
-		case company.FieldID:
+		case company.FieldID, company.FieldOnboardingStage:
 			values[i] = new(sql.NullInt64)
 		case company.FieldName, company.FieldPhone, company.FieldEmail, company.FieldCertificate, company.FieldLogo, company.FieldOnboardingStatus:
 			values[i] = new(sql.NullString)
@@ -259,6 +261,12 @@ func (c *Company) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field onboarding_status", values[i])
 			} else if value.Valid {
 				c.OnboardingStatus = company.OnboardingStatus(value.String)
+			}
+		case company.FieldOnboardingStage:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field onboarding_stage", values[i])
+			} else if value.Valid {
+				c.OnboardingStage = int8(value.Int64)
 			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
@@ -375,6 +383,9 @@ func (c *Company) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("onboarding_status=")
 	builder.WriteString(fmt.Sprintf("%v", c.OnboardingStatus))
+	builder.WriteString(", ")
+	builder.WriteString("onboarding_stage=")
+	builder.WriteString(fmt.Sprintf("%v", c.OnboardingStage))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -90,6 +90,11 @@ func Logo(v string) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldLogo, v))
 }
 
+// OnboardingStage applies equality check predicate on the "onboarding_stage" field. It's identical to OnboardingStageEQ.
+func OnboardingStage(v int8) predicate.Company {
+	return predicate.Company(sql.FieldEQ(FieldOnboardingStage, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldCreatedAt, v))
@@ -553,6 +558,46 @@ func OnboardingStatusIn(vs ...OnboardingStatus) predicate.Company {
 // OnboardingStatusNotIn applies the NotIn predicate on the "onboarding_status" field.
 func OnboardingStatusNotIn(vs ...OnboardingStatus) predicate.Company {
 	return predicate.Company(sql.FieldNotIn(FieldOnboardingStatus, vs...))
+}
+
+// OnboardingStageEQ applies the EQ predicate on the "onboarding_stage" field.
+func OnboardingStageEQ(v int8) predicate.Company {
+	return predicate.Company(sql.FieldEQ(FieldOnboardingStage, v))
+}
+
+// OnboardingStageNEQ applies the NEQ predicate on the "onboarding_stage" field.
+func OnboardingStageNEQ(v int8) predicate.Company {
+	return predicate.Company(sql.FieldNEQ(FieldOnboardingStage, v))
+}
+
+// OnboardingStageIn applies the In predicate on the "onboarding_stage" field.
+func OnboardingStageIn(vs ...int8) predicate.Company {
+	return predicate.Company(sql.FieldIn(FieldOnboardingStage, vs...))
+}
+
+// OnboardingStageNotIn applies the NotIn predicate on the "onboarding_stage" field.
+func OnboardingStageNotIn(vs ...int8) predicate.Company {
+	return predicate.Company(sql.FieldNotIn(FieldOnboardingStage, vs...))
+}
+
+// OnboardingStageGT applies the GT predicate on the "onboarding_stage" field.
+func OnboardingStageGT(v int8) predicate.Company {
+	return predicate.Company(sql.FieldGT(FieldOnboardingStage, v))
+}
+
+// OnboardingStageGTE applies the GTE predicate on the "onboarding_stage" field.
+func OnboardingStageGTE(v int8) predicate.Company {
+	return predicate.Company(sql.FieldGTE(FieldOnboardingStage, v))
+}
+
+// OnboardingStageLT applies the LT predicate on the "onboarding_stage" field.
+func OnboardingStageLT(v int8) predicate.Company {
+	return predicate.Company(sql.FieldLT(FieldOnboardingStage, v))
+}
+
+// OnboardingStageLTE applies the LTE predicate on the "onboarding_stage" field.
+func OnboardingStageLTE(v int8) predicate.Company {
+	return predicate.Company(sql.FieldLTE(FieldOnboardingStage, v))
 }
 
 // HasProfile applies the HasEdge predicate on the "profile" edge.

@@ -5,7 +5,7 @@ go 1.21.4
 require (
 	entgo.io/ent v0.12.4
 	github.com/Jeffail/gabs v1.4.0
-	github.com/SeyramWood/valid v1.0.2
+	github.com/SeyramWood/valid v1.0.3
 	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/go-redis/cache/v9 v9.0.0
 	github.com/go-sql-driver/mysql v1.7.1

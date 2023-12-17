@@ -1923,6 +1923,8 @@ type CompanyMutation struct {
 	contact_person       **schema.ContactPerson
 	logo                 *string
 	onboarding_status    *company.OnboardingStatus
+	onboarding_stage     *int8
+	addonboarding_stage  *int8
 	clearedFields        map[string]struct{}
 	profile              map[int]struct{}
 	removedprofile       map[int]struct{}
@@ -2467,6 +2469,62 @@ func (m *CompanyMutation) OldOnboardingStatus(ctx context.Context) (v company.On
 // ResetOnboardingStatus resets all changes to the "onboarding_status" field.
 func (m *CompanyMutation) ResetOnboardingStatus() {
 	m.onboarding_status = nil
+}
+
+// SetOnboardingStage sets the "onboarding_stage" field.
+func (m *CompanyMutation) SetOnboardingStage(i int8) {
+	m.onboarding_stage = &i
+	m.addonboarding_stage = nil
+}
+
+// OnboardingStage returns the value of the "onboarding_stage" field in the mutation.
+func (m *CompanyMutation) OnboardingStage() (r int8, exists bool) {
+	v := m.onboarding_stage
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOnboardingStage returns the old "onboarding_stage" field's value of the Company entity.
+// If the Company object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompanyMutation) OldOnboardingStage(ctx context.Context) (v int8, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOnboardingStage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOnboardingStage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOnboardingStage: %w", err)
+	}
+	return oldValue.OnboardingStage, nil
+}
+
+// AddOnboardingStage adds i to the "onboarding_stage" field.
+func (m *CompanyMutation) AddOnboardingStage(i int8) {
+	if m.addonboarding_stage != nil {
+		*m.addonboarding_stage += i
+	} else {
+		m.addonboarding_stage = &i
+	}
+}
+
+// AddedOnboardingStage returns the value that was added to the "onboarding_stage" field in this mutation.
+func (m *CompanyMutation) AddedOnboardingStage() (r int8, exists bool) {
+	v := m.addonboarding_stage
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetOnboardingStage resets all changes to the "onboarding_stage" field.
+func (m *CompanyMutation) ResetOnboardingStage() {
+	m.onboarding_stage = nil
+	m.addonboarding_stage = nil
 }
 
 // AddProfileIDs adds the "profile" edge to the CompanyUser entity by ids.
@@ -3043,7 +3101,7 @@ func (m *CompanyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CompanyMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, company.FieldCreatedAt)
 	}
@@ -3074,6 +3132,9 @@ func (m *CompanyMutation) Fields() []string {
 	if m.onboarding_status != nil {
 		fields = append(fields, company.FieldOnboardingStatus)
 	}
+	if m.onboarding_stage != nil {
+		fields = append(fields, company.FieldOnboardingStage)
+	}
 	return fields
 }
 
@@ -3102,6 +3163,8 @@ func (m *CompanyMutation) Field(name string) (ent.Value, bool) {
 		return m.Logo()
 	case company.FieldOnboardingStatus:
 		return m.OnboardingStatus()
+	case company.FieldOnboardingStage:
+		return m.OnboardingStage()
 	}
 	return nil, false
 }
@@ -3131,6 +3194,8 @@ func (m *CompanyMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldLogo(ctx)
 	case company.FieldOnboardingStatus:
 		return m.OldOnboardingStatus(ctx)
+	case company.FieldOnboardingStage:
+		return m.OldOnboardingStage(ctx)
 	}
 	return nil, fmt.Errorf("unknown Company field %s", name)
 }
@@ -3210,6 +3275,13 @@ func (m *CompanyMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetOnboardingStatus(v)
 		return nil
+	case company.FieldOnboardingStage:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOnboardingStage(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Company field %s", name)
 }
@@ -3217,13 +3289,21 @@ func (m *CompanyMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *CompanyMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addonboarding_stage != nil {
+		fields = append(fields, company.FieldOnboardingStage)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *CompanyMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case company.FieldOnboardingStage:
+		return m.AddedOnboardingStage()
+	}
 	return nil, false
 }
 
@@ -3232,6 +3312,13 @@ func (m *CompanyMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *CompanyMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case company.FieldOnboardingStage:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOnboardingStage(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Company numeric field %s", name)
 }
@@ -3315,6 +3402,9 @@ func (m *CompanyMutation) ResetField(name string) error {
 		return nil
 	case company.FieldOnboardingStatus:
 		m.ResetOnboardingStatus()
+		return nil
+	case company.FieldOnboardingStage:
+		m.ResetOnboardingStage()
 		return nil
 	}
 	return fmt.Errorf("unknown Company field %s", name)

@@ -131,6 +131,20 @@ func (cc *CompanyCreate) SetNillableOnboardingStatus(cs *company.OnboardingStatu
 	return cc
 }
 
+// SetOnboardingStage sets the "onboarding_stage" field.
+func (cc *CompanyCreate) SetOnboardingStage(i int8) *CompanyCreate {
+	cc.mutation.SetOnboardingStage(i)
+	return cc
+}
+
+// SetNillableOnboardingStage sets the "onboarding_stage" field if the given value is not nil.
+func (cc *CompanyCreate) SetNillableOnboardingStage(i *int8) *CompanyCreate {
+	if i != nil {
+		cc.SetOnboardingStage(*i)
+	}
+	return cc
+}
+
 // AddProfileIDs adds the "profile" edge to the CompanyUser entity by IDs.
 func (cc *CompanyCreate) AddProfileIDs(ids ...int) *CompanyCreate {
 	cc.mutation.AddProfileIDs(ids...)
@@ -328,6 +342,10 @@ func (cc *CompanyCreate) defaults() {
 		v := company.DefaultOnboardingStatus
 		cc.mutation.SetOnboardingStatus(v)
 	}
+	if _, ok := cc.mutation.OnboardingStage(); !ok {
+		v := company.DefaultOnboardingStage
+		cc.mutation.SetOnboardingStage(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -369,6 +387,9 @@ func (cc *CompanyCreate) check() error {
 		if err := company.OnboardingStatusValidator(v); err != nil {
 			return &ValidationError{Name: "onboarding_status", err: fmt.Errorf(`ent: validator failed for field "Company.onboarding_status": %w`, err)}
 		}
+	}
+	if _, ok := cc.mutation.OnboardingStage(); !ok {
+		return &ValidationError{Name: "onboarding_stage", err: errors.New(`ent: missing required field "Company.onboarding_stage"`)}
 	}
 	return nil
 }
@@ -435,6 +456,10 @@ func (cc *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 	if value, ok := cc.mutation.OnboardingStatus(); ok {
 		_spec.SetField(company.FieldOnboardingStatus, field.TypeEnum, value)
 		_node.OnboardingStatus = value
+	}
+	if value, ok := cc.mutation.OnboardingStage(); ok {
+		_spec.SetField(company.FieldOnboardingStage, field.TypeInt8, value)
+		_node.OnboardingStage = value
 	}
 	if nodes := cc.mutation.ProfileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

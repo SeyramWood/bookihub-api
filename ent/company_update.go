@@ -142,6 +142,27 @@ func (cu *CompanyUpdate) SetNillableOnboardingStatus(cs *company.OnboardingStatu
 	return cu
 }
 
+// SetOnboardingStage sets the "onboarding_stage" field.
+func (cu *CompanyUpdate) SetOnboardingStage(i int8) *CompanyUpdate {
+	cu.mutation.ResetOnboardingStage()
+	cu.mutation.SetOnboardingStage(i)
+	return cu
+}
+
+// SetNillableOnboardingStage sets the "onboarding_stage" field if the given value is not nil.
+func (cu *CompanyUpdate) SetNillableOnboardingStage(i *int8) *CompanyUpdate {
+	if i != nil {
+		cu.SetOnboardingStage(*i)
+	}
+	return cu
+}
+
+// AddOnboardingStage adds i to the "onboarding_stage" field.
+func (cu *CompanyUpdate) AddOnboardingStage(i int8) *CompanyUpdate {
+	cu.mutation.AddOnboardingStage(i)
+	return cu
+}
+
 // AddProfileIDs adds the "profile" edge to the CompanyUser entity by IDs.
 func (cu *CompanyUpdate) AddProfileIDs(ids ...int) *CompanyUpdate {
 	cu.mutation.AddProfileIDs(ids...)
@@ -624,6 +645,12 @@ func (cu *CompanyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := cu.mutation.OnboardingStatus(); ok {
 		_spec.SetField(company.FieldOnboardingStatus, field.TypeEnum, value)
+	}
+	if value, ok := cu.mutation.OnboardingStage(); ok {
+		_spec.SetField(company.FieldOnboardingStage, field.TypeInt8, value)
+	}
+	if value, ok := cu.mutation.AddedOnboardingStage(); ok {
+		_spec.AddField(company.FieldOnboardingStage, field.TypeInt8, value)
 	}
 	if cu.mutation.ProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1199,6 +1226,27 @@ func (cuo *CompanyUpdateOne) SetNillableOnboardingStatus(cs *company.OnboardingS
 	return cuo
 }
 
+// SetOnboardingStage sets the "onboarding_stage" field.
+func (cuo *CompanyUpdateOne) SetOnboardingStage(i int8) *CompanyUpdateOne {
+	cuo.mutation.ResetOnboardingStage()
+	cuo.mutation.SetOnboardingStage(i)
+	return cuo
+}
+
+// SetNillableOnboardingStage sets the "onboarding_stage" field if the given value is not nil.
+func (cuo *CompanyUpdateOne) SetNillableOnboardingStage(i *int8) *CompanyUpdateOne {
+	if i != nil {
+		cuo.SetOnboardingStage(*i)
+	}
+	return cuo
+}
+
+// AddOnboardingStage adds i to the "onboarding_stage" field.
+func (cuo *CompanyUpdateOne) AddOnboardingStage(i int8) *CompanyUpdateOne {
+	cuo.mutation.AddOnboardingStage(i)
+	return cuo
+}
+
 // AddProfileIDs adds the "profile" edge to the CompanyUser entity by IDs.
 func (cuo *CompanyUpdateOne) AddProfileIDs(ids ...int) *CompanyUpdateOne {
 	cuo.mutation.AddProfileIDs(ids...)
@@ -1711,6 +1759,12 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 	}
 	if value, ok := cuo.mutation.OnboardingStatus(); ok {
 		_spec.SetField(company.FieldOnboardingStatus, field.TypeEnum, value)
+	}
+	if value, ok := cuo.mutation.OnboardingStage(); ok {
+		_spec.SetField(company.FieldOnboardingStage, field.TypeInt8, value)
+	}
+	if value, ok := cuo.mutation.AddedOnboardingStage(); ok {
+		_spec.AddField(company.FieldOnboardingStage, field.TypeInt8, value)
 	}
 	if cuo.mutation.ProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{

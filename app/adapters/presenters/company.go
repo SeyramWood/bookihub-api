@@ -20,17 +20,19 @@ type (
 		UpdatedAt  any    `json:"updatedAt,omitempty"`
 	}
 	AdminCompanyResponseData struct {
-		ID            int                   `json:"id"`
-		Name          string                `json:"name"`
-		Phone         string                `json:"phone"`
-		Email         string                `json:"email"`
-		Certificate   string                `json:"certificate"`
-		Logo          string                `json:"logo"`
-		BankAccount   *schema.BankAccount   `json:"bankAccount"`
-		ContactPerson *schema.ContactPerson `json:"contactPerson"`
-		Status        string                `json:"status"`
-		CreatedAt     any                   `json:"createdAt,omitempty"`
-		UpdatedAt     any                   `json:"updatedAt,omitempty"`
+		ID              int                   `json:"id"`
+		Name            string                `json:"name"`
+		Phone           string                `json:"phone"`
+		Email           string                `json:"email"`
+		Certificate     string                `json:"certificate"`
+		Logo            string                `json:"logo"`
+		BankAccount     *schema.BankAccount   `json:"bankAccount"`
+		ContactPerson   *schema.ContactPerson `json:"contactPerson"`
+		Status          string                `json:"status"`
+		OnboardingStage int8                  `json:"onboardingStage"`
+		Staff           int                   `json:"staff"`
+		CreatedAt       any                   `json:"createdAt,omitempty"`
+		UpdatedAt       any                   `json:"updatedAt,omitempty"`
 	}
 	CompanyResponseData struct {
 		ID        int    `json:"id"`
@@ -142,34 +144,48 @@ func CompanyUsersResponse(data *PaginationResponse) *fiber.Map {
 }
 func CompanyResponse(data *ent.Company) *fiber.Map {
 	return SuccessResponse(&AdminCompanyResponseData{
-		ID:            data.ID,
-		Name:          data.Name,
-		Phone:         data.Phone,
-		Email:         data.Email,
-		Certificate:   data.Certificate,
-		Logo:          data.Logo,
-		BankAccount:   data.BankAccount,
-		ContactPerson: data.ContactPerson,
-		Status:        string(data.OnboardingStatus),
-		CreatedAt:     data.CreatedAt,
-		UpdatedAt:     data.UpdatedAt,
+		ID:              data.ID,
+		Name:            data.Name,
+		Phone:           data.Phone,
+		Email:           data.Email,
+		Certificate:     data.Certificate,
+		Logo:            data.Logo,
+		BankAccount:     data.BankAccount,
+		ContactPerson:   data.ContactPerson,
+		Status:          string(data.OnboardingStatus),
+		OnboardingStage: data.OnboardingStage,
+		Staff: func() int {
+			if staff, err := data.Edges.ProfileOrErr(); err == nil && len(staff) > 0 {
+				return len(staff)
+			}
+			return 0
+		}(),
+		CreatedAt: data.CreatedAt,
+		UpdatedAt: data.UpdatedAt,
 	})
 }
 func CompaniesResponse(data *PaginationResponse) *fiber.Map {
 	var response []*AdminCompanyResponseData
 	for _, c := range data.Data.([]*ent.Company) {
 		response = append(response, &AdminCompanyResponseData{
-			ID:            c.ID,
-			Name:          c.Name,
-			Phone:         c.Phone,
-			Email:         c.Email,
-			Certificate:   c.Certificate,
-			Logo:          c.Logo,
-			BankAccount:   c.BankAccount,
-			ContactPerson: c.ContactPerson,
-			Status:        string(c.OnboardingStatus),
-			CreatedAt:     c.CreatedAt,
-			UpdatedAt:     c.UpdatedAt,
+			ID:              c.ID,
+			Name:            c.Name,
+			Phone:           c.Phone,
+			Email:           c.Email,
+			Certificate:     c.Certificate,
+			Logo:            c.Logo,
+			BankAccount:     c.BankAccount,
+			ContactPerson:   c.ContactPerson,
+			Status:          string(c.OnboardingStatus),
+			OnboardingStage: c.OnboardingStage,
+			Staff: func() int {
+				if staff, err := c.Edges.ProfileOrErr(); err == nil && len(staff) > 0 {
+					return len(staff)
+				}
+				return 0
+			}(),
+			CreatedAt: c.CreatedAt,
+			UpdatedAt: c.UpdatedAt,
 		})
 	}
 	data.Data = response

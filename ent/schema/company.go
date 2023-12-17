@@ -45,6 +45,7 @@ func (Company) Fields() []ent.Field {
 		field.JSON("contact_person", &ContactPerson{}).Optional(),
 		field.String("logo").Optional(),
 		field.Enum("onboarding_status").Values("pending", "approved", "rejected").Default("pending"),
+		field.Int8("onboarding_stage").Default(0),
 	}
 }
 
