@@ -13,6 +13,11 @@ type (
 		InsertCharge(request *requeststructs.TransactionChargeRequest) (*ent.Configuration, error)
 		UpdateCharge(id int, request *requeststructs.TransactionChargeRequest) (*ent.Configuration, error)
 	}
+	StatisticsRepo interface {
+		ReadAdminRevenue() *presenters.AdminRevenue
+		ReadAdminRevenueOverview(filter string) ([]*presenters.AdminOverview, error)
+		ReadAdminBestSelling(limit, offset int, minDate, maxDate string) (*presenters.PaginationResponse, error)
+	}
 	AuthRepo interface {
 		ReadByID(id int) (*ent.User, error)
 		ReadByUsername(username string) (*ent.User, error)
@@ -82,11 +87,16 @@ type (
 		ReadAllByCompany(companyId, limit, offset int) (*presenters.PaginationResponse, error)
 		Read(id int) (*ent.Route, error)
 		Insert(companyId int, request *requeststructs.RouteRequest) (*ent.Route, error)
-		InsertRouteStop(id int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error)
-		Update(id int, request *requeststructs.RouteUpdateRequest) (*ent.Route, error)
-		UpdateStop(id int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error)
+		Update(id int, request *requeststructs.RouteRequest) (*ent.Route, error)
 		Delete(id int) error
-		DeleteStop(id int) error
+	}
+	RouteStopRepo interface {
+		ReadAll(limit, offset int) (*presenters.PaginationResponse, error)
+		ReadAllByCompany(companyId, limit, offset int) (*presenters.PaginationResponse, error)
+		Read(id int) (*ent.RouteStop, error)
+		Insert(companyId int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error)
+		Update(id int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error)
+		Delete(id int) error
 	}
 	TripRepo interface {
 		ReadAll(limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)

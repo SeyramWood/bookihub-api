@@ -81,6 +81,7 @@ func (r *repository) Insert(companyId int, request *requeststructs.ParcelRequest
 		SetChannel(transaction.Channel(refResponse.TransType)).
 		SetParcel(result).
 		SetCompanyID(companyId).
+		SetProduct(transaction.ProductDelivery).
 		Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed creating transaction: %w", err))
@@ -117,9 +118,8 @@ func (r *repository) Read(id int) (*ent.Parcel, error) {
 			tq.WithVehicle(func(vq *ent.VehicleQuery) {
 				vq.WithImages()
 			})
-			tq.WithRoute(func(rq *ent.RouteQuery) {
-				rq.WithStops()
-			})
+			tq.WithRoute()
+			tq.WithStops()
 			tq.WithDriver()
 			tq.WithCompany()
 		}).
@@ -139,9 +139,8 @@ func (r *repository) ReadByCode(code string) (*ent.Parcel, error) {
 			tq.WithVehicle(func(vq *ent.VehicleQuery) {
 				vq.WithImages()
 			})
-			tq.WithRoute(func(rq *ent.RouteQuery) {
-				rq.WithStops()
-			})
+			tq.WithRoute()
+			tq.WithStops()
 			tq.WithDriver()
 			tq.WithCompany()
 		}).
@@ -265,9 +264,8 @@ func (r *repository) filterParcel(query *ent.ParcelQuery, limit, offset int) (*p
 			tq.WithVehicle(func(vq *ent.VehicleQuery) {
 				vq.WithImages()
 			})
-			tq.WithRoute(func(rq *ent.RouteQuery) {
-				rq.WithStops()
-			})
+			tq.WithRoute()
+			tq.WithStops()
 			tq.WithDriver()
 			tq.WithCompany()
 		}).

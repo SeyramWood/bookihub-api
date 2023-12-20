@@ -82,6 +82,8 @@ type TripEdges struct {
 	Vehicle *Vehicle `json:"vehicle,omitempty"`
 	// Route holds the value of the route edge.
 	Route *Route `json:"route,omitempty"`
+	// Stops holds the value of the stops edge.
+	Stops []*RouteStop `json:"stops,omitempty"`
 	// Bookings holds the value of the bookings edge.
 	Bookings []*Booking `json:"bookings,omitempty"`
 	// Incidents holds the value of the incidents edge.
@@ -90,7 +92,7 @@ type TripEdges struct {
 	Parcels []*Parcel `json:"parcels,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [9]bool
+	loadedTypes [10]bool
 }
 
 // CompanyOrErr returns the Company value or an error if the edge
@@ -171,10 +173,19 @@ func (e TripEdges) RouteOrErr() (*Route, error) {
 	return nil, &NotLoadedError{edge: "route"}
 }
 
+// StopsOrErr returns the Stops value or an error if the edge
+// was not loaded in eager-loading.
+func (e TripEdges) StopsOrErr() ([]*RouteStop, error) {
+	if e.loadedTypes[6] {
+		return e.Stops, nil
+	}
+	return nil, &NotLoadedError{edge: "stops"}
+}
+
 // BookingsOrErr returns the Bookings value or an error if the edge
 // was not loaded in eager-loading.
 func (e TripEdges) BookingsOrErr() ([]*Booking, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[7] {
 		return e.Bookings, nil
 	}
 	return nil, &NotLoadedError{edge: "bookings"}
@@ -183,7 +194,7 @@ func (e TripEdges) BookingsOrErr() ([]*Booking, error) {
 // IncidentsOrErr returns the Incidents value or an error if the edge
 // was not loaded in eager-loading.
 func (e TripEdges) IncidentsOrErr() ([]*Incident, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[8] {
 		return e.Incidents, nil
 	}
 	return nil, &NotLoadedError{edge: "incidents"}
@@ -192,7 +203,7 @@ func (e TripEdges) IncidentsOrErr() ([]*Incident, error) {
 // ParcelsOrErr returns the Parcels value or an error if the edge
 // was not loaded in eager-loading.
 func (e TripEdges) ParcelsOrErr() ([]*Parcel, error) {
-	if e.loadedTypes[8] {
+	if e.loadedTypes[9] {
 		return e.Parcels, nil
 	}
 	return nil, &NotLoadedError{edge: "parcels"}
@@ -431,6 +442,11 @@ func (t *Trip) QueryVehicle() *VehicleQuery {
 // QueryRoute queries the "route" edge of the Trip entity.
 func (t *Trip) QueryRoute() *RouteQuery {
 	return NewTripClient(t.config).QueryRoute(t)
+}
+
+// QueryStops queries the "stops" edge of the Trip entity.
+func (t *Trip) QueryStops() *RouteStopQuery {
+	return NewTripClient(t.config).QueryStops(t)
 }
 
 // QueryBookings queries the "bookings" edge of the Trip entity.

@@ -956,6 +956,22 @@ func (c *CompanyClient) QueryRoutes(co *Company) *RouteQuery {
 	return query
 }
 
+// QueryStops queries the stops edge of a Company.
+func (c *CompanyClient) QueryStops(co *Company) *RouteStopQuery {
+	query := (&RouteStopClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, id),
+			sqlgraph.To(routestop.Table, routestop.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, company.StopsTable, company.StopsColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryTrips queries the trips edge of a Company.
 func (c *CompanyClient) QueryTrips(co *Company) *TripQuery {
 	query := (&TripClient{config: c.config}).Query()
@@ -3096,22 +3112,6 @@ func (c *RouteClient) QueryCompany(r *Route) *CompanyQuery {
 	return query
 }
 
-// QueryStops queries the stops edge of a Route.
-func (c *RouteClient) QueryStops(r *Route) *RouteStopQuery {
-	query := (&RouteStopClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := r.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(route.Table, route.FieldID, id),
-			sqlgraph.To(routestop.Table, routestop.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, route.StopsTable, route.StopsColumn),
-		)
-		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryTrips queries the trips edge of a Route.
 func (c *RouteClient) QueryTrips(r *Route) *TripQuery {
 	query := (&TripClient{config: c.config}).Query()
@@ -3261,15 +3261,31 @@ func (c *RouteStopClient) GetX(ctx context.Context, id int) *RouteStop {
 	return obj
 }
 
-// QueryRoute queries the route edge of a RouteStop.
-func (c *RouteStopClient) QueryRoute(rs *RouteStop) *RouteQuery {
-	query := (&RouteClient{config: c.config}).Query()
+// QueryCompany queries the company edge of a RouteStop.
+func (c *RouteStopClient) QueryCompany(rs *RouteStop) *CompanyQuery {
+	query := (&CompanyClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := rs.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(routestop.Table, routestop.FieldID, id),
-			sqlgraph.To(route.Table, route.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, routestop.RouteTable, routestop.RouteColumn),
+			sqlgraph.To(company.Table, company.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, routestop.CompanyTable, routestop.CompanyColumn),
+		)
+		fromV = sqlgraph.Neighbors(rs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTrip queries the trip edge of a RouteStop.
+func (c *RouteStopClient) QueryTrip(rs *RouteStop) *TripQuery {
+	query := (&TripClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := rs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(routestop.Table, routestop.FieldID, id),
+			sqlgraph.To(trip.Table, trip.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, routestop.TripTable, routestop.TripPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(rs.driver.Dialect(), step)
 		return fromV, nil
@@ -3861,6 +3877,22 @@ func (c *TripClient) QueryRoute(t *Trip) *RouteQuery {
 			sqlgraph.From(trip.Table, trip.FieldID, id),
 			sqlgraph.To(route.Table, route.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, trip.RouteTable, trip.RouteColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStops queries the stops edge of a Trip.
+func (c *TripClient) QueryStops(t *Trip) *RouteStopQuery {
+	query := (&RouteStopClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trip.Table, trip.FieldID, id),
+			sqlgraph.To(routestop.Table, routestop.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, trip.StopsTable, trip.StopsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil

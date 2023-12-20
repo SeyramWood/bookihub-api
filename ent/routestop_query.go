@@ -4,27 +4,30 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/predicate"
-	"github.com/SeyramWood/bookibus/ent/route"
 	"github.com/SeyramWood/bookibus/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // RouteStopQuery is the builder for querying RouteStop entities.
 type RouteStopQuery struct {
 	config
-	ctx        *QueryContext
-	order      []routestop.OrderOption
-	inters     []Interceptor
-	predicates []predicate.RouteStop
-	withRoute  *RouteQuery
-	withFKs    bool
-	modifiers  []func(*sql.Selector)
+	ctx         *QueryContext
+	order       []routestop.OrderOption
+	inters      []Interceptor
+	predicates  []predicate.RouteStop
+	withCompany *CompanyQuery
+	withTrip    *TripQuery
+	withFKs     bool
+	modifiers   []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,9 +64,9 @@ func (rsq *RouteStopQuery) Order(o ...routestop.OrderOption) *RouteStopQuery {
 	return rsq
 }
 
-// QueryRoute chains the current query on the "route" edge.
-func (rsq *RouteStopQuery) QueryRoute() *RouteQuery {
-	query := (&RouteClient{config: rsq.config}).Query()
+// QueryCompany chains the current query on the "company" edge.
+func (rsq *RouteStopQuery) QueryCompany() *CompanyQuery {
+	query := (&CompanyClient{config: rsq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := rsq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,8 +77,30 @@ func (rsq *RouteStopQuery) QueryRoute() *RouteQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(routestop.Table, routestop.FieldID, selector),
-			sqlgraph.To(route.Table, route.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, routestop.RouteTable, routestop.RouteColumn),
+			sqlgraph.To(company.Table, company.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, routestop.CompanyTable, routestop.CompanyColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(rsq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTrip chains the current query on the "trip" edge.
+func (rsq *RouteStopQuery) QueryTrip() *TripQuery {
+	query := (&TripClient{config: rsq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := rsq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := rsq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(routestop.Table, routestop.FieldID, selector),
+			sqlgraph.To(trip.Table, trip.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, routestop.TripTable, routestop.TripPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(rsq.driver.Dialect(), step)
 		return fromU, nil
@@ -270,26 +295,38 @@ func (rsq *RouteStopQuery) Clone() *RouteStopQuery {
 		return nil
 	}
 	return &RouteStopQuery{
-		config:     rsq.config,
-		ctx:        rsq.ctx.Clone(),
-		order:      append([]routestop.OrderOption{}, rsq.order...),
-		inters:     append([]Interceptor{}, rsq.inters...),
-		predicates: append([]predicate.RouteStop{}, rsq.predicates...),
-		withRoute:  rsq.withRoute.Clone(),
+		config:      rsq.config,
+		ctx:         rsq.ctx.Clone(),
+		order:       append([]routestop.OrderOption{}, rsq.order...),
+		inters:      append([]Interceptor{}, rsq.inters...),
+		predicates:  append([]predicate.RouteStop{}, rsq.predicates...),
+		withCompany: rsq.withCompany.Clone(),
+		withTrip:    rsq.withTrip.Clone(),
 		// clone intermediate query.
 		sql:  rsq.sql.Clone(),
 		path: rsq.path,
 	}
 }
 
-// WithRoute tells the query-builder to eager-load the nodes that are connected to
-// the "route" edge. The optional arguments are used to configure the query builder of the edge.
-func (rsq *RouteStopQuery) WithRoute(opts ...func(*RouteQuery)) *RouteStopQuery {
-	query := (&RouteClient{config: rsq.config}).Query()
+// WithCompany tells the query-builder to eager-load the nodes that are connected to
+// the "company" edge. The optional arguments are used to configure the query builder of the edge.
+func (rsq *RouteStopQuery) WithCompany(opts ...func(*CompanyQuery)) *RouteStopQuery {
+	query := (&CompanyClient{config: rsq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	rsq.withRoute = query
+	rsq.withCompany = query
+	return rsq
+}
+
+// WithTrip tells the query-builder to eager-load the nodes that are connected to
+// the "trip" edge. The optional arguments are used to configure the query builder of the edge.
+func (rsq *RouteStopQuery) WithTrip(opts ...func(*TripQuery)) *RouteStopQuery {
+	query := (&TripClient{config: rsq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	rsq.withTrip = query
 	return rsq
 }
 
@@ -372,11 +409,12 @@ func (rsq *RouteStopQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*R
 		nodes       = []*RouteStop{}
 		withFKs     = rsq.withFKs
 		_spec       = rsq.querySpec()
-		loadedTypes = [1]bool{
-			rsq.withRoute != nil,
+		loadedTypes = [2]bool{
+			rsq.withCompany != nil,
+			rsq.withTrip != nil,
 		}
 	)
-	if rsq.withRoute != nil {
+	if rsq.withCompany != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -403,23 +441,30 @@ func (rsq *RouteStopQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*R
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := rsq.withRoute; query != nil {
-		if err := rsq.loadRoute(ctx, query, nodes, nil,
-			func(n *RouteStop, e *Route) { n.Edges.Route = e }); err != nil {
+	if query := rsq.withCompany; query != nil {
+		if err := rsq.loadCompany(ctx, query, nodes, nil,
+			func(n *RouteStop, e *Company) { n.Edges.Company = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := rsq.withTrip; query != nil {
+		if err := rsq.loadTrip(ctx, query, nodes,
+			func(n *RouteStop) { n.Edges.Trip = []*Trip{} },
+			func(n *RouteStop, e *Trip) { n.Edges.Trip = append(n.Edges.Trip, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (rsq *RouteStopQuery) loadRoute(ctx context.Context, query *RouteQuery, nodes []*RouteStop, init func(*RouteStop), assign func(*RouteStop, *Route)) error {
+func (rsq *RouteStopQuery) loadCompany(ctx context.Context, query *CompanyQuery, nodes []*RouteStop, init func(*RouteStop), assign func(*RouteStop, *Company)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*RouteStop)
 	for i := range nodes {
-		if nodes[i].route_stops == nil {
+		if nodes[i].company_stops == nil {
 			continue
 		}
-		fk := *nodes[i].route_stops
+		fk := *nodes[i].company_stops
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -428,7 +473,7 @@ func (rsq *RouteStopQuery) loadRoute(ctx context.Context, query *RouteQuery, nod
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(route.IDIn(ids...))
+	query.Where(company.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -436,10 +481,71 @@ func (rsq *RouteStopQuery) loadRoute(ctx context.Context, query *RouteQuery, nod
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "route_stops" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "company_stops" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (rsq *RouteStopQuery) loadTrip(ctx context.Context, query *TripQuery, nodes []*RouteStop, init func(*RouteStop), assign func(*RouteStop, *Trip)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*RouteStop)
+	nids := make(map[int]map[*RouteStop]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(routestop.TripTable)
+		s.Join(joinT).On(s.C(trip.FieldID), joinT.C(routestop.TripPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(routestop.TripPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(routestop.TripPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*RouteStop]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Trip](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "trip" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil

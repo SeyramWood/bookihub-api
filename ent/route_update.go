@@ -14,7 +14,6 @@ import (
 	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/predicate"
 	"github.com/SeyramWood/bookibus/ent/route"
-	"github.com/SeyramWood/bookibus/ent/routestop"
 	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
@@ -47,114 +46,6 @@ func (ru *RouteUpdate) SetFromLocation(s string) *RouteUpdate {
 // SetToLocation sets the "to_location" field.
 func (ru *RouteUpdate) SetToLocation(s string) *RouteUpdate {
 	ru.mutation.SetToLocation(s)
-	return ru
-}
-
-// SetFromLatitude sets the "from_latitude" field.
-func (ru *RouteUpdate) SetFromLatitude(f float64) *RouteUpdate {
-	ru.mutation.ResetFromLatitude()
-	ru.mutation.SetFromLatitude(f)
-	return ru
-}
-
-// SetNillableFromLatitude sets the "from_latitude" field if the given value is not nil.
-func (ru *RouteUpdate) SetNillableFromLatitude(f *float64) *RouteUpdate {
-	if f != nil {
-		ru.SetFromLatitude(*f)
-	}
-	return ru
-}
-
-// AddFromLatitude adds f to the "from_latitude" field.
-func (ru *RouteUpdate) AddFromLatitude(f float64) *RouteUpdate {
-	ru.mutation.AddFromLatitude(f)
-	return ru
-}
-
-// ClearFromLatitude clears the value of the "from_latitude" field.
-func (ru *RouteUpdate) ClearFromLatitude() *RouteUpdate {
-	ru.mutation.ClearFromLatitude()
-	return ru
-}
-
-// SetFromLongitude sets the "from_longitude" field.
-func (ru *RouteUpdate) SetFromLongitude(f float64) *RouteUpdate {
-	ru.mutation.ResetFromLongitude()
-	ru.mutation.SetFromLongitude(f)
-	return ru
-}
-
-// SetNillableFromLongitude sets the "from_longitude" field if the given value is not nil.
-func (ru *RouteUpdate) SetNillableFromLongitude(f *float64) *RouteUpdate {
-	if f != nil {
-		ru.SetFromLongitude(*f)
-	}
-	return ru
-}
-
-// AddFromLongitude adds f to the "from_longitude" field.
-func (ru *RouteUpdate) AddFromLongitude(f float64) *RouteUpdate {
-	ru.mutation.AddFromLongitude(f)
-	return ru
-}
-
-// ClearFromLongitude clears the value of the "from_longitude" field.
-func (ru *RouteUpdate) ClearFromLongitude() *RouteUpdate {
-	ru.mutation.ClearFromLongitude()
-	return ru
-}
-
-// SetToLatitude sets the "to_latitude" field.
-func (ru *RouteUpdate) SetToLatitude(f float64) *RouteUpdate {
-	ru.mutation.ResetToLatitude()
-	ru.mutation.SetToLatitude(f)
-	return ru
-}
-
-// SetNillableToLatitude sets the "to_latitude" field if the given value is not nil.
-func (ru *RouteUpdate) SetNillableToLatitude(f *float64) *RouteUpdate {
-	if f != nil {
-		ru.SetToLatitude(*f)
-	}
-	return ru
-}
-
-// AddToLatitude adds f to the "to_latitude" field.
-func (ru *RouteUpdate) AddToLatitude(f float64) *RouteUpdate {
-	ru.mutation.AddToLatitude(f)
-	return ru
-}
-
-// ClearToLatitude clears the value of the "to_latitude" field.
-func (ru *RouteUpdate) ClearToLatitude() *RouteUpdate {
-	ru.mutation.ClearToLatitude()
-	return ru
-}
-
-// SetToLongitude sets the "to_longitude" field.
-func (ru *RouteUpdate) SetToLongitude(f float64) *RouteUpdate {
-	ru.mutation.ResetToLongitude()
-	ru.mutation.SetToLongitude(f)
-	return ru
-}
-
-// SetNillableToLongitude sets the "to_longitude" field if the given value is not nil.
-func (ru *RouteUpdate) SetNillableToLongitude(f *float64) *RouteUpdate {
-	if f != nil {
-		ru.SetToLongitude(*f)
-	}
-	return ru
-}
-
-// AddToLongitude adds f to the "to_longitude" field.
-func (ru *RouteUpdate) AddToLongitude(f float64) *RouteUpdate {
-	ru.mutation.AddToLongitude(f)
-	return ru
-}
-
-// ClearToLongitude clears the value of the "to_longitude" field.
-func (ru *RouteUpdate) ClearToLongitude() *RouteUpdate {
-	ru.mutation.ClearToLongitude()
 	return ru
 }
 
@@ -198,21 +89,6 @@ func (ru *RouteUpdate) SetCompany(c *Company) *RouteUpdate {
 	return ru.SetCompanyID(c.ID)
 }
 
-// AddStopIDs adds the "stops" edge to the RouteStop entity by IDs.
-func (ru *RouteUpdate) AddStopIDs(ids ...int) *RouteUpdate {
-	ru.mutation.AddStopIDs(ids...)
-	return ru
-}
-
-// AddStops adds the "stops" edges to the RouteStop entity.
-func (ru *RouteUpdate) AddStops(r ...*RouteStop) *RouteUpdate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return ru.AddStopIDs(ids...)
-}
-
 // AddTripIDs adds the "trips" edge to the Trip entity by IDs.
 func (ru *RouteUpdate) AddTripIDs(ids ...int) *RouteUpdate {
 	ru.mutation.AddTripIDs(ids...)
@@ -237,27 +113,6 @@ func (ru *RouteUpdate) Mutation() *RouteMutation {
 func (ru *RouteUpdate) ClearCompany() *RouteUpdate {
 	ru.mutation.ClearCompany()
 	return ru
-}
-
-// ClearStops clears all "stops" edges to the RouteStop entity.
-func (ru *RouteUpdate) ClearStops() *RouteUpdate {
-	ru.mutation.ClearStops()
-	return ru
-}
-
-// RemoveStopIDs removes the "stops" edge to RouteStop entities by IDs.
-func (ru *RouteUpdate) RemoveStopIDs(ids ...int) *RouteUpdate {
-	ru.mutation.RemoveStopIDs(ids...)
-	return ru
-}
-
-// RemoveStops removes "stops" edges to RouteStop entities.
-func (ru *RouteUpdate) RemoveStops(r ...*RouteStop) *RouteUpdate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return ru.RemoveStopIDs(ids...)
 }
 
 // ClearTrips clears all "trips" edges to the Trip entity.
@@ -359,42 +214,6 @@ func (ru *RouteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ru.mutation.ToLocation(); ok {
 		_spec.SetField(route.FieldToLocation, field.TypeString, value)
 	}
-	if value, ok := ru.mutation.FromLatitude(); ok {
-		_spec.SetField(route.FieldFromLatitude, field.TypeFloat64, value)
-	}
-	if value, ok := ru.mutation.AddedFromLatitude(); ok {
-		_spec.AddField(route.FieldFromLatitude, field.TypeFloat64, value)
-	}
-	if ru.mutation.FromLatitudeCleared() {
-		_spec.ClearField(route.FieldFromLatitude, field.TypeFloat64)
-	}
-	if value, ok := ru.mutation.FromLongitude(); ok {
-		_spec.SetField(route.FieldFromLongitude, field.TypeFloat64, value)
-	}
-	if value, ok := ru.mutation.AddedFromLongitude(); ok {
-		_spec.AddField(route.FieldFromLongitude, field.TypeFloat64, value)
-	}
-	if ru.mutation.FromLongitudeCleared() {
-		_spec.ClearField(route.FieldFromLongitude, field.TypeFloat64)
-	}
-	if value, ok := ru.mutation.ToLatitude(); ok {
-		_spec.SetField(route.FieldToLatitude, field.TypeFloat64, value)
-	}
-	if value, ok := ru.mutation.AddedToLatitude(); ok {
-		_spec.AddField(route.FieldToLatitude, field.TypeFloat64, value)
-	}
-	if ru.mutation.ToLatitudeCleared() {
-		_spec.ClearField(route.FieldToLatitude, field.TypeFloat64)
-	}
-	if value, ok := ru.mutation.ToLongitude(); ok {
-		_spec.SetField(route.FieldToLongitude, field.TypeFloat64, value)
-	}
-	if value, ok := ru.mutation.AddedToLongitude(); ok {
-		_spec.AddField(route.FieldToLongitude, field.TypeFloat64, value)
-	}
-	if ru.mutation.ToLongitudeCleared() {
-		_spec.ClearField(route.FieldToLongitude, field.TypeFloat64)
-	}
 	if value, ok := ru.mutation.Popularity(); ok {
 		_spec.SetField(route.FieldPopularity, field.TypeInt, value)
 	}
@@ -423,51 +242,6 @@ func (ru *RouteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ru.mutation.StopsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   route.StopsTable,
-			Columns: []string{route.StopsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ru.mutation.RemovedStopsIDs(); len(nodes) > 0 && !ru.mutation.StopsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   route.StopsTable,
-			Columns: []string{route.StopsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ru.mutation.StopsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   route.StopsTable,
-			Columns: []string{route.StopsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -560,114 +334,6 @@ func (ruo *RouteUpdateOne) SetToLocation(s string) *RouteUpdateOne {
 	return ruo
 }
 
-// SetFromLatitude sets the "from_latitude" field.
-func (ruo *RouteUpdateOne) SetFromLatitude(f float64) *RouteUpdateOne {
-	ruo.mutation.ResetFromLatitude()
-	ruo.mutation.SetFromLatitude(f)
-	return ruo
-}
-
-// SetNillableFromLatitude sets the "from_latitude" field if the given value is not nil.
-func (ruo *RouteUpdateOne) SetNillableFromLatitude(f *float64) *RouteUpdateOne {
-	if f != nil {
-		ruo.SetFromLatitude(*f)
-	}
-	return ruo
-}
-
-// AddFromLatitude adds f to the "from_latitude" field.
-func (ruo *RouteUpdateOne) AddFromLatitude(f float64) *RouteUpdateOne {
-	ruo.mutation.AddFromLatitude(f)
-	return ruo
-}
-
-// ClearFromLatitude clears the value of the "from_latitude" field.
-func (ruo *RouteUpdateOne) ClearFromLatitude() *RouteUpdateOne {
-	ruo.mutation.ClearFromLatitude()
-	return ruo
-}
-
-// SetFromLongitude sets the "from_longitude" field.
-func (ruo *RouteUpdateOne) SetFromLongitude(f float64) *RouteUpdateOne {
-	ruo.mutation.ResetFromLongitude()
-	ruo.mutation.SetFromLongitude(f)
-	return ruo
-}
-
-// SetNillableFromLongitude sets the "from_longitude" field if the given value is not nil.
-func (ruo *RouteUpdateOne) SetNillableFromLongitude(f *float64) *RouteUpdateOne {
-	if f != nil {
-		ruo.SetFromLongitude(*f)
-	}
-	return ruo
-}
-
-// AddFromLongitude adds f to the "from_longitude" field.
-func (ruo *RouteUpdateOne) AddFromLongitude(f float64) *RouteUpdateOne {
-	ruo.mutation.AddFromLongitude(f)
-	return ruo
-}
-
-// ClearFromLongitude clears the value of the "from_longitude" field.
-func (ruo *RouteUpdateOne) ClearFromLongitude() *RouteUpdateOne {
-	ruo.mutation.ClearFromLongitude()
-	return ruo
-}
-
-// SetToLatitude sets the "to_latitude" field.
-func (ruo *RouteUpdateOne) SetToLatitude(f float64) *RouteUpdateOne {
-	ruo.mutation.ResetToLatitude()
-	ruo.mutation.SetToLatitude(f)
-	return ruo
-}
-
-// SetNillableToLatitude sets the "to_latitude" field if the given value is not nil.
-func (ruo *RouteUpdateOne) SetNillableToLatitude(f *float64) *RouteUpdateOne {
-	if f != nil {
-		ruo.SetToLatitude(*f)
-	}
-	return ruo
-}
-
-// AddToLatitude adds f to the "to_latitude" field.
-func (ruo *RouteUpdateOne) AddToLatitude(f float64) *RouteUpdateOne {
-	ruo.mutation.AddToLatitude(f)
-	return ruo
-}
-
-// ClearToLatitude clears the value of the "to_latitude" field.
-func (ruo *RouteUpdateOne) ClearToLatitude() *RouteUpdateOne {
-	ruo.mutation.ClearToLatitude()
-	return ruo
-}
-
-// SetToLongitude sets the "to_longitude" field.
-func (ruo *RouteUpdateOne) SetToLongitude(f float64) *RouteUpdateOne {
-	ruo.mutation.ResetToLongitude()
-	ruo.mutation.SetToLongitude(f)
-	return ruo
-}
-
-// SetNillableToLongitude sets the "to_longitude" field if the given value is not nil.
-func (ruo *RouteUpdateOne) SetNillableToLongitude(f *float64) *RouteUpdateOne {
-	if f != nil {
-		ruo.SetToLongitude(*f)
-	}
-	return ruo
-}
-
-// AddToLongitude adds f to the "to_longitude" field.
-func (ruo *RouteUpdateOne) AddToLongitude(f float64) *RouteUpdateOne {
-	ruo.mutation.AddToLongitude(f)
-	return ruo
-}
-
-// ClearToLongitude clears the value of the "to_longitude" field.
-func (ruo *RouteUpdateOne) ClearToLongitude() *RouteUpdateOne {
-	ruo.mutation.ClearToLongitude()
-	return ruo
-}
-
 // SetPopularity sets the "popularity" field.
 func (ruo *RouteUpdateOne) SetPopularity(i int) *RouteUpdateOne {
 	ruo.mutation.ResetPopularity()
@@ -708,21 +374,6 @@ func (ruo *RouteUpdateOne) SetCompany(c *Company) *RouteUpdateOne {
 	return ruo.SetCompanyID(c.ID)
 }
 
-// AddStopIDs adds the "stops" edge to the RouteStop entity by IDs.
-func (ruo *RouteUpdateOne) AddStopIDs(ids ...int) *RouteUpdateOne {
-	ruo.mutation.AddStopIDs(ids...)
-	return ruo
-}
-
-// AddStops adds the "stops" edges to the RouteStop entity.
-func (ruo *RouteUpdateOne) AddStops(r ...*RouteStop) *RouteUpdateOne {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return ruo.AddStopIDs(ids...)
-}
-
 // AddTripIDs adds the "trips" edge to the Trip entity by IDs.
 func (ruo *RouteUpdateOne) AddTripIDs(ids ...int) *RouteUpdateOne {
 	ruo.mutation.AddTripIDs(ids...)
@@ -747,27 +398,6 @@ func (ruo *RouteUpdateOne) Mutation() *RouteMutation {
 func (ruo *RouteUpdateOne) ClearCompany() *RouteUpdateOne {
 	ruo.mutation.ClearCompany()
 	return ruo
-}
-
-// ClearStops clears all "stops" edges to the RouteStop entity.
-func (ruo *RouteUpdateOne) ClearStops() *RouteUpdateOne {
-	ruo.mutation.ClearStops()
-	return ruo
-}
-
-// RemoveStopIDs removes the "stops" edge to RouteStop entities by IDs.
-func (ruo *RouteUpdateOne) RemoveStopIDs(ids ...int) *RouteUpdateOne {
-	ruo.mutation.RemoveStopIDs(ids...)
-	return ruo
-}
-
-// RemoveStops removes "stops" edges to RouteStop entities.
-func (ruo *RouteUpdateOne) RemoveStops(r ...*RouteStop) *RouteUpdateOne {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return ruo.RemoveStopIDs(ids...)
 }
 
 // ClearTrips clears all "trips" edges to the Trip entity.
@@ -899,42 +529,6 @@ func (ruo *RouteUpdateOne) sqlSave(ctx context.Context) (_node *Route, err error
 	if value, ok := ruo.mutation.ToLocation(); ok {
 		_spec.SetField(route.FieldToLocation, field.TypeString, value)
 	}
-	if value, ok := ruo.mutation.FromLatitude(); ok {
-		_spec.SetField(route.FieldFromLatitude, field.TypeFloat64, value)
-	}
-	if value, ok := ruo.mutation.AddedFromLatitude(); ok {
-		_spec.AddField(route.FieldFromLatitude, field.TypeFloat64, value)
-	}
-	if ruo.mutation.FromLatitudeCleared() {
-		_spec.ClearField(route.FieldFromLatitude, field.TypeFloat64)
-	}
-	if value, ok := ruo.mutation.FromLongitude(); ok {
-		_spec.SetField(route.FieldFromLongitude, field.TypeFloat64, value)
-	}
-	if value, ok := ruo.mutation.AddedFromLongitude(); ok {
-		_spec.AddField(route.FieldFromLongitude, field.TypeFloat64, value)
-	}
-	if ruo.mutation.FromLongitudeCleared() {
-		_spec.ClearField(route.FieldFromLongitude, field.TypeFloat64)
-	}
-	if value, ok := ruo.mutation.ToLatitude(); ok {
-		_spec.SetField(route.FieldToLatitude, field.TypeFloat64, value)
-	}
-	if value, ok := ruo.mutation.AddedToLatitude(); ok {
-		_spec.AddField(route.FieldToLatitude, field.TypeFloat64, value)
-	}
-	if ruo.mutation.ToLatitudeCleared() {
-		_spec.ClearField(route.FieldToLatitude, field.TypeFloat64)
-	}
-	if value, ok := ruo.mutation.ToLongitude(); ok {
-		_spec.SetField(route.FieldToLongitude, field.TypeFloat64, value)
-	}
-	if value, ok := ruo.mutation.AddedToLongitude(); ok {
-		_spec.AddField(route.FieldToLongitude, field.TypeFloat64, value)
-	}
-	if ruo.mutation.ToLongitudeCleared() {
-		_spec.ClearField(route.FieldToLongitude, field.TypeFloat64)
-	}
 	if value, ok := ruo.mutation.Popularity(); ok {
 		_spec.SetField(route.FieldPopularity, field.TypeInt, value)
 	}
@@ -963,51 +557,6 @@ func (ruo *RouteUpdateOne) sqlSave(ctx context.Context) (_node *Route, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ruo.mutation.StopsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   route.StopsTable,
-			Columns: []string{route.StopsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ruo.mutation.RemovedStopsIDs(); len(nodes) > 0 && !ruo.mutation.StopsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   route.StopsTable,
-			Columns: []string{route.StopsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ruo.mutation.StopsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   route.StopsTable,
-			Columns: []string{route.StopsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

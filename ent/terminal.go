@@ -22,8 +22,12 @@ type Terminal struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty"`
+	// Address holds the value of the "address" field.
+	Address string `json:"address,omitempty"`
+	// Latitude holds the value of the "latitude" field.
+	Latitude float64 `json:"latitude,omitempty"`
+	// Longitude holds the value of the "longitude" field.
+	Longitude float64 `json:"longitude,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TerminalQuery when eager-loading is set.
 	Edges             TerminalEdges `json:"edges"`
@@ -80,9 +84,11 @@ func (*Terminal) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case terminal.FieldLatitude, terminal.FieldLongitude:
+			values[i] = new(sql.NullFloat64)
 		case terminal.FieldID:
 			values[i] = new(sql.NullInt64)
-		case terminal.FieldName:
+		case terminal.FieldAddress:
 			values[i] = new(sql.NullString)
 		case terminal.FieldCreatedAt, terminal.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -121,11 +127,23 @@ func (t *Terminal) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				t.UpdatedAt = value.Time
 			}
-		case terminal.FieldName:
+		case terminal.FieldAddress:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name", values[i])
+				return fmt.Errorf("unexpected type %T for field address", values[i])
 			} else if value.Valid {
-				t.Name = value.String
+				t.Address = value.String
+			}
+		case terminal.FieldLatitude:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field latitude", values[i])
+			} else if value.Valid {
+				t.Latitude = value.Float64
+			}
+		case terminal.FieldLongitude:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field longitude", values[i])
+			} else if value.Valid {
+				t.Longitude = value.Float64
 			}
 		case terminal.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -191,8 +209,14 @@ func (t *Terminal) String() string {
 	builder.WriteString("updated_at=")
 	builder.WriteString(t.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("name=")
-	builder.WriteString(t.Name)
+	builder.WriteString("address=")
+	builder.WriteString(t.Address)
+	builder.WriteString(", ")
+	builder.WriteString("latitude=")
+	builder.WriteString(fmt.Sprintf("%v", t.Latitude))
+	builder.WriteString(", ")
+	builder.WriteString("longitude=")
+	builder.WriteString(fmt.Sprintf("%v", t.Longitude))
 	builder.WriteByte(')')
 	return builder.String()
 }

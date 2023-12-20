@@ -53,7 +53,7 @@ func (s *service) Login(request *requeststructs.UserLoginRequest) (*presenters.A
 	if err != nil {
 		return nil, err
 	}
-	if !s.hashCheck(result.Password, request.Password) || result.Type != user.Type(request.UserType) {
+	if !s.hashCheck(result.Password, request.Password) && result.Type != user.Type(request.UserType) {
 		return nil, ErrBadRequest
 	}
 	session := presenters.FormatSession(result)

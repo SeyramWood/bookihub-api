@@ -76,16 +76,26 @@ func IncidentResponse(data *ent.Incident) *fiber.Map {
 					}(),
 					Route: func() *RouteResponseData {
 						if r, err := t.Edges.RouteOrErr(); err == nil {
-							return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Stops: func() []*RouteStopResponseData {
-								if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
-									response := make([]*RouteStopResponseData, 0, len(stops))
-									for _, s := range stops {
-										response = append(response, &RouteStopResponseData{ID: s.ID, Latitude: s.Latitude, Longitude: s.Longitude})
+							return &RouteResponseData{
+								ID:   r.ID,
+								From: r.FromLocation,
+								To:   r.ToLocation,
+								Stops: func() []*RouteStopResponseData {
+									if stops, err := t.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
+										response := make([]*RouteStopResponseData, 0, len(stops))
+										for _, s := range stops {
+											response = append(response, &RouteStopResponseData{
+												ID:        s.ID,
+												Address:   s.Address,
+												Latitude:  s.Latitude,
+												Longitude: s.Longitude,
+											})
+										}
+										return response
 									}
-									return response
-								}
-								return nil
-							}()}
+									return nil
+								}(),
+							}
 						}
 						return nil
 					}(),
@@ -162,16 +172,26 @@ func IncidentsResponse(data *PaginationResponse) *fiber.Map {
 						}(),
 						Route: func() *RouteResponseData {
 							if r, err := t.Edges.RouteOrErr(); err == nil {
-								return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Stops: func() []*RouteStopResponseData {
-									if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
-										response := make([]*RouteStopResponseData, 0, len(stops))
-										for _, s := range stops {
-											response = append(response, &RouteStopResponseData{ID: s.ID, Latitude: s.Latitude, Longitude: s.Longitude})
+								return &RouteResponseData{
+									ID:   r.ID,
+									From: r.FromLocation,
+									To:   r.ToLocation,
+									Stops: func() []*RouteStopResponseData {
+										if stops, err := t.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
+											response := make([]*RouteStopResponseData, 0, len(stops))
+											for _, s := range stops {
+												response = append(response, &RouteStopResponseData{
+													ID:        s.ID,
+													Address:   s.Address,
+													Latitude:  s.Latitude,
+													Longitude: s.Longitude,
+												})
+											}
+											return response
 										}
-										return response
-									}
-									return nil
-								}()}
+										return nil
+									}(),
+								}
 							}
 							return nil
 						}(),

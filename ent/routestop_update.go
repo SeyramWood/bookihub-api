@@ -11,9 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/predicate"
-	"github.com/SeyramWood/bookibus/ent/route"
 	"github.com/SeyramWood/bookibus/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // RouteStopUpdate is the builder for updating RouteStop entities.
@@ -33,6 +34,26 @@ func (rsu *RouteStopUpdate) Where(ps ...predicate.RouteStop) *RouteStopUpdate {
 // SetUpdatedAt sets the "updated_at" field.
 func (rsu *RouteStopUpdate) SetUpdatedAt(t time.Time) *RouteStopUpdate {
 	rsu.mutation.SetUpdatedAt(t)
+	return rsu
+}
+
+// SetAddress sets the "address" field.
+func (rsu *RouteStopUpdate) SetAddress(s string) *RouteStopUpdate {
+	rsu.mutation.SetAddress(s)
+	return rsu
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (rsu *RouteStopUpdate) SetNillableAddress(s *string) *RouteStopUpdate {
+	if s != nil {
+		rsu.SetAddress(*s)
+	}
+	return rsu
+}
+
+// ClearAddress clears the value of the "address" field.
+func (rsu *RouteStopUpdate) ClearAddress() *RouteStopUpdate {
+	rsu.mutation.ClearAddress()
 	return rsu
 }
 
@@ -90,23 +111,38 @@ func (rsu *RouteStopUpdate) ClearLongitude() *RouteStopUpdate {
 	return rsu
 }
 
-// SetRouteID sets the "route" edge to the Route entity by ID.
-func (rsu *RouteStopUpdate) SetRouteID(id int) *RouteStopUpdate {
-	rsu.mutation.SetRouteID(id)
+// SetCompanyID sets the "company" edge to the Company entity by ID.
+func (rsu *RouteStopUpdate) SetCompanyID(id int) *RouteStopUpdate {
+	rsu.mutation.SetCompanyID(id)
 	return rsu
 }
 
-// SetNillableRouteID sets the "route" edge to the Route entity by ID if the given value is not nil.
-func (rsu *RouteStopUpdate) SetNillableRouteID(id *int) *RouteStopUpdate {
+// SetNillableCompanyID sets the "company" edge to the Company entity by ID if the given value is not nil.
+func (rsu *RouteStopUpdate) SetNillableCompanyID(id *int) *RouteStopUpdate {
 	if id != nil {
-		rsu = rsu.SetRouteID(*id)
+		rsu = rsu.SetCompanyID(*id)
 	}
 	return rsu
 }
 
-// SetRoute sets the "route" edge to the Route entity.
-func (rsu *RouteStopUpdate) SetRoute(r *Route) *RouteStopUpdate {
-	return rsu.SetRouteID(r.ID)
+// SetCompany sets the "company" edge to the Company entity.
+func (rsu *RouteStopUpdate) SetCompany(c *Company) *RouteStopUpdate {
+	return rsu.SetCompanyID(c.ID)
+}
+
+// AddTripIDs adds the "trip" edge to the Trip entity by IDs.
+func (rsu *RouteStopUpdate) AddTripIDs(ids ...int) *RouteStopUpdate {
+	rsu.mutation.AddTripIDs(ids...)
+	return rsu
+}
+
+// AddTrip adds the "trip" edges to the Trip entity.
+func (rsu *RouteStopUpdate) AddTrip(t ...*Trip) *RouteStopUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return rsu.AddTripIDs(ids...)
 }
 
 // Mutation returns the RouteStopMutation object of the builder.
@@ -114,10 +150,31 @@ func (rsu *RouteStopUpdate) Mutation() *RouteStopMutation {
 	return rsu.mutation
 }
 
-// ClearRoute clears the "route" edge to the Route entity.
-func (rsu *RouteStopUpdate) ClearRoute() *RouteStopUpdate {
-	rsu.mutation.ClearRoute()
+// ClearCompany clears the "company" edge to the Company entity.
+func (rsu *RouteStopUpdate) ClearCompany() *RouteStopUpdate {
+	rsu.mutation.ClearCompany()
 	return rsu
+}
+
+// ClearTrip clears all "trip" edges to the Trip entity.
+func (rsu *RouteStopUpdate) ClearTrip() *RouteStopUpdate {
+	rsu.mutation.ClearTrip()
+	return rsu
+}
+
+// RemoveTripIDs removes the "trip" edge to Trip entities by IDs.
+func (rsu *RouteStopUpdate) RemoveTripIDs(ids ...int) *RouteStopUpdate {
+	rsu.mutation.RemoveTripIDs(ids...)
+	return rsu
+}
+
+// RemoveTrip removes "trip" edges to Trip entities.
+func (rsu *RouteStopUpdate) RemoveTrip(t ...*Trip) *RouteStopUpdate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return rsu.RemoveTripIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -174,6 +231,12 @@ func (rsu *RouteStopUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := rsu.mutation.UpdatedAt(); ok {
 		_spec.SetField(routestop.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := rsu.mutation.Address(); ok {
+		_spec.SetField(routestop.FieldAddress, field.TypeString, value)
+	}
+	if rsu.mutation.AddressCleared() {
+		_spec.ClearField(routestop.FieldAddress, field.TypeString)
+	}
 	if value, ok := rsu.mutation.Latitude(); ok {
 		_spec.SetField(routestop.FieldLatitude, field.TypeFloat64, value)
 	}
@@ -192,28 +255,73 @@ func (rsu *RouteStopUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if rsu.mutation.LongitudeCleared() {
 		_spec.ClearField(routestop.FieldLongitude, field.TypeFloat64)
 	}
-	if rsu.mutation.RouteCleared() {
+	if rsu.mutation.CompanyCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   routestop.RouteTable,
-			Columns: []string{routestop.RouteColumn},
+			Table:   routestop.CompanyTable,
+			Columns: []string{routestop.CompanyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(route.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := rsu.mutation.RouteIDs(); len(nodes) > 0 {
+	if nodes := rsu.mutation.CompanyIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   routestop.RouteTable,
-			Columns: []string{routestop.RouteColumn},
+			Table:   routestop.CompanyTable,
+			Columns: []string{routestop.CompanyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(route.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if rsu.mutation.TripCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   routestop.TripTable,
+			Columns: routestop.TripPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := rsu.mutation.RemovedTripIDs(); len(nodes) > 0 && !rsu.mutation.TripCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   routestop.TripTable,
+			Columns: routestop.TripPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := rsu.mutation.TripIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   routestop.TripTable,
+			Columns: routestop.TripPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -246,6 +354,26 @@ type RouteStopUpdateOne struct {
 // SetUpdatedAt sets the "updated_at" field.
 func (rsuo *RouteStopUpdateOne) SetUpdatedAt(t time.Time) *RouteStopUpdateOne {
 	rsuo.mutation.SetUpdatedAt(t)
+	return rsuo
+}
+
+// SetAddress sets the "address" field.
+func (rsuo *RouteStopUpdateOne) SetAddress(s string) *RouteStopUpdateOne {
+	rsuo.mutation.SetAddress(s)
+	return rsuo
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (rsuo *RouteStopUpdateOne) SetNillableAddress(s *string) *RouteStopUpdateOne {
+	if s != nil {
+		rsuo.SetAddress(*s)
+	}
+	return rsuo
+}
+
+// ClearAddress clears the value of the "address" field.
+func (rsuo *RouteStopUpdateOne) ClearAddress() *RouteStopUpdateOne {
+	rsuo.mutation.ClearAddress()
 	return rsuo
 }
 
@@ -303,23 +431,38 @@ func (rsuo *RouteStopUpdateOne) ClearLongitude() *RouteStopUpdateOne {
 	return rsuo
 }
 
-// SetRouteID sets the "route" edge to the Route entity by ID.
-func (rsuo *RouteStopUpdateOne) SetRouteID(id int) *RouteStopUpdateOne {
-	rsuo.mutation.SetRouteID(id)
+// SetCompanyID sets the "company" edge to the Company entity by ID.
+func (rsuo *RouteStopUpdateOne) SetCompanyID(id int) *RouteStopUpdateOne {
+	rsuo.mutation.SetCompanyID(id)
 	return rsuo
 }
 
-// SetNillableRouteID sets the "route" edge to the Route entity by ID if the given value is not nil.
-func (rsuo *RouteStopUpdateOne) SetNillableRouteID(id *int) *RouteStopUpdateOne {
+// SetNillableCompanyID sets the "company" edge to the Company entity by ID if the given value is not nil.
+func (rsuo *RouteStopUpdateOne) SetNillableCompanyID(id *int) *RouteStopUpdateOne {
 	if id != nil {
-		rsuo = rsuo.SetRouteID(*id)
+		rsuo = rsuo.SetCompanyID(*id)
 	}
 	return rsuo
 }
 
-// SetRoute sets the "route" edge to the Route entity.
-func (rsuo *RouteStopUpdateOne) SetRoute(r *Route) *RouteStopUpdateOne {
-	return rsuo.SetRouteID(r.ID)
+// SetCompany sets the "company" edge to the Company entity.
+func (rsuo *RouteStopUpdateOne) SetCompany(c *Company) *RouteStopUpdateOne {
+	return rsuo.SetCompanyID(c.ID)
+}
+
+// AddTripIDs adds the "trip" edge to the Trip entity by IDs.
+func (rsuo *RouteStopUpdateOne) AddTripIDs(ids ...int) *RouteStopUpdateOne {
+	rsuo.mutation.AddTripIDs(ids...)
+	return rsuo
+}
+
+// AddTrip adds the "trip" edges to the Trip entity.
+func (rsuo *RouteStopUpdateOne) AddTrip(t ...*Trip) *RouteStopUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return rsuo.AddTripIDs(ids...)
 }
 
 // Mutation returns the RouteStopMutation object of the builder.
@@ -327,10 +470,31 @@ func (rsuo *RouteStopUpdateOne) Mutation() *RouteStopMutation {
 	return rsuo.mutation
 }
 
-// ClearRoute clears the "route" edge to the Route entity.
-func (rsuo *RouteStopUpdateOne) ClearRoute() *RouteStopUpdateOne {
-	rsuo.mutation.ClearRoute()
+// ClearCompany clears the "company" edge to the Company entity.
+func (rsuo *RouteStopUpdateOne) ClearCompany() *RouteStopUpdateOne {
+	rsuo.mutation.ClearCompany()
 	return rsuo
+}
+
+// ClearTrip clears all "trip" edges to the Trip entity.
+func (rsuo *RouteStopUpdateOne) ClearTrip() *RouteStopUpdateOne {
+	rsuo.mutation.ClearTrip()
+	return rsuo
+}
+
+// RemoveTripIDs removes the "trip" edge to Trip entities by IDs.
+func (rsuo *RouteStopUpdateOne) RemoveTripIDs(ids ...int) *RouteStopUpdateOne {
+	rsuo.mutation.RemoveTripIDs(ids...)
+	return rsuo
+}
+
+// RemoveTrip removes "trip" edges to Trip entities.
+func (rsuo *RouteStopUpdateOne) RemoveTrip(t ...*Trip) *RouteStopUpdateOne {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return rsuo.RemoveTripIDs(ids...)
 }
 
 // Where appends a list predicates to the RouteStopUpdate builder.
@@ -417,6 +581,12 @@ func (rsuo *RouteStopUpdateOne) sqlSave(ctx context.Context) (_node *RouteStop, 
 	if value, ok := rsuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(routestop.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := rsuo.mutation.Address(); ok {
+		_spec.SetField(routestop.FieldAddress, field.TypeString, value)
+	}
+	if rsuo.mutation.AddressCleared() {
+		_spec.ClearField(routestop.FieldAddress, field.TypeString)
+	}
 	if value, ok := rsuo.mutation.Latitude(); ok {
 		_spec.SetField(routestop.FieldLatitude, field.TypeFloat64, value)
 	}
@@ -435,28 +605,73 @@ func (rsuo *RouteStopUpdateOne) sqlSave(ctx context.Context) (_node *RouteStop, 
 	if rsuo.mutation.LongitudeCleared() {
 		_spec.ClearField(routestop.FieldLongitude, field.TypeFloat64)
 	}
-	if rsuo.mutation.RouteCleared() {
+	if rsuo.mutation.CompanyCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   routestop.RouteTable,
-			Columns: []string{routestop.RouteColumn},
+			Table:   routestop.CompanyTable,
+			Columns: []string{routestop.CompanyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(route.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := rsuo.mutation.RouteIDs(); len(nodes) > 0 {
+	if nodes := rsuo.mutation.CompanyIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   routestop.RouteTable,
-			Columns: []string{routestop.RouteColumn},
+			Table:   routestop.CompanyTable,
+			Columns: []string{routestop.CompanyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(route.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if rsuo.mutation.TripCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   routestop.TripTable,
+			Columns: routestop.TripPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := rsuo.mutation.RemovedTripIDs(); len(nodes) > 0 && !rsuo.mutation.TripCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   routestop.TripTable,
+			Columns: routestop.TripPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := rsuo.mutation.TripIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   routestop.TripTable,
+			Columns: routestop.TripPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

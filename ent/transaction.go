@@ -42,6 +42,8 @@ type Transaction struct {
 	Channel transaction.Channel `json:"channel,omitempty"`
 	// TansKind holds the value of the "tans_kind" field.
 	TansKind transaction.TansKind `json:"tans_kind,omitempty"`
+	// Product holds the value of the "product" field.
+	Product transaction.Product `json:"product,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TransactionQuery when eager-loading is set.
 	Edges                TransactionEdges `json:"edges"`
@@ -112,7 +114,7 @@ func (*Transaction) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case transaction.FieldID:
 			values[i] = new(sql.NullInt64)
-		case transaction.FieldReference, transaction.FieldChannel, transaction.FieldTansKind:
+		case transaction.FieldReference, transaction.FieldChannel, transaction.FieldTansKind, transaction.FieldProduct:
 			values[i] = new(sql.NullString)
 		case transaction.FieldCreatedAt, transaction.FieldUpdatedAt, transaction.FieldPaidAt, transaction.FieldCanceledAt:
 			values[i] = new(sql.NullTime)
@@ -208,6 +210,12 @@ func (t *Transaction) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field tans_kind", values[i])
 			} else if value.Valid {
 				t.TansKind = transaction.TansKind(value.String)
+			}
+		case transaction.FieldProduct:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field product", values[i])
+			} else if value.Valid {
+				t.Product = transaction.Product(value.String)
 			}
 		case transaction.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -313,6 +321,9 @@ func (t *Transaction) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("tans_kind=")
 	builder.WriteString(fmt.Sprintf("%v", t.TansKind))
+	builder.WriteString(", ")
+	builder.WriteString("product=")
+	builder.WriteString(fmt.Sprintf("%v", t.Product))
 	builder.WriteByte(')')
 	return builder.String()
 }

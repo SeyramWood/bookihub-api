@@ -14,6 +14,7 @@ func CompanyRoutes(r fiber.Router, router *apiRouter) {
 	userHandler := api.NewCompanyUserHandler(router.Adapter, router.EventProducer)
 	vehicleHandler := api.NewVehicleHandler(router.Adapter, router.StorageSrv)
 	routeHandler := api.NewRouteHandler(router.Adapter)
+	routeStopHandler := api.NewRouteStopHandler(router.Adapter)
 	tripHandler := api.NewTripHandler(router.Adapter)
 
 	userGroup := r.Group("/company/users")
@@ -58,16 +59,21 @@ func CompanyRoutes(r fiber.Router, router *apiRouter) {
 	vehicleGroup.Delete("/:id", vehicleHandler.Remove())
 	vehicleGroup.Delete("/:id/delete-image", vehicleHandler.RemoveImage())
 
+	routeStopGroup := r.Group("/route-stops")
+	routeStopGroup.Get("", routeStopHandler.FetchAll())
+	routeStopGroup.Get("/company/:id", routeStopHandler.FetchAllByCompany())
+	routeStopGroup.Get("/:id", routeStopHandler.Fetch())
+	routeStopGroup.Post("/company/:id", adaptor.HTTPMiddleware(requests.ValidateRouteStop), routeStopHandler.Create())
+	routeStopGroup.Put("/:id", adaptor.HTTPMiddleware(requests.ValidateRouteStop), routeStopHandler.Update())
+	routeStopGroup.Delete("/:id", routeStopHandler.Remove())
+
 	routeGroup := r.Group("/routes")
 	routeGroup.Get("", routeHandler.FetchAll())
 	routeGroup.Get("/company/:id", routeHandler.FetchAllByCompany())
 	routeGroup.Get("/:id", routeHandler.Fetch())
 	routeGroup.Post("/company/:id", adaptor.HTTPMiddleware(requests.ValidateRoute), routeHandler.Create())
-	routeGroup.Post("/:id/add-stop", adaptor.HTTPMiddleware(requests.ValidateRouteStop), routeHandler.AddRouteStop())
 	routeGroup.Put("/:id", adaptor.HTTPMiddleware(requests.ValidateRouteUpdate), routeHandler.Update())
-	routeGroup.Put("/:id/update-stop", adaptor.HTTPMiddleware(requests.ValidateRouteStop), routeHandler.UpdateStop())
 	routeGroup.Delete("/:id", routeHandler.Remove())
-	routeGroup.Delete("/:id/delete-stop", routeHandler.RemoveStop())
 
 	tripGroup := r.Group("/trips")
 	tripGroup.Get("", tripHandler.FetchAll())

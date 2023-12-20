@@ -37,6 +37,8 @@ const (
 	FieldChannel = "channel"
 	// FieldTansKind holds the string denoting the tans_kind field in the database.
 	FieldTansKind = "tans_kind"
+	// FieldProduct holds the string denoting the product field in the database.
+	FieldProduct = "product"
 	// EdgeBooking holds the string denoting the booking edge name in mutations.
 	EdgeBooking = "booking"
 	// EdgeParcel holds the string denoting the parcel edge name in mutations.
@@ -82,6 +84,7 @@ var Columns = []string{
 	FieldCanceledAt,
 	FieldChannel,
 	FieldTansKind,
+	FieldProduct,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "transactions"
@@ -180,6 +183,32 @@ func TansKindValidator(tk TansKind) error {
 	}
 }
 
+// Product defines the type for the "product" enum field.
+type Product string
+
+// ProductTrip is the default value of the Product enum.
+const DefaultProduct = ProductTrip
+
+// Product values.
+const (
+	ProductTrip     Product = "trip"
+	ProductDelivery Product = "delivery"
+)
+
+func (pr Product) String() string {
+	return string(pr)
+}
+
+// ProductValidator is a validator for the "product" field enum values. It is called by the builders before save.
+func ProductValidator(pr Product) error {
+	switch pr {
+	case ProductTrip, ProductDelivery:
+		return nil
+	default:
+		return fmt.Errorf("transaction: invalid enum value for product field: %q", pr)
+	}
+}
+
 // OrderOption defines the ordering options for the Transaction queries.
 type OrderOption func(*sql.Selector)
 
@@ -241,6 +270,11 @@ func ByChannel(opts ...sql.OrderTermOption) OrderOption {
 // ByTansKind orders the results by the tans_kind field.
 func ByTansKind(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTansKind, opts...).ToFunc()
+}
+
+// ByProduct orders the results by the product field.
+func ByProduct(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProduct, opts...).ToFunc()
 }
 
 // ByBookingField orders the results by booking field.

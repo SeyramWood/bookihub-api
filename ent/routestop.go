@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/routestop"
 )
 
@@ -22,37 +22,50 @@ type RouteStop struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Address holds the value of the "address" field.
+	Address string `json:"address,omitempty"`
 	// Latitude holds the value of the "latitude" field.
 	Latitude float64 `json:"latitude,omitempty"`
 	// Longitude holds the value of the "longitude" field.
 	Longitude float64 `json:"longitude,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RouteStopQuery when eager-loading is set.
-	Edges        RouteStopEdges `json:"edges"`
-	route_stops  *int
-	selectValues sql.SelectValues
+	Edges         RouteStopEdges `json:"edges"`
+	company_stops *int
+	selectValues  sql.SelectValues
 }
 
 // RouteStopEdges holds the relations/edges for other nodes in the graph.
 type RouteStopEdges struct {
-	// Route holds the value of the route edge.
-	Route *Route `json:"route,omitempty"`
+	// Company holds the value of the company edge.
+	Company *Company `json:"company,omitempty"`
+	// Trip holds the value of the trip edge.
+	Trip []*Trip `json:"trip,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
-// RouteOrErr returns the Route value or an error if the edge
+// CompanyOrErr returns the Company value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e RouteStopEdges) RouteOrErr() (*Route, error) {
+func (e RouteStopEdges) CompanyOrErr() (*Company, error) {
 	if e.loadedTypes[0] {
-		if e.Route == nil {
+		if e.Company == nil {
 			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: route.Label}
+			return nil, &NotFoundError{label: company.Label}
 		}
-		return e.Route, nil
+		return e.Company, nil
 	}
-	return nil, &NotLoadedError{edge: "route"}
+	return nil, &NotLoadedError{edge: "company"}
+}
+
+// TripOrErr returns the Trip value or an error if the edge
+// was not loaded in eager-loading.
+func (e RouteStopEdges) TripOrErr() ([]*Trip, error) {
+	if e.loadedTypes[1] {
+		return e.Trip, nil
+	}
+	return nil, &NotLoadedError{edge: "trip"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -64,9 +77,11 @@ func (*RouteStop) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case routestop.FieldID:
 			values[i] = new(sql.NullInt64)
+		case routestop.FieldAddress:
+			values[i] = new(sql.NullString)
 		case routestop.FieldCreatedAt, routestop.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case routestop.ForeignKeys[0]: // route_stops
+		case routestop.ForeignKeys[0]: // company_stops
 			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -101,6 +116,12 @@ func (rs *RouteStop) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				rs.UpdatedAt = value.Time
 			}
+		case routestop.FieldAddress:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field address", values[i])
+			} else if value.Valid {
+				rs.Address = value.String
+			}
 		case routestop.FieldLatitude:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field latitude", values[i])
@@ -115,10 +136,10 @@ func (rs *RouteStop) assignValues(columns []string, values []any) error {
 			}
 		case routestop.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field route_stops", value)
+				return fmt.Errorf("unexpected type %T for edge-field company_stops", value)
 			} else if value.Valid {
-				rs.route_stops = new(int)
-				*rs.route_stops = int(value.Int64)
+				rs.company_stops = new(int)
+				*rs.company_stops = int(value.Int64)
 			}
 		default:
 			rs.selectValues.Set(columns[i], values[i])
@@ -133,9 +154,14 @@ func (rs *RouteStop) Value(name string) (ent.Value, error) {
 	return rs.selectValues.Get(name)
 }
 
-// QueryRoute queries the "route" edge of the RouteStop entity.
-func (rs *RouteStop) QueryRoute() *RouteQuery {
-	return NewRouteStopClient(rs.config).QueryRoute(rs)
+// QueryCompany queries the "company" edge of the RouteStop entity.
+func (rs *RouteStop) QueryCompany() *CompanyQuery {
+	return NewRouteStopClient(rs.config).QueryCompany(rs)
+}
+
+// QueryTrip queries the "trip" edge of the RouteStop entity.
+func (rs *RouteStop) QueryTrip() *TripQuery {
+	return NewRouteStopClient(rs.config).QueryTrip(rs)
 }
 
 // Update returns a builder for updating this RouteStop.
@@ -166,6 +192,9 @@ func (rs *RouteStop) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(rs.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("address=")
+	builder.WriteString(rs.Address)
 	builder.WriteString(", ")
 	builder.WriteString("latitude=")
 	builder.WriteString(fmt.Sprintf("%v", rs.Latitude))

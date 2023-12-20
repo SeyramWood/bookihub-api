@@ -738,6 +738,29 @@ func HasRouteWith(preds ...predicate.Route) predicate.Trip {
 	})
 }
 
+// HasStops applies the HasEdge predicate on the "stops" edge.
+func HasStops() predicate.Trip {
+	return predicate.Trip(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, StopsTable, StopsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStopsWith applies the HasEdge predicate on the "stops" edge with a given conditions (other predicates).
+func HasStopsWith(preds ...predicate.RouteStop) predicate.Trip {
+	return predicate.Trip(func(s *sql.Selector) {
+		step := newStopsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasBookings applies the HasEdge predicate on the "bookings" edge.
 func HasBookings() predicate.Trip {
 	return predicate.Trip(func(s *sql.Selector) {

@@ -33,7 +33,9 @@ func (r *repository) Delete(id int) error {
 // Insert implements gateways.TerminalRepo.
 func (r *repository) Insert(companyId int, request *requeststructs.TerminalRequest) (*ent.Terminal, error) {
 	result, err := r.db.Terminal.Create().
-		SetName(request.Name).
+		SetAddress(request.Address).
+		SetLatitude(request.Latitude).
+		SetLongitude(request.Longitude).
 		SetCompanyID(companyId).
 		Save(r.ctx)
 	if err != nil {
@@ -80,7 +82,9 @@ func (r *repository) ReadAllByCompany(companyId int, limit int, offset int) (*pr
 // Update implements gateways.TerminalRepo.
 func (r *repository) Update(id int, request *requeststructs.TerminalRequest) (*ent.Terminal, error) {
 	result, err := r.db.Terminal.UpdateOneID(id).
-		SetName(request.Name).
+		SetAddress(request.Address).
+		SetLatitude(request.Latitude).
+		SetLongitude(request.Longitude).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err

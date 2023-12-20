@@ -97,25 +97,13 @@ type (
 		Image *multipart.FileHeader `json:"image" form:"image" validate:"required|image|size:3MB"`
 	}
 	RouteStopRequest struct {
-		Latitude  float64 `json:"latitude" validate:"required"`
-		Longitude float64 `json:"longitude" validate:"required"`
+		Address   string  `json:"address" validate:"required|ascii"`
+		Latitude  float64 `json:"latitude" validate:"required|float"`
+		Longitude float64 `json:"longitude" validate:"required|float"`
 	}
 	RouteRequest struct {
-		From          string              `json:"from" validate:"required|ascii"`
-		To            string              `json:"to" validate:"required|ascii"`
-		FromLatitude  float64             `json:"fromLatitude" validate:"required|float"`
-		FromLongitude float64             `json:"fromLongitude" validate:"required|float"`
-		ToLatitude    float64             `json:"toLatitude" validate:"required|float"`
-		ToLongitude   float64             `json:"toLongitude" validate:"required|float"`
-		Stops         []*RouteStopRequest `json:"stops" validate:""`
-	}
-	RouteUpdateRequest struct {
-		From          string  `json:"from" validate:"required|ascii"`
-		To            string  `json:"to" validate:"required|ascii"`
-		FromLatitude  float64 `json:"fromLatitude" validate:"required|float"`
-		FromLongitude float64 `json:"fromLongitude" validate:"required|float"`
-		ToLatitude    float64 `json:"toLatitude" validate:"required|float"`
-		ToLongitude   float64 `json:"toLongitude" validate:"required|float"`
+		From string `json:"from" validate:"required|ascii"`
+		To   string `json:"to" validate:"required|ascii"`
 	}
 	TripRequest struct {
 		FromTerminalID int     `json:"fromTerminalId" validate:"required|int"`
@@ -123,6 +111,7 @@ type (
 		VehicleID      int     `json:"vehicleId" validate:"required|int"`
 		RouteID        int     `json:"routeId" validate:"required|int"`
 		DriverID       int     `json:"driverId" validate:"required|int"`
+		Stops          []int   `json:"stops" validate:"int"`
 		DepartureDate  string  `json:"departureDate" validate:"required|rfc3339"`
 		ArrivalDate    string  `json:"arrivalDate" validate:"required|rfc3339"`
 		ReturnDate     string  `json:"returnDate" validate:"rfc3339"`
@@ -137,6 +126,7 @@ type (
 		VehicleID      int     `json:"vehicleId" validate:"required|int"`
 		RouteID        int     `json:"routeId" validate:"required|int"`
 		DriverID       int     `json:"driverId" validate:"required|int"`
+		Stops          []int   `json:"stops" validate:"int"`
 		DepartureDate  string  `json:"departureDate" validate:"required|rfc3339"`
 		ArrivalDate    string  `json:"arrivalDate" validate:"required|rfc3339"`
 		ReturnDate     string  `json:"returnDate" validate:"rfc3339"`
@@ -154,7 +144,9 @@ type (
 	}
 
 	TerminalRequest struct {
-		Name string `json:"name" validate:"required|ascii"`
+		Address   string  `json:"address" validate:"required|ascii"`
+		Latitude  float64 `json:"latitude" validate:"required|float"`
+		Longitude float64 `json:"longitude" validate:"required|float"`
 	}
 
 	TripFilterRequest struct {

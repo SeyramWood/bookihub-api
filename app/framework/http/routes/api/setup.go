@@ -6,7 +6,6 @@ import (
 	"github.com/SeyramWood/bookibus/app/adapters/gateways"
 	"github.com/SeyramWood/bookibus/app/application/payment"
 	"github.com/SeyramWood/bookibus/app/framework/database"
-	"github.com/SeyramWood/bookibus/app/framework/http/middlewares"
 	"github.com/SeyramWood/bookibus/utils/jwt"
 )
 
@@ -33,7 +32,7 @@ func (r *apiRouter) Router(app *fiber.App) {
 
 	UnauthorizedRoutes(apiGroup, r)
 
-	apiGroup.Use(middlewares.Authenticate(r.jwt))
+	// apiGroup.Use(middlewares.Authenticate(r.jwt))
 
 	AuthRoutes(apiGroup, r)
 	BookibusRoutes(apiGroup, r)
@@ -42,6 +41,7 @@ func (r *apiRouter) Router(app *fiber.App) {
 	BookingRoutes(apiGroup, r)
 	ParcelRoutes(apiGroup, r)
 	IncidentRoutes(apiGroup, r)
+	StatisticRoutes(apiGroup, r)
 
 }
 

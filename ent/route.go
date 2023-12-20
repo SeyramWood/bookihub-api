@@ -26,14 +26,6 @@ type Route struct {
 	FromLocation string `json:"from_location,omitempty"`
 	// ToLocation holds the value of the "to_location" field.
 	ToLocation string `json:"to_location,omitempty"`
-	// FromLatitude holds the value of the "from_latitude" field.
-	FromLatitude float64 `json:"from_latitude,omitempty"`
-	// FromLongitude holds the value of the "from_longitude" field.
-	FromLongitude float64 `json:"from_longitude,omitempty"`
-	// ToLatitude holds the value of the "to_latitude" field.
-	ToLatitude float64 `json:"to_latitude,omitempty"`
-	// ToLongitude holds the value of the "to_longitude" field.
-	ToLongitude float64 `json:"to_longitude,omitempty"`
 	// Popularity holds the value of the "popularity" field.
 	Popularity int `json:"popularity,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -47,13 +39,11 @@ type Route struct {
 type RouteEdges struct {
 	// Company holds the value of the company edge.
 	Company *Company `json:"company,omitempty"`
-	// Stops holds the value of the stops edge.
-	Stops []*RouteStop `json:"stops,omitempty"`
 	// Trips holds the value of the trips edge.
 	Trips []*Trip `json:"trips,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [2]bool
 }
 
 // CompanyOrErr returns the Company value or an error if the edge
@@ -69,19 +59,10 @@ func (e RouteEdges) CompanyOrErr() (*Company, error) {
 	return nil, &NotLoadedError{edge: "company"}
 }
 
-// StopsOrErr returns the Stops value or an error if the edge
-// was not loaded in eager-loading.
-func (e RouteEdges) StopsOrErr() ([]*RouteStop, error) {
-	if e.loadedTypes[1] {
-		return e.Stops, nil
-	}
-	return nil, &NotLoadedError{edge: "stops"}
-}
-
 // TripsOrErr returns the Trips value or an error if the edge
 // was not loaded in eager-loading.
 func (e RouteEdges) TripsOrErr() ([]*Trip, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[1] {
 		return e.Trips, nil
 	}
 	return nil, &NotLoadedError{edge: "trips"}
@@ -92,8 +73,6 @@ func (*Route) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case route.FieldFromLatitude, route.FieldFromLongitude, route.FieldToLatitude, route.FieldToLongitude:
-			values[i] = new(sql.NullFloat64)
 		case route.FieldID, route.FieldPopularity:
 			values[i] = new(sql.NullInt64)
 		case route.FieldFromLocation, route.FieldToLocation:
@@ -147,30 +126,6 @@ func (r *Route) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				r.ToLocation = value.String
 			}
-		case route.FieldFromLatitude:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field from_latitude", values[i])
-			} else if value.Valid {
-				r.FromLatitude = value.Float64
-			}
-		case route.FieldFromLongitude:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field from_longitude", values[i])
-			} else if value.Valid {
-				r.FromLongitude = value.Float64
-			}
-		case route.FieldToLatitude:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field to_latitude", values[i])
-			} else if value.Valid {
-				r.ToLatitude = value.Float64
-			}
-		case route.FieldToLongitude:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field to_longitude", values[i])
-			} else if value.Valid {
-				r.ToLongitude = value.Float64
-			}
 		case route.FieldPopularity:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field popularity", values[i])
@@ -200,11 +155,6 @@ func (r *Route) Value(name string) (ent.Value, error) {
 // QueryCompany queries the "company" edge of the Route entity.
 func (r *Route) QueryCompany() *CompanyQuery {
 	return NewRouteClient(r.config).QueryCompany(r)
-}
-
-// QueryStops queries the "stops" edge of the Route entity.
-func (r *Route) QueryStops() *RouteStopQuery {
-	return NewRouteClient(r.config).QueryStops(r)
 }
 
 // QueryTrips queries the "trips" edge of the Route entity.
@@ -246,18 +196,6 @@ func (r *Route) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("to_location=")
 	builder.WriteString(r.ToLocation)
-	builder.WriteString(", ")
-	builder.WriteString("from_latitude=")
-	builder.WriteString(fmt.Sprintf("%v", r.FromLatitude))
-	builder.WriteString(", ")
-	builder.WriteString("from_longitude=")
-	builder.WriteString(fmt.Sprintf("%v", r.FromLongitude))
-	builder.WriteString(", ")
-	builder.WriteString("to_latitude=")
-	builder.WriteString(fmt.Sprintf("%v", r.ToLatitude))
-	builder.WriteString(", ")
-	builder.WriteString("to_longitude=")
-	builder.WriteString(fmt.Sprintf("%v", r.ToLongitude))
 	builder.WriteString(", ")
 	builder.WriteString("popularity=")
 	builder.WriteString(fmt.Sprintf("%v", r.Popularity))

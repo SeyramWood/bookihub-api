@@ -65,9 +65,19 @@ func UpdatedAt(v time.Time) predicate.Terminal {
 	return predicate.Terminal(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
-// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
-func Name(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldEQ(FieldName, v))
+// Address applies equality check predicate on the "address" field. It's identical to AddressEQ.
+func Address(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldEQ(FieldAddress, v))
+}
+
+// Latitude applies equality check predicate on the "latitude" field. It's identical to LatitudeEQ.
+func Latitude(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldEQ(FieldLatitude, v))
+}
+
+// Longitude applies equality check predicate on the "longitude" field. It's identical to LongitudeEQ.
+func Longitude(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldEQ(FieldLongitude, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -150,69 +160,179 @@ func UpdatedAtLTE(v time.Time) predicate.Terminal {
 	return predicate.Terminal(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
-// NameEQ applies the EQ predicate on the "name" field.
-func NameEQ(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldEQ(FieldName, v))
+// AddressEQ applies the EQ predicate on the "address" field.
+func AddressEQ(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldEQ(FieldAddress, v))
 }
 
-// NameNEQ applies the NEQ predicate on the "name" field.
-func NameNEQ(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldNEQ(FieldName, v))
+// AddressNEQ applies the NEQ predicate on the "address" field.
+func AddressNEQ(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldNEQ(FieldAddress, v))
 }
 
-// NameIn applies the In predicate on the "name" field.
-func NameIn(vs ...string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldIn(FieldName, vs...))
+// AddressIn applies the In predicate on the "address" field.
+func AddressIn(vs ...string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldIn(FieldAddress, vs...))
 }
 
-// NameNotIn applies the NotIn predicate on the "name" field.
-func NameNotIn(vs ...string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldNotIn(FieldName, vs...))
+// AddressNotIn applies the NotIn predicate on the "address" field.
+func AddressNotIn(vs ...string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldNotIn(FieldAddress, vs...))
 }
 
-// NameGT applies the GT predicate on the "name" field.
-func NameGT(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldGT(FieldName, v))
+// AddressGT applies the GT predicate on the "address" field.
+func AddressGT(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldGT(FieldAddress, v))
 }
 
-// NameGTE applies the GTE predicate on the "name" field.
-func NameGTE(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldGTE(FieldName, v))
+// AddressGTE applies the GTE predicate on the "address" field.
+func AddressGTE(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldGTE(FieldAddress, v))
 }
 
-// NameLT applies the LT predicate on the "name" field.
-func NameLT(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldLT(FieldName, v))
+// AddressLT applies the LT predicate on the "address" field.
+func AddressLT(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldLT(FieldAddress, v))
 }
 
-// NameLTE applies the LTE predicate on the "name" field.
-func NameLTE(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldLTE(FieldName, v))
+// AddressLTE applies the LTE predicate on the "address" field.
+func AddressLTE(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldLTE(FieldAddress, v))
 }
 
-// NameContains applies the Contains predicate on the "name" field.
-func NameContains(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldContains(FieldName, v))
+// AddressContains applies the Contains predicate on the "address" field.
+func AddressContains(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldContains(FieldAddress, v))
 }
 
-// NameHasPrefix applies the HasPrefix predicate on the "name" field.
-func NameHasPrefix(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldHasPrefix(FieldName, v))
+// AddressHasPrefix applies the HasPrefix predicate on the "address" field.
+func AddressHasPrefix(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldHasPrefix(FieldAddress, v))
 }
 
-// NameHasSuffix applies the HasSuffix predicate on the "name" field.
-func NameHasSuffix(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldHasSuffix(FieldName, v))
+// AddressHasSuffix applies the HasSuffix predicate on the "address" field.
+func AddressHasSuffix(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldHasSuffix(FieldAddress, v))
 }
 
-// NameEqualFold applies the EqualFold predicate on the "name" field.
-func NameEqualFold(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldEqualFold(FieldName, v))
+// AddressIsNil applies the IsNil predicate on the "address" field.
+func AddressIsNil() predicate.Terminal {
+	return predicate.Terminal(sql.FieldIsNull(FieldAddress))
 }
 
-// NameContainsFold applies the ContainsFold predicate on the "name" field.
-func NameContainsFold(v string) predicate.Terminal {
-	return predicate.Terminal(sql.FieldContainsFold(FieldName, v))
+// AddressNotNil applies the NotNil predicate on the "address" field.
+func AddressNotNil() predicate.Terminal {
+	return predicate.Terminal(sql.FieldNotNull(FieldAddress))
+}
+
+// AddressEqualFold applies the EqualFold predicate on the "address" field.
+func AddressEqualFold(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldEqualFold(FieldAddress, v))
+}
+
+// AddressContainsFold applies the ContainsFold predicate on the "address" field.
+func AddressContainsFold(v string) predicate.Terminal {
+	return predicate.Terminal(sql.FieldContainsFold(FieldAddress, v))
+}
+
+// LatitudeEQ applies the EQ predicate on the "latitude" field.
+func LatitudeEQ(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldEQ(FieldLatitude, v))
+}
+
+// LatitudeNEQ applies the NEQ predicate on the "latitude" field.
+func LatitudeNEQ(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldNEQ(FieldLatitude, v))
+}
+
+// LatitudeIn applies the In predicate on the "latitude" field.
+func LatitudeIn(vs ...float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldIn(FieldLatitude, vs...))
+}
+
+// LatitudeNotIn applies the NotIn predicate on the "latitude" field.
+func LatitudeNotIn(vs ...float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldNotIn(FieldLatitude, vs...))
+}
+
+// LatitudeGT applies the GT predicate on the "latitude" field.
+func LatitudeGT(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldGT(FieldLatitude, v))
+}
+
+// LatitudeGTE applies the GTE predicate on the "latitude" field.
+func LatitudeGTE(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldGTE(FieldLatitude, v))
+}
+
+// LatitudeLT applies the LT predicate on the "latitude" field.
+func LatitudeLT(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldLT(FieldLatitude, v))
+}
+
+// LatitudeLTE applies the LTE predicate on the "latitude" field.
+func LatitudeLTE(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldLTE(FieldLatitude, v))
+}
+
+// LatitudeIsNil applies the IsNil predicate on the "latitude" field.
+func LatitudeIsNil() predicate.Terminal {
+	return predicate.Terminal(sql.FieldIsNull(FieldLatitude))
+}
+
+// LatitudeNotNil applies the NotNil predicate on the "latitude" field.
+func LatitudeNotNil() predicate.Terminal {
+	return predicate.Terminal(sql.FieldNotNull(FieldLatitude))
+}
+
+// LongitudeEQ applies the EQ predicate on the "longitude" field.
+func LongitudeEQ(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldEQ(FieldLongitude, v))
+}
+
+// LongitudeNEQ applies the NEQ predicate on the "longitude" field.
+func LongitudeNEQ(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldNEQ(FieldLongitude, v))
+}
+
+// LongitudeIn applies the In predicate on the "longitude" field.
+func LongitudeIn(vs ...float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldIn(FieldLongitude, vs...))
+}
+
+// LongitudeNotIn applies the NotIn predicate on the "longitude" field.
+func LongitudeNotIn(vs ...float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldNotIn(FieldLongitude, vs...))
+}
+
+// LongitudeGT applies the GT predicate on the "longitude" field.
+func LongitudeGT(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldGT(FieldLongitude, v))
+}
+
+// LongitudeGTE applies the GTE predicate on the "longitude" field.
+func LongitudeGTE(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldGTE(FieldLongitude, v))
+}
+
+// LongitudeLT applies the LT predicate on the "longitude" field.
+func LongitudeLT(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldLT(FieldLongitude, v))
+}
+
+// LongitudeLTE applies the LTE predicate on the "longitude" field.
+func LongitudeLTE(v float64) predicate.Terminal {
+	return predicate.Terminal(sql.FieldLTE(FieldLongitude, v))
+}
+
+// LongitudeIsNil applies the IsNil predicate on the "longitude" field.
+func LongitudeIsNil() predicate.Terminal {
+	return predicate.Terminal(sql.FieldIsNull(FieldLongitude))
+}
+
+// LongitudeNotNil applies the NotNil predicate on the "longitude" field.
+func LongitudeNotNil() predicate.Terminal {
+	return predicate.Terminal(sql.FieldNotNull(FieldLongitude))
 }
 
 // HasCompany applies the HasEdge predicate on the "company" edge.

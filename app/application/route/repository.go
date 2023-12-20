@@ -33,53 +33,22 @@ func (r *repository) Delete(id int) error {
 	return r.db.Route.DeleteOneID(id).Exec(r.ctx)
 }
 
-// DeleteStop implements gateways.RouteRepo.
-func (r *repository) DeleteStop(id int) error {
-	return r.db.RouteStop.DeleteOneID(id).Exec(r.ctx)
-}
-
 // Insert implements gateways.RouteRepo.
 func (r *repository) Insert(companyId int, request *requeststructs.RouteRequest) (*ent.Route, error) {
-	tx, err := r.db.Tx(r.ctx)
-	if err != nil {
-		return nil, fmt.Errorf("error starting a transaction: %w", err)
-	}
-	result, err := tx.Route.Create().
+	result, err := r.db.Route.Create().
 		SetCompanyID(companyId).
 		SetFromLocation(request.From).
 		SetToLocation(request.To).
-		SetFromLatitude(request.FromLatitude).
-		SetFromLongitude(request.FromLongitude).
-		SetToLatitude(request.ToLatitude).
-		SetToLongitude(request.ToLongitude).
 		Save(r.ctx)
 	if err != nil {
-		return nil, application.Rollback(tx, fmt.Errorf("failed creating route: %w", err))
-	}
-	_, err = tx.RouteStop.MapCreateBulk(request.Stops, func(create *ent.RouteStopCreate, i int) {
-		create.SetLatitude(request.Stops[i].Latitude).SetLongitude(request.Stops[i].Longitude).SetRoute(result)
-	}).Save(r.ctx)
-	if err != nil {
-		return nil, application.Rollback(tx, fmt.Errorf("failed creating route stop: %w", err))
-	}
-	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("failed committing route creation transaction: %w", err)
+		return nil, err
 	}
 	return r.Read(result.ID)
 }
 
-// InsertRoute implements gateways.RouteRepo.
-func (r *repository) InsertRouteStop(id int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error) {
-	result, err := r.db.RouteStop.Create().SetLatitude(request.Latitude).SetLongitude(request.Longitude).SetRouteID(id).Save(r.ctx)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
 // Read implements gateways.RouteRepo.
 func (r *repository) Read(id int) (*ent.Route, error) {
-	result, err := r.db.Route.Query().Where(route.ID(id)).WithStops().Only(r.ctx)
+	result, err := r.db.Route.Query().Where(route.ID(id)).Only(r.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +63,6 @@ func (r *repository) ReadAll(limit int, offset int) (*presenters.PaginationRespo
 		Limit(limit).
 		Offset(offset).
 		Order(ent.Desc(route.FieldCreatedAt)).
-		WithStops().
 		All(r.ctx)
 	if err != nil {
 		return nil, err
@@ -127,7 +95,6 @@ func (r *repository) ReadAllByCompany(companyId int, limit int, offset int) (*pr
 		Limit(limit).
 		Offset(offset).
 		Order(ent.Desc(route.FieldCreatedAt)).
-		WithStops().
 		All(r.ctx)
 	if err != nil {
 		return nil, err
@@ -136,26 +103,13 @@ func (r *repository) ReadAllByCompany(companyId int, limit int, offset int) (*pr
 }
 
 // Update implements gateways.RouteRepo.
-func (r *repository) Update(id int, request *requeststructs.RouteUpdateRequest) (*ent.Route, error) {
+func (r *repository) Update(id int, request *requeststructs.RouteRequest) (*ent.Route, error) {
 	_, err := r.db.Route.UpdateOneID(id).
 		SetFromLocation(request.From).
 		SetToLocation(request.To).
-		SetFromLatitude(request.FromLatitude).
-		SetFromLongitude(request.FromLongitude).
-		SetToLatitude(request.ToLatitude).
-		SetToLongitude(request.ToLongitude).
 		Save(r.ctx)
 	if err != nil {
 		return nil, err
 	}
 	return r.Read(id)
-}
-
-// UpdateStop implements gateways.RouteRepo.
-func (r *repository) UpdateStop(id int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error) {
-	result, err := r.db.RouteStop.UpdateOneID(id).SetLatitude(request.Latitude).SetLongitude(request.Longitude).Save(r.ctx)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
 }

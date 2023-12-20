@@ -121,9 +121,8 @@ func (r *repository) Read(id int) (*ent.Incident, error) {
 			tq.WithVehicle(func(vq *ent.VehicleQuery) {
 				vq.WithImages()
 			})
-			tq.WithRoute(func(rq *ent.RouteQuery) {
-				rq.WithStops()
-			})
+			tq.WithRoute()
+			tq.WithStops()
 			tq.WithDriver()
 			tq.WithCompany()
 		}).
@@ -242,9 +241,8 @@ func (r *repository) filterIncident(query *ent.IncidentQuery, limit, offset int)
 			tq.WithVehicle(func(vq *ent.VehicleQuery) {
 				vq.WithImages()
 			})
-			tq.WithRoute(func(rq *ent.RouteQuery) {
-				rq.WithStops()
-			})
+			tq.WithRoute()
+			tq.WithStops()
 			tq.WithDriver()
 			tq.WithCompany()
 		}).

@@ -18,21 +18,30 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldAddress holds the string denoting the address field in the database.
+	FieldAddress = "address"
 	// FieldLatitude holds the string denoting the latitude field in the database.
 	FieldLatitude = "latitude"
 	// FieldLongitude holds the string denoting the longitude field in the database.
 	FieldLongitude = "longitude"
-	// EdgeRoute holds the string denoting the route edge name in mutations.
-	EdgeRoute = "route"
+	// EdgeCompany holds the string denoting the company edge name in mutations.
+	EdgeCompany = "company"
+	// EdgeTrip holds the string denoting the trip edge name in mutations.
+	EdgeTrip = "trip"
 	// Table holds the table name of the routestop in the database.
 	Table = "route_stops"
-	// RouteTable is the table that holds the route relation/edge.
-	RouteTable = "route_stops"
-	// RouteInverseTable is the table name for the Route entity.
-	// It exists in this package in order to avoid circular dependency with the "route" package.
-	RouteInverseTable = "routes"
-	// RouteColumn is the table column denoting the route relation/edge.
-	RouteColumn = "route_stops"
+	// CompanyTable is the table that holds the company relation/edge.
+	CompanyTable = "route_stops"
+	// CompanyInverseTable is the table name for the Company entity.
+	// It exists in this package in order to avoid circular dependency with the "company" package.
+	CompanyInverseTable = "companies"
+	// CompanyColumn is the table column denoting the company relation/edge.
+	CompanyColumn = "company_stops"
+	// TripTable is the table that holds the trip relation/edge. The primary key declared below.
+	TripTable = "trip_stops"
+	// TripInverseTable is the table name for the Trip entity.
+	// It exists in this package in order to avoid circular dependency with the "trip" package.
+	TripInverseTable = "trips"
 )
 
 // Columns holds all SQL columns for routestop fields.
@@ -40,6 +49,7 @@ var Columns = []string{
 	FieldID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldAddress,
 	FieldLatitude,
 	FieldLongitude,
 }
@@ -47,8 +57,14 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "route_stops"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"route_stops",
+	"company_stops",
 }
+
+var (
+	// TripPrimaryKey and TripColumn2 are the table columns denoting the
+	// primary key for the trip relation (M2M).
+	TripPrimaryKey = []string{"trip_id", "route_stop_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -92,6 +108,11 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
+// ByAddress orders the results by the address field.
+func ByAddress(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAddress, opts...).ToFunc()
+}
+
 // ByLatitude orders the results by the latitude field.
 func ByLatitude(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLatitude, opts...).ToFunc()
@@ -102,16 +123,37 @@ func ByLongitude(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLongitude, opts...).ToFunc()
 }
 
-// ByRouteField orders the results by route field.
-func ByRouteField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByCompanyField orders the results by company field.
+func ByCompanyField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRouteStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newCompanyStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newRouteStep() *sqlgraph.Step {
+
+// ByTripCount orders the results by trip count.
+func ByTripCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTripStep(), opts...)
+	}
+}
+
+// ByTrip orders the results by trip terms.
+func ByTrip(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTripStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newCompanyStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RouteInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, RouteTable, RouteColumn),
+		sqlgraph.To(CompanyInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CompanyTable, CompanyColumn),
+	)
+}
+func newTripStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TripInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, TripTable, TripPrimaryKey...),
 	)
 }

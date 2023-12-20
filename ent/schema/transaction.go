@@ -30,6 +30,7 @@ func (Transaction) Fields() []ent.Field {
 		field.Time("canceled_at").Optional(),
 		field.Enum("channel").Values("momo", "card", "bank", "cash").Default("cash"),
 		field.Enum("tans_kind").Values("payment", "payout").Default("payment"),
+		field.Enum("product").Values("trip", "delivery").Default("trip"),
 	}
 }
 

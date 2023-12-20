@@ -36,6 +36,11 @@ type (
 		Pay(request any) (any, error)
 		Verify(reference string) (*requeststructs.PaymentReferenceResponse, error)
 	}
+	StatisticsService interface {
+		FetchAdminRevenue() *presenters.AdminRevenue
+		FetchAdminRevenueOverview(filter string) ([]*presenters.AdminOverview, error)
+		FetchAdminBestSelling(limit, offset int, minDate, maxDate string) (*presenters.PaginationResponse, error)
+	}
 	ConfigurationService interface {
 		Fetch() (*ent.Configuration, error)
 		FetchCharge() (*ent.Configuration, error)
@@ -113,11 +118,16 @@ type (
 		FetchAllByCompany(companyId, limit, offset int) (*presenters.PaginationResponse, error)
 		Fetch(id int) (*ent.Route, error)
 		Create(companyId int, request *requeststructs.RouteRequest) (*ent.Route, error)
-		AddRouteStop(id int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error)
-		Update(id int, request *requeststructs.RouteUpdateRequest) (*ent.Route, error)
-		UpdateStop(id int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error)
+		Update(id int, request *requeststructs.RouteRequest) (*ent.Route, error)
 		Remove(id int) error
-		RemoveStop(id int) error
+	}
+	RouteStopService interface {
+		FetchAll(limit, offset int) (*presenters.PaginationResponse, error)
+		FetchAllByCompany(companyId, limit, offset int) (*presenters.PaginationResponse, error)
+		Fetch(id int) (*ent.RouteStop, error)
+		Create(companyId int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error)
+		Update(id int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error)
+		Remove(id int) error
 	}
 	TripService interface {
 		FetchAll(limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)

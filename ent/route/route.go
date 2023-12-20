@@ -22,20 +22,10 @@ const (
 	FieldFromLocation = "from_location"
 	// FieldToLocation holds the string denoting the to_location field in the database.
 	FieldToLocation = "to_location"
-	// FieldFromLatitude holds the string denoting the from_latitude field in the database.
-	FieldFromLatitude = "from_latitude"
-	// FieldFromLongitude holds the string denoting the from_longitude field in the database.
-	FieldFromLongitude = "from_longitude"
-	// FieldToLatitude holds the string denoting the to_latitude field in the database.
-	FieldToLatitude = "to_latitude"
-	// FieldToLongitude holds the string denoting the to_longitude field in the database.
-	FieldToLongitude = "to_longitude"
 	// FieldPopularity holds the string denoting the popularity field in the database.
 	FieldPopularity = "popularity"
 	// EdgeCompany holds the string denoting the company edge name in mutations.
 	EdgeCompany = "company"
-	// EdgeStops holds the string denoting the stops edge name in mutations.
-	EdgeStops = "stops"
 	// EdgeTrips holds the string denoting the trips edge name in mutations.
 	EdgeTrips = "trips"
 	// Table holds the table name of the route in the database.
@@ -47,13 +37,6 @@ const (
 	CompanyInverseTable = "companies"
 	// CompanyColumn is the table column denoting the company relation/edge.
 	CompanyColumn = "company_routes"
-	// StopsTable is the table that holds the stops relation/edge.
-	StopsTable = "route_stops"
-	// StopsInverseTable is the table name for the RouteStop entity.
-	// It exists in this package in order to avoid circular dependency with the "routestop" package.
-	StopsInverseTable = "route_stops"
-	// StopsColumn is the table column denoting the stops relation/edge.
-	StopsColumn = "route_stops"
 	// TripsTable is the table that holds the trips relation/edge.
 	TripsTable = "trips"
 	// TripsInverseTable is the table name for the Trip entity.
@@ -70,10 +53,6 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldFromLocation,
 	FieldToLocation,
-	FieldFromLatitude,
-	FieldFromLongitude,
-	FieldToLatitude,
-	FieldToLongitude,
 	FieldPopularity,
 }
 
@@ -141,26 +120,6 @@ func ByToLocation(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldToLocation, opts...).ToFunc()
 }
 
-// ByFromLatitude orders the results by the from_latitude field.
-func ByFromLatitude(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFromLatitude, opts...).ToFunc()
-}
-
-// ByFromLongitude orders the results by the from_longitude field.
-func ByFromLongitude(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFromLongitude, opts...).ToFunc()
-}
-
-// ByToLatitude orders the results by the to_latitude field.
-func ByToLatitude(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldToLatitude, opts...).ToFunc()
-}
-
-// ByToLongitude orders the results by the to_longitude field.
-func ByToLongitude(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldToLongitude, opts...).ToFunc()
-}
-
 // ByPopularity orders the results by the popularity field.
 func ByPopularity(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPopularity, opts...).ToFunc()
@@ -170,20 +129,6 @@ func ByPopularity(opts ...sql.OrderTermOption) OrderOption {
 func ByCompanyField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newCompanyStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByStopsCount orders the results by stops count.
-func ByStopsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newStopsStep(), opts...)
-	}
-}
-
-// ByStops orders the results by stops terms.
-func ByStops(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newStopsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -205,13 +150,6 @@ func newCompanyStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CompanyInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, CompanyTable, CompanyColumn),
-	)
-}
-func newStopsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(StopsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, StopsTable, StopsColumn),
 	)
 }
 func newTripsStep() *sqlgraph.Step {

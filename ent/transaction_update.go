@@ -196,6 +196,20 @@ func (tu *TransactionUpdate) SetNillableTansKind(tk *transaction.TansKind) *Tran
 	return tu
 }
 
+// SetProduct sets the "product" field.
+func (tu *TransactionUpdate) SetProduct(t transaction.Product) *TransactionUpdate {
+	tu.mutation.SetProduct(t)
+	return tu
+}
+
+// SetNillableProduct sets the "product" field if the given value is not nil.
+func (tu *TransactionUpdate) SetNillableProduct(t *transaction.Product) *TransactionUpdate {
+	if t != nil {
+		tu.SetProduct(*t)
+	}
+	return tu
+}
+
 // SetBookingID sets the "booking" edge to the Booking entity by ID.
 func (tu *TransactionUpdate) SetBookingID(id int) *TransactionUpdate {
 	tu.mutation.SetBookingID(id)
@@ -321,6 +335,11 @@ func (tu *TransactionUpdate) check() error {
 			return &ValidationError{Name: "tans_kind", err: fmt.Errorf(`ent: validator failed for field "Transaction.tans_kind": %w`, err)}
 		}
 	}
+	if v, ok := tu.mutation.Product(); ok {
+		if err := transaction.ProductValidator(v); err != nil {
+			return &ValidationError{Name: "product", err: fmt.Errorf(`ent: validator failed for field "Transaction.product": %w`, err)}
+		}
+	}
 	if _, ok := tu.mutation.CompanyID(); tu.mutation.CompanyCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Transaction.company"`)
 	}
@@ -392,6 +411,9 @@ func (tu *TransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tu.mutation.TansKind(); ok {
 		_spec.SetField(transaction.FieldTansKind, field.TypeEnum, value)
+	}
+	if value, ok := tu.mutation.Product(); ok {
+		_spec.SetField(transaction.FieldProduct, field.TypeEnum, value)
 	}
 	if tu.mutation.BookingCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -666,6 +688,20 @@ func (tuo *TransactionUpdateOne) SetNillableTansKind(tk *transaction.TansKind) *
 	return tuo
 }
 
+// SetProduct sets the "product" field.
+func (tuo *TransactionUpdateOne) SetProduct(t transaction.Product) *TransactionUpdateOne {
+	tuo.mutation.SetProduct(t)
+	return tuo
+}
+
+// SetNillableProduct sets the "product" field if the given value is not nil.
+func (tuo *TransactionUpdateOne) SetNillableProduct(t *transaction.Product) *TransactionUpdateOne {
+	if t != nil {
+		tuo.SetProduct(*t)
+	}
+	return tuo
+}
+
 // SetBookingID sets the "booking" edge to the Booking entity by ID.
 func (tuo *TransactionUpdateOne) SetBookingID(id int) *TransactionUpdateOne {
 	tuo.mutation.SetBookingID(id)
@@ -804,6 +840,11 @@ func (tuo *TransactionUpdateOne) check() error {
 			return &ValidationError{Name: "tans_kind", err: fmt.Errorf(`ent: validator failed for field "Transaction.tans_kind": %w`, err)}
 		}
 	}
+	if v, ok := tuo.mutation.Product(); ok {
+		if err := transaction.ProductValidator(v); err != nil {
+			return &ValidationError{Name: "product", err: fmt.Errorf(`ent: validator failed for field "Transaction.product": %w`, err)}
+		}
+	}
 	if _, ok := tuo.mutation.CompanyID(); tuo.mutation.CompanyCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "Transaction.company"`)
 	}
@@ -892,6 +933,9 @@ func (tuo *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transactio
 	}
 	if value, ok := tuo.mutation.TansKind(); ok {
 		_spec.SetField(transaction.FieldTansKind, field.TypeEnum, value)
+	}
+	if value, ok := tuo.mutation.Product(); ok {
+		_spec.SetField(transaction.FieldProduct, field.TypeEnum, value)
 	}
 	if tuo.mutation.BookingCleared() {
 		edge := &sqlgraph.EdgeSpec{

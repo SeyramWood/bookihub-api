@@ -64,6 +64,7 @@ func (r *repository) Insert(companyId int, request *requeststructs.TripRequest) 
 			SetToTerminalID(request.ToTerminalID).
 			SetVehicleID(request.VehicleID).
 			SetRouteID(request.RouteID).
+			AddStopIDs(request.Stops...).
 			SetDriverID(request.DriverID).
 			SetCompanyID(companyId).
 			Save(r.ctx)
@@ -84,6 +85,7 @@ func (r *repository) Insert(companyId int, request *requeststructs.TripRequest) 
 		SetToTerminalID(request.ToTerminalID).
 		SetVehicleID(request.VehicleID).
 		SetRouteID(request.RouteID).
+		AddStopIDs(request.Stops...).
 		SetDriverID(request.DriverID).
 		SetCompanyID(companyId).
 		Save(r.ctx)
@@ -101,9 +103,8 @@ func (r *repository) Read(id int) (*ent.Trip, error) {
 		WithVehicle(func(vq *ent.VehicleQuery) {
 			vq.WithImages()
 		}).
-		WithRoute(func(rq *ent.RouteQuery) {
-			rq.WithStops()
-		}).
+		WithRoute().
+		WithStops().
 		WithDriver().
 		WithCompany().
 		WithBookings(func(bq *ent.BookingQuery) {
@@ -117,9 +118,8 @@ func (r *repository) Read(id int) (*ent.Trip, error) {
 				tq.WithVehicle(func(vq *ent.VehicleQuery) {
 					vq.WithImages()
 				})
-				tq.WithRoute(func(rq *ent.RouteQuery) {
-					rq.WithStops()
-				})
+				tq.WithRoute()
+				tq.WithStops()
 				tq.WithDriver()
 				tq.WithCompany()
 			})
@@ -610,6 +610,8 @@ func (r *repository) Update(id int, request *requeststructs.TripUpdateRequest) (
 			SetDiscount(request.Discount).
 			SetVehicleID(request.VehicleID).
 			SetRouteID(request.RouteID).
+			ClearStops().
+			AddStopIDs(request.Stops...).
 			SetDriverID(request.DriverID).
 			Save(r.ctx)
 		if err != nil {
@@ -626,6 +628,8 @@ func (r *repository) Update(id int, request *requeststructs.TripUpdateRequest) (
 		SetType(trip.Type(request.TripType)).
 		SetVehicleID(request.VehicleID).
 		SetRouteID(request.RouteID).
+		ClearStops().
+		AddStopIDs(request.Stops...).
 		SetDriverID(request.DriverID).
 		Save(r.ctx)
 	if err != nil {
@@ -701,9 +705,8 @@ func (r *repository) filterTrip(query *ent.TripQuery, limit, offset int) (*prese
 		WithVehicle(func(vq *ent.VehicleQuery) {
 			vq.WithImages()
 		}).
-		WithRoute(func(rq *ent.RouteQuery) {
-			rq.WithStops()
-		}).
+		WithRoute().
+		WithStops().
 		WithDriver().
 		WithCompany().
 		WithBookings(func(bq *ent.BookingQuery) {
@@ -743,9 +746,8 @@ func (r *repository) filterTripByPopularity(query *ent.TripQuery, limit, offset 
 		WithVehicle(func(vq *ent.VehicleQuery) {
 			vq.WithImages()
 		}).
-		WithRoute(func(rq *ent.RouteQuery) {
-			rq.WithStops()
-		}).
+		WithRoute().
+		WithStops().
 		WithDriver().
 		WithCompany().
 		WithBookings(func(bq *ent.BookingQuery) {

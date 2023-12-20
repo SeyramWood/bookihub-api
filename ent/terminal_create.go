@@ -50,9 +50,45 @@ func (tc *TerminalCreate) SetNillableUpdatedAt(t *time.Time) *TerminalCreate {
 	return tc
 }
 
-// SetName sets the "name" field.
-func (tc *TerminalCreate) SetName(s string) *TerminalCreate {
-	tc.mutation.SetName(s)
+// SetAddress sets the "address" field.
+func (tc *TerminalCreate) SetAddress(s string) *TerminalCreate {
+	tc.mutation.SetAddress(s)
+	return tc
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (tc *TerminalCreate) SetNillableAddress(s *string) *TerminalCreate {
+	if s != nil {
+		tc.SetAddress(*s)
+	}
+	return tc
+}
+
+// SetLatitude sets the "latitude" field.
+func (tc *TerminalCreate) SetLatitude(f float64) *TerminalCreate {
+	tc.mutation.SetLatitude(f)
+	return tc
+}
+
+// SetNillableLatitude sets the "latitude" field if the given value is not nil.
+func (tc *TerminalCreate) SetNillableLatitude(f *float64) *TerminalCreate {
+	if f != nil {
+		tc.SetLatitude(*f)
+	}
+	return tc
+}
+
+// SetLongitude sets the "longitude" field.
+func (tc *TerminalCreate) SetLongitude(f float64) *TerminalCreate {
+	tc.mutation.SetLongitude(f)
+	return tc
+}
+
+// SetNillableLongitude sets the "longitude" field if the given value is not nil.
+func (tc *TerminalCreate) SetNillableLongitude(f *float64) *TerminalCreate {
+	if f != nil {
+		tc.SetLongitude(*f)
+	}
 	return tc
 }
 
@@ -158,14 +194,6 @@ func (tc *TerminalCreate) check() error {
 	if _, ok := tc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Terminal.updated_at"`)}
 	}
-	if _, ok := tc.mutation.Name(); !ok {
-		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Terminal.name"`)}
-	}
-	if v, ok := tc.mutation.Name(); ok {
-		if err := terminal.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Terminal.name": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -200,9 +228,17 @@ func (tc *TerminalCreate) createSpec() (*Terminal, *sqlgraph.CreateSpec) {
 		_spec.SetField(terminal.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := tc.mutation.Name(); ok {
-		_spec.SetField(terminal.FieldName, field.TypeString, value)
-		_node.Name = value
+	if value, ok := tc.mutation.Address(); ok {
+		_spec.SetField(terminal.FieldAddress, field.TypeString, value)
+		_node.Address = value
+	}
+	if value, ok := tc.mutation.Latitude(); ok {
+		_spec.SetField(terminal.FieldLatitude, field.TypeFloat64, value)
+		_node.Latitude = value
+	}
+	if value, ok := tc.mutation.Longitude(); ok {
+		_spec.SetField(terminal.FieldLongitude, field.TypeFloat64, value)
+		_node.Longitude = value
 	}
 	if nodes := tc.mutation.CompanyIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

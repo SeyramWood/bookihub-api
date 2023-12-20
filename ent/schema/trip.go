@@ -61,6 +61,7 @@ func (Trip) Edges() []ent.Edge {
 		edge.From("route", Route.Type).
 			Ref("trips").
 			Unique(),
+		edge.To("stops", RouteStop.Type),
 		edge.To("bookings", Booking.Type).
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.To("incidents", Incident.Type).

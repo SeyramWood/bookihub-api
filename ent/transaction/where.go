@@ -545,6 +545,26 @@ func TansKindNotIn(vs ...TansKind) predicate.Transaction {
 	return predicate.Transaction(sql.FieldNotIn(FieldTansKind, vs...))
 }
 
+// ProductEQ applies the EQ predicate on the "product" field.
+func ProductEQ(v Product) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldProduct, v))
+}
+
+// ProductNEQ applies the NEQ predicate on the "product" field.
+func ProductNEQ(v Product) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNEQ(FieldProduct, v))
+}
+
+// ProductIn applies the In predicate on the "product" field.
+func ProductIn(vs ...Product) predicate.Transaction {
+	return predicate.Transaction(sql.FieldIn(FieldProduct, vs...))
+}
+
+// ProductNotIn applies the NotIn predicate on the "product" field.
+func ProductNotIn(vs ...Product) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNotIn(FieldProduct, vs...))
+}
+
 // HasBooking applies the HasEdge predicate on the "booking" edge.
 func HasBooking() predicate.Transaction {
 	return predicate.Transaction(func(s *sql.Selector) {

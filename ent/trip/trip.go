@@ -61,6 +61,8 @@ const (
 	EdgeVehicle = "vehicle"
 	// EdgeRoute holds the string denoting the route edge name in mutations.
 	EdgeRoute = "route"
+	// EdgeStops holds the string denoting the stops edge name in mutations.
+	EdgeStops = "stops"
 	// EdgeBookings holds the string denoting the bookings edge name in mutations.
 	EdgeBookings = "bookings"
 	// EdgeIncidents holds the string denoting the incidents edge name in mutations.
@@ -111,6 +113,11 @@ const (
 	RouteInverseTable = "routes"
 	// RouteColumn is the table column denoting the route relation/edge.
 	RouteColumn = "route_trips"
+	// StopsTable is the table that holds the stops relation/edge. The primary key declared below.
+	StopsTable = "trip_stops"
+	// StopsInverseTable is the table name for the RouteStop entity.
+	// It exists in this package in order to avoid circular dependency with the "routestop" package.
+	StopsInverseTable = "route_stops"
 	// BookingsTable is the table that holds the bookings relation/edge.
 	BookingsTable = "bookings"
 	// BookingsInverseTable is the table name for the Booking entity.
@@ -166,6 +173,12 @@ var ForeignKeys = []string{
 	"terminal_to",
 	"vehicle_trips",
 }
+
+var (
+	// StopsPrimaryKey and StopsColumn2 are the table columns denoting the
+	// primary key for the stops relation (M2M).
+	StopsPrimaryKey = []string{"trip_id", "route_stop_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -395,6 +408,20 @@ func ByRouteField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByStopsCount orders the results by stops count.
+func ByStopsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStopsStep(), opts...)
+	}
+}
+
+// ByStops orders the results by stops terms.
+func ByStops(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStopsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByBookingsCount orders the results by bookings count.
 func ByBookingsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -476,6 +503,13 @@ func newRouteStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RouteInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, RouteTable, RouteColumn),
+	)
+}
+func newStopsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StopsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, StopsTable, StopsPrimaryKey...),
 	)
 }
 func newBookingsStep() *sqlgraph.Step {

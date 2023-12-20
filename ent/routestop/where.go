@@ -65,6 +65,11 @@ func UpdatedAt(v time.Time) predicate.RouteStop {
 	return predicate.RouteStop(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// Address applies equality check predicate on the "address" field. It's identical to AddressEQ.
+func Address(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldEQ(FieldAddress, v))
+}
+
 // Latitude applies equality check predicate on the "latitude" field. It's identical to LatitudeEQ.
 func Latitude(v float64) predicate.RouteStop {
 	return predicate.RouteStop(sql.FieldEQ(FieldLatitude, v))
@@ -153,6 +158,81 @@ func UpdatedAtLT(v time.Time) predicate.RouteStop {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.RouteStop {
 	return predicate.RouteStop(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// AddressEQ applies the EQ predicate on the "address" field.
+func AddressEQ(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldEQ(FieldAddress, v))
+}
+
+// AddressNEQ applies the NEQ predicate on the "address" field.
+func AddressNEQ(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldNEQ(FieldAddress, v))
+}
+
+// AddressIn applies the In predicate on the "address" field.
+func AddressIn(vs ...string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldIn(FieldAddress, vs...))
+}
+
+// AddressNotIn applies the NotIn predicate on the "address" field.
+func AddressNotIn(vs ...string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldNotIn(FieldAddress, vs...))
+}
+
+// AddressGT applies the GT predicate on the "address" field.
+func AddressGT(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldGT(FieldAddress, v))
+}
+
+// AddressGTE applies the GTE predicate on the "address" field.
+func AddressGTE(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldGTE(FieldAddress, v))
+}
+
+// AddressLT applies the LT predicate on the "address" field.
+func AddressLT(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldLT(FieldAddress, v))
+}
+
+// AddressLTE applies the LTE predicate on the "address" field.
+func AddressLTE(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldLTE(FieldAddress, v))
+}
+
+// AddressContains applies the Contains predicate on the "address" field.
+func AddressContains(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldContains(FieldAddress, v))
+}
+
+// AddressHasPrefix applies the HasPrefix predicate on the "address" field.
+func AddressHasPrefix(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldHasPrefix(FieldAddress, v))
+}
+
+// AddressHasSuffix applies the HasSuffix predicate on the "address" field.
+func AddressHasSuffix(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldHasSuffix(FieldAddress, v))
+}
+
+// AddressIsNil applies the IsNil predicate on the "address" field.
+func AddressIsNil() predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldIsNull(FieldAddress))
+}
+
+// AddressNotNil applies the NotNil predicate on the "address" field.
+func AddressNotNil() predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldNotNull(FieldAddress))
+}
+
+// AddressEqualFold applies the EqualFold predicate on the "address" field.
+func AddressEqualFold(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldEqualFold(FieldAddress, v))
+}
+
+// AddressContainsFold applies the ContainsFold predicate on the "address" field.
+func AddressContainsFold(v string) predicate.RouteStop {
+	return predicate.RouteStop(sql.FieldContainsFold(FieldAddress, v))
 }
 
 // LatitudeEQ applies the EQ predicate on the "latitude" field.
@@ -255,21 +335,44 @@ func LongitudeNotNil() predicate.RouteStop {
 	return predicate.RouteStop(sql.FieldNotNull(FieldLongitude))
 }
 
-// HasRoute applies the HasEdge predicate on the "route" edge.
-func HasRoute() predicate.RouteStop {
+// HasCompany applies the HasEdge predicate on the "company" edge.
+func HasCompany() predicate.RouteStop {
 	return predicate.RouteStop(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, RouteTable, RouteColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, CompanyTable, CompanyColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasRouteWith applies the HasEdge predicate on the "route" edge with a given conditions (other predicates).
-func HasRouteWith(preds ...predicate.Route) predicate.RouteStop {
+// HasCompanyWith applies the HasEdge predicate on the "company" edge with a given conditions (other predicates).
+func HasCompanyWith(preds ...predicate.Company) predicate.RouteStop {
 	return predicate.RouteStop(func(s *sql.Selector) {
-		step := newRouteStep()
+		step := newCompanyStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTrip applies the HasEdge predicate on the "trip" edge.
+func HasTrip() predicate.RouteStop {
+	return predicate.RouteStop(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, TripTable, TripPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTripWith applies the HasEdge predicate on the "trip" edge with a given conditions (other predicates).
+func HasTripWith(preds ...predicate.Trip) predicate.RouteStop {
+	return predicate.RouteStop(func(s *sql.Selector) {
+		step := newTripStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

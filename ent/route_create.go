@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/route"
-	"github.com/SeyramWood/bookibus/ent/routestop"
 	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
@@ -63,62 +62,6 @@ func (rc *RouteCreate) SetToLocation(s string) *RouteCreate {
 	return rc
 }
 
-// SetFromLatitude sets the "from_latitude" field.
-func (rc *RouteCreate) SetFromLatitude(f float64) *RouteCreate {
-	rc.mutation.SetFromLatitude(f)
-	return rc
-}
-
-// SetNillableFromLatitude sets the "from_latitude" field if the given value is not nil.
-func (rc *RouteCreate) SetNillableFromLatitude(f *float64) *RouteCreate {
-	if f != nil {
-		rc.SetFromLatitude(*f)
-	}
-	return rc
-}
-
-// SetFromLongitude sets the "from_longitude" field.
-func (rc *RouteCreate) SetFromLongitude(f float64) *RouteCreate {
-	rc.mutation.SetFromLongitude(f)
-	return rc
-}
-
-// SetNillableFromLongitude sets the "from_longitude" field if the given value is not nil.
-func (rc *RouteCreate) SetNillableFromLongitude(f *float64) *RouteCreate {
-	if f != nil {
-		rc.SetFromLongitude(*f)
-	}
-	return rc
-}
-
-// SetToLatitude sets the "to_latitude" field.
-func (rc *RouteCreate) SetToLatitude(f float64) *RouteCreate {
-	rc.mutation.SetToLatitude(f)
-	return rc
-}
-
-// SetNillableToLatitude sets the "to_latitude" field if the given value is not nil.
-func (rc *RouteCreate) SetNillableToLatitude(f *float64) *RouteCreate {
-	if f != nil {
-		rc.SetToLatitude(*f)
-	}
-	return rc
-}
-
-// SetToLongitude sets the "to_longitude" field.
-func (rc *RouteCreate) SetToLongitude(f float64) *RouteCreate {
-	rc.mutation.SetToLongitude(f)
-	return rc
-}
-
-// SetNillableToLongitude sets the "to_longitude" field if the given value is not nil.
-func (rc *RouteCreate) SetNillableToLongitude(f *float64) *RouteCreate {
-	if f != nil {
-		rc.SetToLongitude(*f)
-	}
-	return rc
-}
-
 // SetPopularity sets the "popularity" field.
 func (rc *RouteCreate) SetPopularity(i int) *RouteCreate {
 	rc.mutation.SetPopularity(i)
@@ -150,21 +93,6 @@ func (rc *RouteCreate) SetNillableCompanyID(id *int) *RouteCreate {
 // SetCompany sets the "company" edge to the Company entity.
 func (rc *RouteCreate) SetCompany(c *Company) *RouteCreate {
 	return rc.SetCompanyID(c.ID)
-}
-
-// AddStopIDs adds the "stops" edge to the RouteStop entity by IDs.
-func (rc *RouteCreate) AddStopIDs(ids ...int) *RouteCreate {
-	rc.mutation.AddStopIDs(ids...)
-	return rc
-}
-
-// AddStops adds the "stops" edges to the RouteStop entity.
-func (rc *RouteCreate) AddStops(r ...*RouteStop) *RouteCreate {
-	ids := make([]int, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
-	}
-	return rc.AddStopIDs(ids...)
 }
 
 // AddTripIDs adds the "trips" edge to the Trip entity by IDs.
@@ -300,22 +228,6 @@ func (rc *RouteCreate) createSpec() (*Route, *sqlgraph.CreateSpec) {
 		_spec.SetField(route.FieldToLocation, field.TypeString, value)
 		_node.ToLocation = value
 	}
-	if value, ok := rc.mutation.FromLatitude(); ok {
-		_spec.SetField(route.FieldFromLatitude, field.TypeFloat64, value)
-		_node.FromLatitude = value
-	}
-	if value, ok := rc.mutation.FromLongitude(); ok {
-		_spec.SetField(route.FieldFromLongitude, field.TypeFloat64, value)
-		_node.FromLongitude = value
-	}
-	if value, ok := rc.mutation.ToLatitude(); ok {
-		_spec.SetField(route.FieldToLatitude, field.TypeFloat64, value)
-		_node.ToLatitude = value
-	}
-	if value, ok := rc.mutation.ToLongitude(); ok {
-		_spec.SetField(route.FieldToLongitude, field.TypeFloat64, value)
-		_node.ToLongitude = value
-	}
 	if value, ok := rc.mutation.Popularity(); ok {
 		_spec.SetField(route.FieldPopularity, field.TypeInt, value)
 		_node.Popularity = value
@@ -335,22 +247,6 @@ func (rc *RouteCreate) createSpec() (*Route, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.company_routes = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := rc.mutation.StopsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   route.StopsTable,
-			Columns: []string{route.StopsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := rc.mutation.TripsIDs(); len(nodes) > 0 {

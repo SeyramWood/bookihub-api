@@ -37,9 +37,77 @@ func (tu *TerminalUpdate) SetUpdatedAt(t time.Time) *TerminalUpdate {
 	return tu
 }
 
-// SetName sets the "name" field.
-func (tu *TerminalUpdate) SetName(s string) *TerminalUpdate {
-	tu.mutation.SetName(s)
+// SetAddress sets the "address" field.
+func (tu *TerminalUpdate) SetAddress(s string) *TerminalUpdate {
+	tu.mutation.SetAddress(s)
+	return tu
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (tu *TerminalUpdate) SetNillableAddress(s *string) *TerminalUpdate {
+	if s != nil {
+		tu.SetAddress(*s)
+	}
+	return tu
+}
+
+// ClearAddress clears the value of the "address" field.
+func (tu *TerminalUpdate) ClearAddress() *TerminalUpdate {
+	tu.mutation.ClearAddress()
+	return tu
+}
+
+// SetLatitude sets the "latitude" field.
+func (tu *TerminalUpdate) SetLatitude(f float64) *TerminalUpdate {
+	tu.mutation.ResetLatitude()
+	tu.mutation.SetLatitude(f)
+	return tu
+}
+
+// SetNillableLatitude sets the "latitude" field if the given value is not nil.
+func (tu *TerminalUpdate) SetNillableLatitude(f *float64) *TerminalUpdate {
+	if f != nil {
+		tu.SetLatitude(*f)
+	}
+	return tu
+}
+
+// AddLatitude adds f to the "latitude" field.
+func (tu *TerminalUpdate) AddLatitude(f float64) *TerminalUpdate {
+	tu.mutation.AddLatitude(f)
+	return tu
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (tu *TerminalUpdate) ClearLatitude() *TerminalUpdate {
+	tu.mutation.ClearLatitude()
+	return tu
+}
+
+// SetLongitude sets the "longitude" field.
+func (tu *TerminalUpdate) SetLongitude(f float64) *TerminalUpdate {
+	tu.mutation.ResetLongitude()
+	tu.mutation.SetLongitude(f)
+	return tu
+}
+
+// SetNillableLongitude sets the "longitude" field if the given value is not nil.
+func (tu *TerminalUpdate) SetNillableLongitude(f *float64) *TerminalUpdate {
+	if f != nil {
+		tu.SetLongitude(*f)
+	}
+	return tu
+}
+
+// AddLongitude adds f to the "longitude" field.
+func (tu *TerminalUpdate) AddLongitude(f float64) *TerminalUpdate {
+	tu.mutation.AddLongitude(f)
+	return tu
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (tu *TerminalUpdate) ClearLongitude() *TerminalUpdate {
+	tu.mutation.ClearLongitude()
 	return tu
 }
 
@@ -181,16 +249,6 @@ func (tu *TerminalUpdate) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (tu *TerminalUpdate) check() error {
-	if v, ok := tu.mutation.Name(); ok {
-		if err := terminal.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Terminal.name": %w`, err)}
-		}
-	}
-	return nil
-}
-
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (tu *TerminalUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *TerminalUpdate {
 	tu.modifiers = append(tu.modifiers, modifiers...)
@@ -198,9 +256,6 @@ func (tu *TerminalUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *Termi
 }
 
 func (tu *TerminalUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := tu.check(); err != nil {
-		return n, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(terminal.Table, terminal.Columns, sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt))
 	if ps := tu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -212,8 +267,29 @@ func (tu *TerminalUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := tu.mutation.UpdatedAt(); ok {
 		_spec.SetField(terminal.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := tu.mutation.Name(); ok {
-		_spec.SetField(terminal.FieldName, field.TypeString, value)
+	if value, ok := tu.mutation.Address(); ok {
+		_spec.SetField(terminal.FieldAddress, field.TypeString, value)
+	}
+	if tu.mutation.AddressCleared() {
+		_spec.ClearField(terminal.FieldAddress, field.TypeString)
+	}
+	if value, ok := tu.mutation.Latitude(); ok {
+		_spec.SetField(terminal.FieldLatitude, field.TypeFloat64, value)
+	}
+	if value, ok := tu.mutation.AddedLatitude(); ok {
+		_spec.AddField(terminal.FieldLatitude, field.TypeFloat64, value)
+	}
+	if tu.mutation.LatitudeCleared() {
+		_spec.ClearField(terminal.FieldLatitude, field.TypeFloat64)
+	}
+	if value, ok := tu.mutation.Longitude(); ok {
+		_spec.SetField(terminal.FieldLongitude, field.TypeFloat64, value)
+	}
+	if value, ok := tu.mutation.AddedLongitude(); ok {
+		_spec.AddField(terminal.FieldLongitude, field.TypeFloat64, value)
+	}
+	if tu.mutation.LongitudeCleared() {
+		_spec.ClearField(terminal.FieldLongitude, field.TypeFloat64)
 	}
 	if tu.mutation.CompanyCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -362,9 +438,77 @@ func (tuo *TerminalUpdateOne) SetUpdatedAt(t time.Time) *TerminalUpdateOne {
 	return tuo
 }
 
-// SetName sets the "name" field.
-func (tuo *TerminalUpdateOne) SetName(s string) *TerminalUpdateOne {
-	tuo.mutation.SetName(s)
+// SetAddress sets the "address" field.
+func (tuo *TerminalUpdateOne) SetAddress(s string) *TerminalUpdateOne {
+	tuo.mutation.SetAddress(s)
+	return tuo
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (tuo *TerminalUpdateOne) SetNillableAddress(s *string) *TerminalUpdateOne {
+	if s != nil {
+		tuo.SetAddress(*s)
+	}
+	return tuo
+}
+
+// ClearAddress clears the value of the "address" field.
+func (tuo *TerminalUpdateOne) ClearAddress() *TerminalUpdateOne {
+	tuo.mutation.ClearAddress()
+	return tuo
+}
+
+// SetLatitude sets the "latitude" field.
+func (tuo *TerminalUpdateOne) SetLatitude(f float64) *TerminalUpdateOne {
+	tuo.mutation.ResetLatitude()
+	tuo.mutation.SetLatitude(f)
+	return tuo
+}
+
+// SetNillableLatitude sets the "latitude" field if the given value is not nil.
+func (tuo *TerminalUpdateOne) SetNillableLatitude(f *float64) *TerminalUpdateOne {
+	if f != nil {
+		tuo.SetLatitude(*f)
+	}
+	return tuo
+}
+
+// AddLatitude adds f to the "latitude" field.
+func (tuo *TerminalUpdateOne) AddLatitude(f float64) *TerminalUpdateOne {
+	tuo.mutation.AddLatitude(f)
+	return tuo
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (tuo *TerminalUpdateOne) ClearLatitude() *TerminalUpdateOne {
+	tuo.mutation.ClearLatitude()
+	return tuo
+}
+
+// SetLongitude sets the "longitude" field.
+func (tuo *TerminalUpdateOne) SetLongitude(f float64) *TerminalUpdateOne {
+	tuo.mutation.ResetLongitude()
+	tuo.mutation.SetLongitude(f)
+	return tuo
+}
+
+// SetNillableLongitude sets the "longitude" field if the given value is not nil.
+func (tuo *TerminalUpdateOne) SetNillableLongitude(f *float64) *TerminalUpdateOne {
+	if f != nil {
+		tuo.SetLongitude(*f)
+	}
+	return tuo
+}
+
+// AddLongitude adds f to the "longitude" field.
+func (tuo *TerminalUpdateOne) AddLongitude(f float64) *TerminalUpdateOne {
+	tuo.mutation.AddLongitude(f)
+	return tuo
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (tuo *TerminalUpdateOne) ClearLongitude() *TerminalUpdateOne {
+	tuo.mutation.ClearLongitude()
 	return tuo
 }
 
@@ -519,16 +663,6 @@ func (tuo *TerminalUpdateOne) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (tuo *TerminalUpdateOne) check() error {
-	if v, ok := tuo.mutation.Name(); ok {
-		if err := terminal.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Terminal.name": %w`, err)}
-		}
-	}
-	return nil
-}
-
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (tuo *TerminalUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *TerminalUpdateOne {
 	tuo.modifiers = append(tuo.modifiers, modifiers...)
@@ -536,9 +670,6 @@ func (tuo *TerminalUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *T
 }
 
 func (tuo *TerminalUpdateOne) sqlSave(ctx context.Context) (_node *Terminal, err error) {
-	if err := tuo.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(terminal.Table, terminal.Columns, sqlgraph.NewFieldSpec(terminal.FieldID, field.TypeInt))
 	id, ok := tuo.mutation.ID()
 	if !ok {
@@ -567,8 +698,29 @@ func (tuo *TerminalUpdateOne) sqlSave(ctx context.Context) (_node *Terminal, err
 	if value, ok := tuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(terminal.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := tuo.mutation.Name(); ok {
-		_spec.SetField(terminal.FieldName, field.TypeString, value)
+	if value, ok := tuo.mutation.Address(); ok {
+		_spec.SetField(terminal.FieldAddress, field.TypeString, value)
+	}
+	if tuo.mutation.AddressCleared() {
+		_spec.ClearField(terminal.FieldAddress, field.TypeString)
+	}
+	if value, ok := tuo.mutation.Latitude(); ok {
+		_spec.SetField(terminal.FieldLatitude, field.TypeFloat64, value)
+	}
+	if value, ok := tuo.mutation.AddedLatitude(); ok {
+		_spec.AddField(terminal.FieldLatitude, field.TypeFloat64, value)
+	}
+	if tuo.mutation.LatitudeCleared() {
+		_spec.ClearField(terminal.FieldLatitude, field.TypeFloat64)
+	}
+	if value, ok := tuo.mutation.Longitude(); ok {
+		_spec.SetField(terminal.FieldLongitude, field.TypeFloat64, value)
+	}
+	if value, ok := tuo.mutation.AddedLongitude(); ok {
+		_spec.AddField(terminal.FieldLongitude, field.TypeFloat64, value)
+	}
+	if tuo.mutation.LongitudeCleared() {
+		_spec.ClearField(terminal.FieldLongitude, field.TypeFloat64)
 	}
 	if tuo.mutation.CompanyCleared() {
 		edge := &sqlgraph.EdgeSpec{

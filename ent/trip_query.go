@@ -18,6 +18,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/parcel"
 	"github.com/SeyramWood/bookibus/ent/predicate"
 	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
 	"github.com/SeyramWood/bookibus/ent/terminal"
 	"github.com/SeyramWood/bookibus/ent/trip"
 	"github.com/SeyramWood/bookibus/ent/vehicle"
@@ -36,6 +37,7 @@ type TripQuery struct {
 	withToTerminal   *TerminalQuery
 	withVehicle      *VehicleQuery
 	withRoute        *RouteQuery
+	withStops        *RouteStopQuery
 	withBookings     *BookingQuery
 	withIncidents    *IncidentQuery
 	withParcels      *ParcelQuery
@@ -202,6 +204,28 @@ func (tq *TripQuery) QueryRoute() *RouteQuery {
 			sqlgraph.From(trip.Table, trip.FieldID, selector),
 			sqlgraph.To(route.Table, route.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, trip.RouteTable, trip.RouteColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryStops chains the current query on the "stops" edge.
+func (tq *TripQuery) QueryStops() *RouteStopQuery {
+	query := (&RouteStopClient{config: tq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(trip.Table, trip.FieldID, selector),
+			sqlgraph.To(routestop.Table, routestop.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, trip.StopsTable, trip.StopsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -473,6 +497,7 @@ func (tq *TripQuery) Clone() *TripQuery {
 		withToTerminal:   tq.withToTerminal.Clone(),
 		withVehicle:      tq.withVehicle.Clone(),
 		withRoute:        tq.withRoute.Clone(),
+		withStops:        tq.withStops.Clone(),
 		withBookings:     tq.withBookings.Clone(),
 		withIncidents:    tq.withIncidents.Clone(),
 		withParcels:      tq.withParcels.Clone(),
@@ -545,6 +570,17 @@ func (tq *TripQuery) WithRoute(opts ...func(*RouteQuery)) *TripQuery {
 		opt(query)
 	}
 	tq.withRoute = query
+	return tq
+}
+
+// WithStops tells the query-builder to eager-load the nodes that are connected to
+// the "stops" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TripQuery) WithStops(opts ...func(*RouteStopQuery)) *TripQuery {
+	query := (&RouteStopClient{config: tq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	tq.withStops = query
 	return tq
 }
 
@@ -660,13 +696,14 @@ func (tq *TripQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trip, e
 		nodes       = []*Trip{}
 		withFKs     = tq.withFKs
 		_spec       = tq.querySpec()
-		loadedTypes = [9]bool{
+		loadedTypes = [10]bool{
 			tq.withCompany != nil,
 			tq.withDriver != nil,
 			tq.withFromTerminal != nil,
 			tq.withToTerminal != nil,
 			tq.withVehicle != nil,
 			tq.withRoute != nil,
+			tq.withStops != nil,
 			tq.withBookings != nil,
 			tq.withIncidents != nil,
 			tq.withParcels != nil,
@@ -732,6 +769,13 @@ func (tq *TripQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trip, e
 	if query := tq.withRoute; query != nil {
 		if err := tq.loadRoute(ctx, query, nodes, nil,
 			func(n *Trip, e *Route) { n.Edges.Route = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := tq.withStops; query != nil {
+		if err := tq.loadStops(ctx, query, nodes,
+			func(n *Trip) { n.Edges.Stops = []*RouteStop{} },
+			func(n *Trip, e *RouteStop) { n.Edges.Stops = append(n.Edges.Stops, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -947,6 +991,67 @@ func (tq *TripQuery) loadRoute(ctx context.Context, query *RouteQuery, nodes []*
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (tq *TripQuery) loadStops(ctx context.Context, query *RouteStopQuery, nodes []*Trip, init func(*Trip), assign func(*Trip, *RouteStop)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*Trip)
+	nids := make(map[int]map[*Trip]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(trip.StopsTable)
+		s.Join(joinT).On(s.C(routestop.FieldID), joinT.C(trip.StopsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(trip.StopsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(trip.StopsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Trip]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*RouteStop](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "stops" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil

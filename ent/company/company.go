@@ -45,6 +45,8 @@ const (
 	EdgeVehicles = "vehicles"
 	// EdgeRoutes holds the string denoting the routes edge name in mutations.
 	EdgeRoutes = "routes"
+	// EdgeStops holds the string denoting the stops edge name in mutations.
+	EdgeStops = "stops"
 	// EdgeTrips holds the string denoting the trips edge name in mutations.
 	EdgeTrips = "trips"
 	// EdgeBookings holds the string denoting the bookings edge name in mutations.
@@ -87,6 +89,13 @@ const (
 	RoutesInverseTable = "routes"
 	// RoutesColumn is the table column denoting the routes relation/edge.
 	RoutesColumn = "company_routes"
+	// StopsTable is the table that holds the stops relation/edge.
+	StopsTable = "route_stops"
+	// StopsInverseTable is the table name for the RouteStop entity.
+	// It exists in this package in order to avoid circular dependency with the "routestop" package.
+	StopsInverseTable = "route_stops"
+	// StopsColumn is the table column denoting the stops relation/edge.
+	StopsColumn = "company_stops"
 	// TripsTable is the table that holds the trips relation/edge.
 	TripsTable = "trips"
 	// TripsInverseTable is the table name for the Trip entity.
@@ -310,6 +319,20 @@ func ByRoutes(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByStopsCount orders the results by stops count.
+func ByStopsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStopsStep(), opts...)
+	}
+}
+
+// ByStops orders the results by stops terms.
+func ByStops(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStopsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByTripsCount orders the results by trips count.
 func ByTripsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -419,6 +442,13 @@ func newRoutesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RoutesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, RoutesTable, RoutesColumn),
+	)
+}
+func newStopsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StopsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StopsTable, StopsColumn),
 	)
 }
 func newTripsStep() *sqlgraph.Step {

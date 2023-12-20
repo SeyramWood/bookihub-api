@@ -169,6 +169,20 @@ func (tc *TransactionCreate) SetNillableTansKind(tk *transaction.TansKind) *Tran
 	return tc
 }
 
+// SetProduct sets the "product" field.
+func (tc *TransactionCreate) SetProduct(t transaction.Product) *TransactionCreate {
+	tc.mutation.SetProduct(t)
+	return tc
+}
+
+// SetNillableProduct sets the "product" field if the given value is not nil.
+func (tc *TransactionCreate) SetNillableProduct(t *transaction.Product) *TransactionCreate {
+	if t != nil {
+		tc.SetProduct(*t)
+	}
+	return tc
+}
+
 // SetBookingID sets the "booking" edge to the Booking entity by ID.
 func (tc *TransactionCreate) SetBookingID(id int) *TransactionCreate {
 	tc.mutation.SetBookingID(id)
@@ -285,6 +299,10 @@ func (tc *TransactionCreate) defaults() {
 		v := transaction.DefaultTansKind
 		tc.mutation.SetTansKind(v)
 	}
+	if _, ok := tc.mutation.Product(); !ok {
+		v := transaction.DefaultProduct
+		tc.mutation.SetProduct(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -329,6 +347,14 @@ func (tc *TransactionCreate) check() error {
 	if v, ok := tc.mutation.TansKind(); ok {
 		if err := transaction.TansKindValidator(v); err != nil {
 			return &ValidationError{Name: "tans_kind", err: fmt.Errorf(`ent: validator failed for field "Transaction.tans_kind": %w`, err)}
+		}
+	}
+	if _, ok := tc.mutation.Product(); !ok {
+		return &ValidationError{Name: "product", err: errors.New(`ent: missing required field "Transaction.product"`)}
+	}
+	if v, ok := tc.mutation.Product(); ok {
+		if err := transaction.ProductValidator(v); err != nil {
+			return &ValidationError{Name: "product", err: fmt.Errorf(`ent: validator failed for field "Transaction.product": %w`, err)}
 		}
 	}
 	if _, ok := tc.mutation.CompanyID(); !ok {
@@ -403,6 +429,10 @@ func (tc *TransactionCreate) createSpec() (*Transaction, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.TansKind(); ok {
 		_spec.SetField(transaction.FieldTansKind, field.TypeEnum, value)
 		_node.TansKind = value
+	}
+	if value, ok := tc.mutation.Product(); ok {
+		_spec.SetField(transaction.FieldProduct, field.TypeEnum, value)
+		_node.Product = value
 	}
 	if nodes := tc.mutation.BookingIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

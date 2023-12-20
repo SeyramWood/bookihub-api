@@ -37,20 +37,6 @@ func (h *routeHandler) Create() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(presenters.RouteResponse(result))
 	}
 }
-func (h *routeHandler) AddRouteStop() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		request := new(requeststructs.RouteStopRequest)
-		if err := c.BodyParser(request); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(err))
-		}
-		id, _ := c.ParamsInt("id")
-		result, err := h.service.AddRouteStop(id, request)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
-		}
-		return c.Status(fiber.StatusOK).JSON(presenters.RouteStopResponse(result))
-	}
-}
 
 func (h *routeHandler) Fetch() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -110,21 +96,10 @@ func (h *routeHandler) Remove() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(presenters.MessageResponse("route deleted"))
 	}
 }
-func (h *routeHandler) RemoveStop() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		id, _ := c.ParamsInt("id")
-		if err := h.service.Remove(id); err != nil {
-			if ent.IsNotFound(err) {
-				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("stop not found")))
-			}
-			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
-		}
-		return c.Status(fiber.StatusOK).JSON(presenters.MessageResponse("stop deleted"))
-	}
-}
+
 func (h *routeHandler) Update() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		request := new(requeststructs.RouteUpdateRequest)
+		request := new(requeststructs.RouteRequest)
 		if c.BodyParser(request) != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
 		}
@@ -137,22 +112,5 @@ func (h *routeHandler) Update() fiber.Handler {
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}
 		return c.Status(fiber.StatusOK).JSON(presenters.RouteResponse(result))
-	}
-}
-func (h *routeHandler) UpdateStop() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		request := new(requeststructs.RouteStopRequest)
-		if c.BodyParser(request) != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("bad request")))
-		}
-		id, _ := c.ParamsInt("id")
-		result, err := h.service.UpdateStop(id, request)
-		if err != nil {
-			if ent.IsNotFound(err) {
-				return c.Status(fiber.StatusBadRequest).JSON(presenters.ErrorResponse(fmt.Errorf("route not found")))
-			}
-			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
-		}
-		return c.Status(fiber.StatusOK).JSON(presenters.RouteStopResponse(result))
 	}
 }

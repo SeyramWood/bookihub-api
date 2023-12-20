@@ -21,7 +21,9 @@ func (Terminal) Mixin() []ent.Mixin {
 // Fields of the Terminal.
 func (Terminal) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").NotEmpty(),
+		field.String("address").Optional(),
+		field.Float("latitude").Optional(),
+		field.Float("longitude").Optional(),
 	}
 }
 

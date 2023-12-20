@@ -138,7 +138,6 @@ func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse 
 			return nil, application.Rollback(tx, fmt.Errorf("failed creating customer luggage: %w", err))
 		}
 	}
-
 	_, err = tx.Transaction.Create().
 		SetReference(request.Reference).
 		SetAmount(request.Amount).
@@ -148,6 +147,7 @@ func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse 
 		SetChannel(transaction.Channel(refResponse.TransType)).
 		SetBooking(result).
 		SetCompanyID(request.CompanyID).
+		SetProduct(transaction.ProductTrip).
 		Save(r.ctx)
 	if err != nil {
 		return nil, application.Rollback(tx, fmt.Errorf("failed creating transaction: %w", err))
@@ -176,9 +176,8 @@ func (r *repository) Read(id int) (*ent.Booking, error) {
 			tq.WithVehicle(func(vq *ent.VehicleQuery) {
 				vq.WithImages()
 			})
-			tq.WithRoute(func(rq *ent.RouteQuery) {
-				rq.WithStops()
-			})
+			tq.WithRoute()
+			tq.WithStops()
 			tq.WithDriver()
 			tq.WithCompany()
 			tq.WithFromTerminal()
@@ -205,9 +204,8 @@ func (r *repository) ReadByBookingNumber(id string) (*ent.Booking, error) {
 			tq.WithVehicle(func(vq *ent.VehicleQuery) {
 				vq.WithImages()
 			})
-			tq.WithRoute(func(rq *ent.RouteQuery) {
-				rq.WithStops()
-			})
+			tq.WithRoute()
+			tq.WithStops()
 			tq.WithDriver()
 			tq.WithCompany()
 			tq.WithFromTerminal()
@@ -500,9 +498,8 @@ func (r *repository) filterBooking(query *ent.BookingQuery, limit, offset int) (
 			tq.WithVehicle(func(vq *ent.VehicleQuery) {
 				vq.WithImages()
 			})
-			tq.WithRoute(func(rq *ent.RouteQuery) {
-				rq.WithStops()
-			})
+			tq.WithRoute()
+			tq.WithStops()
 			tq.WithDriver()
 			tq.WithCompany()
 			tq.WithFromTerminal()

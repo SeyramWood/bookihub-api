@@ -380,10 +380,6 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "from_location", Type: field.TypeString},
 		{Name: "to_location", Type: field.TypeString},
-		{Name: "from_latitude", Type: field.TypeFloat64, Nullable: true},
-		{Name: "from_longitude", Type: field.TypeFloat64, Nullable: true},
-		{Name: "to_latitude", Type: field.TypeFloat64, Nullable: true},
-		{Name: "to_longitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "popularity", Type: field.TypeInt, Default: 0},
 		{Name: "company_routes", Type: field.TypeInt, Nullable: true},
 	}
@@ -395,7 +391,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "routes_companies_routes",
-				Columns:    []*schema.Column{RoutesColumns[10]},
+				Columns:    []*schema.Column{RoutesColumns[6]},
 				RefColumns: []*schema.Column{CompaniesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -406,9 +402,10 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "address", Type: field.TypeString, Nullable: true},
 		{Name: "latitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "longitude", Type: field.TypeFloat64, Nullable: true},
-		{Name: "route_stops", Type: field.TypeInt, Nullable: true},
+		{Name: "company_stops", Type: field.TypeInt, Nullable: true},
 	}
 	// RouteStopsTable holds the schema information for the "route_stops" table.
 	RouteStopsTable = &schema.Table{
@@ -417,9 +414,9 @@ var (
 		PrimaryKey: []*schema.Column{RouteStopsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "route_stops_routes_stops",
-				Columns:    []*schema.Column{RouteStopsColumns[5]},
-				RefColumns: []*schema.Column{RoutesColumns[0]},
+				Symbol:     "route_stops_companies_stops",
+				Columns:    []*schema.Column{RouteStopsColumns[6]},
+				RefColumns: []*schema.Column{CompaniesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
@@ -429,7 +426,9 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "name", Type: field.TypeString},
+		{Name: "address", Type: field.TypeString, Nullable: true},
+		{Name: "latitude", Type: field.TypeFloat64, Nullable: true},
+		{Name: "longitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "company_terminals", Type: field.TypeInt, Nullable: true},
 	}
 	// TerminalsTable holds the schema information for the "terminals" table.
@@ -440,7 +439,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "terminals_companies_terminals",
-				Columns:    []*schema.Column{TerminalsColumns[4]},
+				Columns:    []*schema.Column{TerminalsColumns[6]},
 				RefColumns: []*schema.Column{CompaniesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -460,6 +459,7 @@ var (
 		{Name: "canceled_at", Type: field.TypeTime, Nullable: true},
 		{Name: "channel", Type: field.TypeEnum, Enums: []string{"momo", "card", "bank", "cash"}, Default: "cash"},
 		{Name: "tans_kind", Type: field.TypeEnum, Enums: []string{"payment", "payout"}, Default: "payment"},
+		{Name: "product", Type: field.TypeEnum, Enums: []string{"trip", "delivery"}, Default: "trip"},
 		{Name: "booking_transaction", Type: field.TypeInt, Unique: true, Nullable: true},
 		{Name: "company_transactions", Type: field.TypeInt},
 		{Name: "parcel_transaction", Type: field.TypeInt, Unique: true, Nullable: true},
@@ -472,19 +472,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "transactions_bookings_transaction",
-				Columns:    []*schema.Column{TransactionsColumns[12]},
+				Columns:    []*schema.Column{TransactionsColumns[13]},
 				RefColumns: []*schema.Column{BookingsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "transactions_companies_transactions",
-				Columns:    []*schema.Column{TransactionsColumns[13]},
+				Columns:    []*schema.Column{TransactionsColumns[14]},
 				RefColumns: []*schema.Column{CompaniesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "transactions_parcels_transaction",
-				Columns:    []*schema.Column{TransactionsColumns[14]},
+				Columns:    []*schema.Column{TransactionsColumns[15]},
 				RefColumns: []*schema.Column{ParcelsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -721,6 +721,31 @@ var (
 			},
 		},
 	}
+	// TripStopsColumns holds the columns for the "trip_stops" table.
+	TripStopsColumns = []*schema.Column{
+		{Name: "trip_id", Type: field.TypeInt},
+		{Name: "route_stop_id", Type: field.TypeInt},
+	}
+	// TripStopsTable holds the schema information for the "trip_stops" table.
+	TripStopsTable = &schema.Table{
+		Name:       "trip_stops",
+		Columns:    TripStopsColumns,
+		PrimaryKey: []*schema.Column{TripStopsColumns[0], TripStopsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "trip_stops_trip_id",
+				Columns:    []*schema.Column{TripStopsColumns[0]},
+				RefColumns: []*schema.Column{TripsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "trip_stops_route_stop_id",
+				Columns:    []*schema.Column{TripStopsColumns[1]},
+				RefColumns: []*schema.Column{RouteStopsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BookibusUsersTable,
@@ -748,6 +773,7 @@ var (
 		BookibusUserNotificationsTable,
 		CompanyUserNotificationsTable,
 		CustomerNotificationsTable,
+		TripStopsTable,
 	}
 )
 
@@ -769,7 +795,7 @@ func init() {
 	ParcelImagesTable.ForeignKeys[0].RefTable = ParcelsTable
 	PassengersTable.ForeignKeys[0].RefTable = BookingsTable
 	RoutesTable.ForeignKeys[0].RefTable = CompaniesTable
-	RouteStopsTable.ForeignKeys[0].RefTable = RoutesTable
+	RouteStopsTable.ForeignKeys[0].RefTable = CompaniesTable
 	TerminalsTable.ForeignKeys[0].RefTable = CompaniesTable
 	TransactionsTable.ForeignKeys[0].RefTable = BookingsTable
 	TransactionsTable.ForeignKeys[1].RefTable = CompaniesTable
@@ -791,4 +817,6 @@ func init() {
 	CompanyUserNotificationsTable.ForeignKeys[1].RefTable = NotificationsTable
 	CustomerNotificationsTable.ForeignKeys[0].RefTable = CustomersTable
 	CustomerNotificationsTable.ForeignKeys[1].RefTable = NotificationsTable
+	TripStopsTable.ForeignKeys[0].RefTable = TripsTable
+	TripStopsTable.ForeignKeys[1].RefTable = RouteStopsTable
 }

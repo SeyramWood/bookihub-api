@@ -17,6 +17,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/notification"
 	"github.com/SeyramWood/bookibus/ent/parcel"
 	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
 	"github.com/SeyramWood/bookibus/ent/schema"
 	"github.com/SeyramWood/bookibus/ent/terminal"
 	"github.com/SeyramWood/bookibus/ent/transaction"
@@ -203,6 +204,21 @@ func (cc *CompanyCreate) AddRoutes(r ...*Route) *CompanyCreate {
 		ids[i] = r[i].ID
 	}
 	return cc.AddRouteIDs(ids...)
+}
+
+// AddStopIDs adds the "stops" edge to the RouteStop entity by IDs.
+func (cc *CompanyCreate) AddStopIDs(ids ...int) *CompanyCreate {
+	cc.mutation.AddStopIDs(ids...)
+	return cc
+}
+
+// AddStops adds the "stops" edges to the RouteStop entity.
+func (cc *CompanyCreate) AddStops(r ...*RouteStop) *CompanyCreate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cc.AddStopIDs(ids...)
 }
 
 // AddTripIDs adds the "trips" edge to the Trip entity by IDs.
@@ -518,6 +534,22 @@ func (cc *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(route.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.StopsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.StopsTable,
+			Columns: []string{company.StopsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

@@ -19,6 +19,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/parcel"
 	"github.com/SeyramWood/bookibus/ent/predicate"
 	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
 	"github.com/SeyramWood/bookibus/ent/schema"
 	"github.com/SeyramWood/bookibus/ent/terminal"
 	"github.com/SeyramWood/bookibus/ent/transaction"
@@ -223,6 +224,21 @@ func (cu *CompanyUpdate) AddRoutes(r ...*Route) *CompanyUpdate {
 	return cu.AddRouteIDs(ids...)
 }
 
+// AddStopIDs adds the "stops" edge to the RouteStop entity by IDs.
+func (cu *CompanyUpdate) AddStopIDs(ids ...int) *CompanyUpdate {
+	cu.mutation.AddStopIDs(ids...)
+	return cu
+}
+
+// AddStops adds the "stops" edges to the RouteStop entity.
+func (cu *CompanyUpdate) AddStops(r ...*RouteStop) *CompanyUpdate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cu.AddStopIDs(ids...)
+}
+
 // AddTripIDs adds the "trips" edge to the Trip entity by IDs.
 func (cu *CompanyUpdate) AddTripIDs(ids ...int) *CompanyUpdate {
 	cu.mutation.AddTripIDs(ids...)
@@ -400,6 +416,27 @@ func (cu *CompanyUpdate) RemoveRoutes(r ...*Route) *CompanyUpdate {
 		ids[i] = r[i].ID
 	}
 	return cu.RemoveRouteIDs(ids...)
+}
+
+// ClearStops clears all "stops" edges to the RouteStop entity.
+func (cu *CompanyUpdate) ClearStops() *CompanyUpdate {
+	cu.mutation.ClearStops()
+	return cu
+}
+
+// RemoveStopIDs removes the "stops" edge to RouteStop entities by IDs.
+func (cu *CompanyUpdate) RemoveStopIDs(ids ...int) *CompanyUpdate {
+	cu.mutation.RemoveStopIDs(ids...)
+	return cu
+}
+
+// RemoveStops removes "stops" edges to RouteStop entities.
+func (cu *CompanyUpdate) RemoveStops(r ...*RouteStop) *CompanyUpdate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cu.RemoveStopIDs(ids...)
 }
 
 // ClearTrips clears all "trips" edges to the Trip entity.
@@ -825,6 +862,51 @@ func (cu *CompanyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(route.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cu.mutation.StopsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.StopsTable,
+			Columns: []string{company.StopsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.RemovedStopsIDs(); len(nodes) > 0 && !cu.mutation.StopsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.StopsTable,
+			Columns: []string{company.StopsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.StopsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.StopsTable,
+			Columns: []string{company.StopsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1307,6 +1389,21 @@ func (cuo *CompanyUpdateOne) AddRoutes(r ...*Route) *CompanyUpdateOne {
 	return cuo.AddRouteIDs(ids...)
 }
 
+// AddStopIDs adds the "stops" edge to the RouteStop entity by IDs.
+func (cuo *CompanyUpdateOne) AddStopIDs(ids ...int) *CompanyUpdateOne {
+	cuo.mutation.AddStopIDs(ids...)
+	return cuo
+}
+
+// AddStops adds the "stops" edges to the RouteStop entity.
+func (cuo *CompanyUpdateOne) AddStops(r ...*RouteStop) *CompanyUpdateOne {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cuo.AddStopIDs(ids...)
+}
+
 // AddTripIDs adds the "trips" edge to the Trip entity by IDs.
 func (cuo *CompanyUpdateOne) AddTripIDs(ids ...int) *CompanyUpdateOne {
 	cuo.mutation.AddTripIDs(ids...)
@@ -1484,6 +1581,27 @@ func (cuo *CompanyUpdateOne) RemoveRoutes(r ...*Route) *CompanyUpdateOne {
 		ids[i] = r[i].ID
 	}
 	return cuo.RemoveRouteIDs(ids...)
+}
+
+// ClearStops clears all "stops" edges to the RouteStop entity.
+func (cuo *CompanyUpdateOne) ClearStops() *CompanyUpdateOne {
+	cuo.mutation.ClearStops()
+	return cuo
+}
+
+// RemoveStopIDs removes the "stops" edge to RouteStop entities by IDs.
+func (cuo *CompanyUpdateOne) RemoveStopIDs(ids ...int) *CompanyUpdateOne {
+	cuo.mutation.RemoveStopIDs(ids...)
+	return cuo
+}
+
+// RemoveStops removes "stops" edges to RouteStop entities.
+func (cuo *CompanyUpdateOne) RemoveStops(r ...*RouteStop) *CompanyUpdateOne {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cuo.RemoveStopIDs(ids...)
 }
 
 // ClearTrips clears all "trips" edges to the Trip entity.
@@ -1939,6 +2057,51 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(route.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuo.mutation.StopsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.StopsTable,
+			Columns: []string{company.StopsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.RemovedStopsIDs(); len(nodes) > 0 && !cuo.mutation.StopsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.StopsTable,
+			Columns: []string{company.StopsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.StopsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   company.StopsTable,
+			Columns: []string{company.StopsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

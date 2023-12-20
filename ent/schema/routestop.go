@@ -21,6 +21,7 @@ func (RouteStop) Mixin() []ent.Mixin {
 // Fields of the RouteStop.
 func (RouteStop) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("address").Optional(),
 		field.Float("latitude").Optional(),
 		field.Float("longitude").Optional(),
 	}
@@ -29,8 +30,10 @@ func (RouteStop) Fields() []ent.Field {
 // Edges of the RouteStop.
 func (RouteStop) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("route", Route.Type).
+		edge.From("company", Company.Type).
 			Ref("stops").
 			Unique(),
+		edge.From("trip", Trip.Type).
+			Ref("stops"),
 	}
 }

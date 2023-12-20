@@ -100,31 +100,43 @@ func ParcelResponse(data *ent.Parcel) *fiber.Map {
 						}()}
 					}
 					return nil
-				}(), Route: func() *RouteResponseData {
-					if r, err := t.Edges.RouteOrErr(); err == nil {
-						return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Stops: func() []*RouteStopResponseData {
-							if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
-								response := make([]*RouteStopResponseData, 0, len(stops))
-								for _, s := range stops {
-									response = append(response, &RouteStopResponseData{ID: s.ID, Latitude: s.Latitude, Longitude: s.Longitude})
-								}
-								return response
+				}(),
+					Route: func() *RouteResponseData {
+						if r, err := t.Edges.RouteOrErr(); err == nil {
+							return &RouteResponseData{
+								ID:   r.ID,
+								From: r.FromLocation,
+								To:   r.ToLocation,
+								Stops: func() []*RouteStopResponseData {
+									if stops, err := t.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
+										response := make([]*RouteStopResponseData, 0, len(stops))
+										for _, s := range stops {
+											response = append(response, &RouteStopResponseData{
+												ID:        s.ID,
+												Address:   s.Address,
+												Latitude:  s.Latitude,
+												Longitude: s.Longitude,
+											})
+										}
+										return response
+									}
+									return nil
+								}(),
 							}
-							return nil
-						}()}
-					}
-					return nil
-				}(), Driver: func() *CompanyUserResponseData {
-					if d, err := t.Edges.DriverOrErr(); err == nil {
-						return &CompanyUserResponseData{ID: d.ID, LastName: d.LastName, OtherName: d.OtherName, Phone: d.Phone, OtherPhone: d.OtherPhone}
-					}
-					return nil
-				}(), Company: func() *CompanyResponseData {
-					if c, err := t.Edges.CompanyOrErr(); err == nil {
-						return &CompanyResponseData{ID: c.ID, Name: c.Name, Phone: c.Phone, Email: c.Email}
-					}
-					return nil
-				}()}
+						}
+						return nil
+					}(),
+					Driver: func() *CompanyUserResponseData {
+						if d, err := t.Edges.DriverOrErr(); err == nil {
+							return &CompanyUserResponseData{ID: d.ID, LastName: d.LastName, OtherName: d.OtherName, Phone: d.Phone, OtherPhone: d.OtherPhone}
+						}
+						return nil
+					}(), Company: func() *CompanyResponseData {
+						if c, err := t.Edges.CompanyOrErr(); err == nil {
+							return &CompanyResponseData{ID: c.ID, Name: c.Name, Phone: c.Phone, Email: c.Email}
+						}
+						return nil
+					}()}
 			}
 			return nil
 		}(),
@@ -201,31 +213,43 @@ func ParcelsResponse(data *PaginationResponse) *fiber.Map {
 							}()}
 						}
 						return nil
-					}(), Route: func() *RouteResponseData {
-						if r, err := t.Edges.RouteOrErr(); err == nil {
-							return &RouteResponseData{ID: r.ID, From: r.FromLocation, To: r.ToLocation, FromLatitude: r.FromLatitude, FromLongitude: r.FromLongitude, ToLatitude: r.ToLatitude, ToLongitude: r.ToLongitude, Stops: func() []*RouteStopResponseData {
-								if stops, err := r.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
-									response := make([]*RouteStopResponseData, 0, len(stops))
-									for _, s := range stops {
-										response = append(response, &RouteStopResponseData{ID: s.ID, Latitude: s.Latitude, Longitude: s.Longitude})
-									}
-									return response
+					}(),
+						Route: func() *RouteResponseData {
+							if r, err := t.Edges.RouteOrErr(); err == nil {
+								return &RouteResponseData{
+									ID:   r.ID,
+									From: r.FromLocation,
+									To:   r.ToLocation,
+									Stops: func() []*RouteStopResponseData {
+										if stops, err := t.Edges.StopsOrErr(); err == nil && len(stops) > 0 {
+											response := make([]*RouteStopResponseData, 0, len(stops))
+											for _, s := range stops {
+												response = append(response, &RouteStopResponseData{
+													ID:        s.ID,
+													Address:   s.Address,
+													Latitude:  s.Latitude,
+													Longitude: s.Longitude,
+												})
+											}
+											return response
+										}
+										return nil
+									}(),
 								}
-								return nil
-							}()}
-						}
-						return nil
-					}(), Driver: func() *CompanyUserResponseData {
-						if d, err := t.Edges.DriverOrErr(); err == nil {
-							return &CompanyUserResponseData{ID: d.ID, LastName: d.LastName, OtherName: d.OtherName, Phone: d.Phone, OtherPhone: d.OtherPhone}
-						}
-						return nil
-					}(), Company: func() *CompanyResponseData {
-						if c, err := t.Edges.CompanyOrErr(); err == nil {
-							return &CompanyResponseData{ID: c.ID, Name: c.Name, Phone: c.Phone, Email: c.Email}
-						}
-						return nil
-					}()}
+							}
+							return nil
+						}(),
+						Driver: func() *CompanyUserResponseData {
+							if d, err := t.Edges.DriverOrErr(); err == nil {
+								return &CompanyUserResponseData{ID: d.ID, LastName: d.LastName, OtherName: d.OtherName, Phone: d.Phone, OtherPhone: d.OtherPhone}
+							}
+							return nil
+						}(), Company: func() *CompanyResponseData {
+							if c, err := t.Edges.CompanyOrErr(); err == nil {
+								return &CompanyResponseData{ID: c.ID, Name: c.Name, Phone: c.Phone, Email: c.Email}
+							}
+							return nil
+						}()}
 				}
 				return nil
 			}(),

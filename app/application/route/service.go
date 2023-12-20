@@ -17,11 +17,6 @@ func NewService(repo gateways.RouteRepo) gateways.RouteService {
 	}
 }
 
-// AddRoute implements gateways.RouteService.
-func (s *service) AddRouteStop(id int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error) {
-	return s.repo.InsertRouteStop(id, request)
-}
-
 // Create implements gateways.RouteService.
 func (s *service) Create(companyId int, request *requeststructs.RouteRequest) (*ent.Route, error) {
 	return s.repo.Insert(companyId, request)
@@ -52,17 +47,7 @@ func (s *service) Remove(id int) error {
 	return s.repo.Delete(id)
 }
 
-// RemoveStop implements gateways.RouteService.
-func (s *service) RemoveStop(id int) error {
-	return s.repo.DeleteStop(id)
-}
-
 // Update implements gateways.RouteService.
-func (s *service) Update(id int, request *requeststructs.RouteUpdateRequest) (*ent.Route, error) {
+func (s *service) Update(id int, request *requeststructs.RouteRequest) (*ent.Route, error) {
 	return s.repo.Update(id, request)
-}
-
-// UpdateStop implements gateways.RouteService.
-func (s *service) UpdateStop(id int, request *requeststructs.RouteStopRequest) (*ent.RouteStop, error) {
-	return s.repo.UpdateStop(id, request)
 }

@@ -107,7 +107,7 @@ func ValidateRoute(next http.Handler) http.Handler {
 	return valid.New(validConfig()).RequestStruct(new(requeststructs.RouteRequest)).ValidateRequest(next)
 }
 func ValidateRouteUpdate(next http.Handler) http.Handler {
-	return valid.New(validConfig()).RequestStruct(new(requeststructs.RouteUpdateRequest)).ValidateRequest(next)
+	return valid.New(validConfig()).RequestStruct(new(requeststructs.RouteRequest)).ValidateRequest(next)
 }
 func ValidateRouteStop(next http.Handler) http.Handler {
 	return valid.New(validConfig()).RequestStruct(new(requeststructs.RouteStopRequest)).ValidateRequest(next)

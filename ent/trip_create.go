@@ -16,6 +16,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/incident"
 	"github.com/SeyramWood/bookibus/ent/parcel"
 	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
 	"github.com/SeyramWood/bookibus/ent/terminal"
 	"github.com/SeyramWood/bookibus/ent/trip"
 	"github.com/SeyramWood/bookibus/ent/vehicle"
@@ -378,6 +379,21 @@ func (tc *TripCreate) SetNillableRouteID(id *int) *TripCreate {
 // SetRoute sets the "route" edge to the Route entity.
 func (tc *TripCreate) SetRoute(r *Route) *TripCreate {
 	return tc.SetRouteID(r.ID)
+}
+
+// AddStopIDs adds the "stops" edge to the RouteStop entity by IDs.
+func (tc *TripCreate) AddStopIDs(ids ...int) *TripCreate {
+	tc.mutation.AddStopIDs(ids...)
+	return tc
+}
+
+// AddStops adds the "stops" edges to the RouteStop entity.
+func (tc *TripCreate) AddStops(r ...*RouteStop) *TripCreate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return tc.AddStopIDs(ids...)
 }
 
 // AddBookingIDs adds the "bookings" edge to the Booking entity by IDs.
@@ -759,6 +775,22 @@ func (tc *TripCreate) createSpec() (*Trip, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.route_trips = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tc.mutation.StopsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   trip.StopsTable,
+			Columns: trip.StopsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(routestop.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := tc.mutation.BookingsIDs(); len(nodes) > 0 {

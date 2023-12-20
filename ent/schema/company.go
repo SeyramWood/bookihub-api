@@ -60,6 +60,8 @@ func (Company) Edges() []ent.Edge {
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.To("routes", Route.Type).
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
+		edge.To("stops", RouteStop.Type).
+			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.To("trips", Trip.Type).
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.To("bookings", Booking.Type).

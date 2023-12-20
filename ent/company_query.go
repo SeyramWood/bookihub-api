@@ -19,6 +19,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/parcel"
 	"github.com/SeyramWood/bookibus/ent/predicate"
 	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/routestop"
 	"github.com/SeyramWood/bookibus/ent/terminal"
 	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
@@ -36,6 +37,7 @@ type CompanyQuery struct {
 	withTerminals     *TerminalQuery
 	withVehicles      *VehicleQuery
 	withRoutes        *RouteQuery
+	withStops         *RouteStopQuery
 	withTrips         *TripQuery
 	withBookings      *BookingQuery
 	withIncidents     *IncidentQuery
@@ -160,6 +162,28 @@ func (cq *CompanyQuery) QueryRoutes() *RouteQuery {
 			sqlgraph.From(company.Table, company.FieldID, selector),
 			sqlgraph.To(route.Table, route.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, company.RoutesTable, company.RoutesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryStops chains the current query on the "stops" edge.
+func (cq *CompanyQuery) QueryStops() *RouteStopQuery {
+	query := (&RouteStopClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(company.Table, company.FieldID, selector),
+			sqlgraph.To(routestop.Table, routestop.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, company.StopsTable, company.StopsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -495,6 +519,7 @@ func (cq *CompanyQuery) Clone() *CompanyQuery {
 		withTerminals:     cq.withTerminals.Clone(),
 		withVehicles:      cq.withVehicles.Clone(),
 		withRoutes:        cq.withRoutes.Clone(),
+		withStops:         cq.withStops.Clone(),
 		withTrips:         cq.withTrips.Clone(),
 		withBookings:      cq.withBookings.Clone(),
 		withIncidents:     cq.withIncidents.Clone(),
@@ -548,6 +573,17 @@ func (cq *CompanyQuery) WithRoutes(opts ...func(*RouteQuery)) *CompanyQuery {
 		opt(query)
 	}
 	cq.withRoutes = query
+	return cq
+}
+
+// WithStops tells the query-builder to eager-load the nodes that are connected to
+// the "stops" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CompanyQuery) WithStops(opts ...func(*RouteStopQuery)) *CompanyQuery {
+	query := (&RouteStopClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withStops = query
 	return cq
 }
 
@@ -695,11 +731,12 @@ func (cq *CompanyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Comp
 	var (
 		nodes       = []*Company{}
 		_spec       = cq.querySpec()
-		loadedTypes = [10]bool{
+		loadedTypes = [11]bool{
 			cq.withProfile != nil,
 			cq.withTerminals != nil,
 			cq.withVehicles != nil,
 			cq.withRoutes != nil,
+			cq.withStops != nil,
 			cq.withTrips != nil,
 			cq.withBookings != nil,
 			cq.withIncidents != nil,
@@ -754,6 +791,13 @@ func (cq *CompanyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Comp
 		if err := cq.loadRoutes(ctx, query, nodes,
 			func(n *Company) { n.Edges.Routes = []*Route{} },
 			func(n *Company, e *Route) { n.Edges.Routes = append(n.Edges.Routes, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withStops; query != nil {
+		if err := cq.loadStops(ctx, query, nodes,
+			func(n *Company) { n.Edges.Stops = []*RouteStop{} },
+			func(n *Company, e *RouteStop) { n.Edges.Stops = append(n.Edges.Stops, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -921,6 +965,37 @@ func (cq *CompanyQuery) loadRoutes(ctx context.Context, query *RouteQuery, nodes
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "company_routes" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (cq *CompanyQuery) loadStops(ctx context.Context, query *RouteStopQuery, nodes []*Company, init func(*Company), assign func(*Company, *RouteStop)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Company)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.RouteStop(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(company.StopsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.company_stops
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "company_stops" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "company_stops" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

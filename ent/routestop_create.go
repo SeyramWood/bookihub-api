@@ -10,8 +10,9 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/SeyramWood/bookibus/ent/route"
+	"github.com/SeyramWood/bookibus/ent/company"
 	"github.com/SeyramWood/bookibus/ent/routestop"
+	"github.com/SeyramWood/bookibus/ent/trip"
 )
 
 // RouteStopCreate is the builder for creating a RouteStop entity.
@@ -49,6 +50,20 @@ func (rsc *RouteStopCreate) SetNillableUpdatedAt(t *time.Time) *RouteStopCreate 
 	return rsc
 }
 
+// SetAddress sets the "address" field.
+func (rsc *RouteStopCreate) SetAddress(s string) *RouteStopCreate {
+	rsc.mutation.SetAddress(s)
+	return rsc
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (rsc *RouteStopCreate) SetNillableAddress(s *string) *RouteStopCreate {
+	if s != nil {
+		rsc.SetAddress(*s)
+	}
+	return rsc
+}
+
 // SetLatitude sets the "latitude" field.
 func (rsc *RouteStopCreate) SetLatitude(f float64) *RouteStopCreate {
 	rsc.mutation.SetLatitude(f)
@@ -77,23 +92,38 @@ func (rsc *RouteStopCreate) SetNillableLongitude(f *float64) *RouteStopCreate {
 	return rsc
 }
 
-// SetRouteID sets the "route" edge to the Route entity by ID.
-func (rsc *RouteStopCreate) SetRouteID(id int) *RouteStopCreate {
-	rsc.mutation.SetRouteID(id)
+// SetCompanyID sets the "company" edge to the Company entity by ID.
+func (rsc *RouteStopCreate) SetCompanyID(id int) *RouteStopCreate {
+	rsc.mutation.SetCompanyID(id)
 	return rsc
 }
 
-// SetNillableRouteID sets the "route" edge to the Route entity by ID if the given value is not nil.
-func (rsc *RouteStopCreate) SetNillableRouteID(id *int) *RouteStopCreate {
+// SetNillableCompanyID sets the "company" edge to the Company entity by ID if the given value is not nil.
+func (rsc *RouteStopCreate) SetNillableCompanyID(id *int) *RouteStopCreate {
 	if id != nil {
-		rsc = rsc.SetRouteID(*id)
+		rsc = rsc.SetCompanyID(*id)
 	}
 	return rsc
 }
 
-// SetRoute sets the "route" edge to the Route entity.
-func (rsc *RouteStopCreate) SetRoute(r *Route) *RouteStopCreate {
-	return rsc.SetRouteID(r.ID)
+// SetCompany sets the "company" edge to the Company entity.
+func (rsc *RouteStopCreate) SetCompany(c *Company) *RouteStopCreate {
+	return rsc.SetCompanyID(c.ID)
+}
+
+// AddTripIDs adds the "trip" edge to the Trip entity by IDs.
+func (rsc *RouteStopCreate) AddTripIDs(ids ...int) *RouteStopCreate {
+	rsc.mutation.AddTripIDs(ids...)
+	return rsc
+}
+
+// AddTrip adds the "trip" edges to the Trip entity.
+func (rsc *RouteStopCreate) AddTrip(t ...*Trip) *RouteStopCreate {
+	ids := make([]int, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return rsc.AddTripIDs(ids...)
 }
 
 // Mutation returns the RouteStopMutation object of the builder.
@@ -183,6 +213,10 @@ func (rsc *RouteStopCreate) createSpec() (*RouteStop, *sqlgraph.CreateSpec) {
 		_spec.SetField(routestop.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
+	if value, ok := rsc.mutation.Address(); ok {
+		_spec.SetField(routestop.FieldAddress, field.TypeString, value)
+		_node.Address = value
+	}
 	if value, ok := rsc.mutation.Latitude(); ok {
 		_spec.SetField(routestop.FieldLatitude, field.TypeFloat64, value)
 		_node.Latitude = value
@@ -191,21 +225,37 @@ func (rsc *RouteStopCreate) createSpec() (*RouteStop, *sqlgraph.CreateSpec) {
 		_spec.SetField(routestop.FieldLongitude, field.TypeFloat64, value)
 		_node.Longitude = value
 	}
-	if nodes := rsc.mutation.RouteIDs(); len(nodes) > 0 {
+	if nodes := rsc.mutation.CompanyIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   routestop.RouteTable,
-			Columns: []string{routestop.RouteColumn},
+			Table:   routestop.CompanyTable,
+			Columns: []string{routestop.CompanyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(route.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.route_stops = &nodes[0]
+		_node.company_stops = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := rsc.mutation.TripIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   routestop.TripTable,
+			Columns: routestop.TripPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
