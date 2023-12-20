@@ -37,26 +37,26 @@ func (r *repository) ReadAdminBestSelling(limit int, offset int, minDate string,
 		Product string
 		Amount  float64
 	}
-	err := r.db.Company.Query().WithTransactions().
+	err := r.db.Company.Query().
 		GroupBy(company.FieldID, company.FieldName).
 		Aggregate(func(s *sql.Selector) string {
 			t := sql.Table(transaction.Table)
 			s.Join(t).On(s.C(company.FieldID), t.C(company.TransactionsColumn))
 			s.GroupBy(transaction.FieldProduct)
-			sql.As(t.C(transaction.FieldProduct), "product")
 			return sql.As(sql.Sum(t.C(transaction.FieldAmount)), "amount")
 		}).
 		Scan(r.ctx, &users)
 
-	// err := r.db.Transaction.Query().
-	// 	GroupBy(transaction.FieldProduct).
-	// 	Aggregate(func(s *sql.Selector) string {
-	// 		t := sql.Table(company.Table)
-	// 		s.Join(t).On(s.C(transaction.FieldID), t.C(transaction.CompanyColumn))
-	// 		return ""
-	// 		// return sql.As(sql.Sum(t.C(transaction.FieldAmount)), "amount")
-	// 	}).
-	// 	Scan(r.ctx, &users)
+		// err := r.db.Company.Query().
+		// Modify(func(s *sql.Selector) {
+		// 	s.Select(
+		// 		sql.As("DATE_FORMAT(created_at, '%b')", "month"),
+		// 		sql.As(sql.Sum("amount"), "amount"),
+		// 	).
+		// 		GroupBy("MONTH(created_at)", "YEAR(created_at)").
+		// 		OrderBy(sql.Asc("MONTH(created_at)"))
+		// }).
+		// Scan(r.ctx, &users)
 
 	if err != nil {
 		return nil, err
