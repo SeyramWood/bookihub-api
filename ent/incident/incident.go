@@ -130,8 +130,11 @@ const DefaultStatus = StatusPending
 
 // Status values.
 const (
-	StatusPending  Status = "pending"
-	StatusResolved Status = "resolved"
+	StatusPending    Status = "pending"
+	StatusResolved   Status = "resolved"
+	StatusInProgress Status = "in-progress"
+	StatusAccident   Status = "accident"
+	StatusMechanical Status = "mechanical"
 )
 
 func (s Status) String() string {
@@ -141,7 +144,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusPending, StatusResolved:
+	case StatusPending, StatusResolved, StatusInProgress, StatusAccident, StatusMechanical:
 		return nil
 	default:
 		return fmt.Errorf("incident: invalid enum value for status field: %q", s)

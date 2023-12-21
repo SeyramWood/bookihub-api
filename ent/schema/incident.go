@@ -27,7 +27,7 @@ func (Incident) Fields() []ent.Field {
 		field.Text("description").NotEmpty(),
 		field.String("type").NotEmpty(),
 		field.String("audio").Optional(),
-		field.Enum("status").Values("pending", "resolved").Default("pending"),
+		field.Enum("status").Values("pending", "resolved", "in-progress", "accident", "mechanical").Default("pending"),
 	}
 }
 

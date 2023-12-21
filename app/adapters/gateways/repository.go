@@ -15,8 +15,13 @@ type (
 	}
 	StatisticsRepo interface {
 		ReadAdminRevenue() *presenters.AdminRevenue
-		ReadAdminRevenueOverview(filter string) ([]*presenters.AdminOverview, error)
+		ReadAdminRevenueOverview(filter string) ([]presenters.AdminOverview, error)
+		ReadAdminCompanyOverview(companyId int, filter string) (*presenters.AdminCompanyOverview, error)
 		ReadAdminBestSelling(limit, offset int, minDate, maxDate string) (*presenters.PaginationResponse, error)
+		ReadCompanyTripOverview(companyId int, filter string) (*presenters.CompanyTripOverview, error)
+		ReadCompanyRevenueOverview(companyId int, filter string) ([]presenters.CompanyRevenueOverview, error)
+		ReadCompanyMonthRevenue(companyId int) (*presenters.CompanyMonthRevenue, error)
+		ReadCompanyIncidentOverview(companyId int, filter string) (*presenters.CompanyIncidentOverview, error)
 	}
 	AuthRepo interface {
 		ReadByID(id int) (*ent.User, error)

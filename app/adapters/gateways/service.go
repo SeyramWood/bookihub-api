@@ -38,8 +38,13 @@ type (
 	}
 	StatisticsService interface {
 		FetchAdminRevenue() *presenters.AdminRevenue
-		FetchAdminRevenueOverview(filter string) ([]*presenters.AdminOverview, error)
+		FetchAdminRevenueOverview(filter string) ([]presenters.AdminOverview, error)
+		FetchAdminCompanyOverview(companyId int, filter string) (*presenters.AdminCompanyOverview, error)
 		FetchAdminBestSelling(limit, offset int, minDate, maxDate string) (*presenters.PaginationResponse, error)
+		FetchCompanyTripOverview(companyId int, filter string) (*presenters.CompanyTripOverview, error)
+		FetchCompanyRevenueOverview(companyId int, filter string) ([]presenters.CompanyRevenueOverview, error)
+		FetchCompanyMonthRevenue(companyId int) (*presenters.CompanyMonthRevenue, error)
+		FetchCompanyIncidentOverview(companyId int, filter string) (*presenters.CompanyIncidentOverview, error)
 	}
 	ConfigurationService interface {
 		Fetch() (*ent.Configuration, error)
