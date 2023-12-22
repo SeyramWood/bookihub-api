@@ -9,7 +9,7 @@ import (
 )
 
 func BookibusRoutes(r fiber.Router, router *apiRouter) {
-	handler := api.NewBookibusHandler(router.Adapter, router.EventProducer)
+	handler := api.NewBookibusHandler(router.Adapter, router.EventProducer, router.StorageSrv)
 
 	userGroup := r.Group("/users")
 	userGroup.Get("", handler.FetchAll())

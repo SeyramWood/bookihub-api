@@ -1,6 +1,8 @@
 package bookibus_user
 
 import (
+	"strings"
+
 	"github.com/SeyramWood/bookibus/app/adapters/gateways"
 	"github.com/SeyramWood/bookibus/app/adapters/presenters"
 	"github.com/SeyramWood/bookibus/app/application"
@@ -13,12 +15,14 @@ import (
 type service struct {
 	repo     gateways.BookibusUserRepo
 	producer gateways.EventProducer
+	storage  gateways.StorageService
 }
 
-func NewService(repo gateways.BookibusUserRepo, produce gateways.EventProducer) gateways.BookibusUserService {
+func NewService(repo gateways.BookibusUserRepo, produce gateways.EventProducer, storage gateways.StorageService) gateways.BookibusUserService {
 	return &service{
 		repo:     repo,
 		producer: produce,
+		storage:  storage,
 	}
 }
 
@@ -54,7 +58,14 @@ func (s *service) FetchAll(limit int, offset int) (*presenters.PaginationRespons
 
 // Remove implements gateways.BookibusUserService.
 func (s *service) Remove(id int) error {
-	return s.Remove(id)
+	user, err := s.repo.Read(id)
+	if err != nil {
+		return err
+	}
+	if user.Edges.Profile.Avatar != "" {
+		go s.storage.ExecuteTask(strings.Replace(user.Edges.Profile.Avatar, config.App().AppURL, "public", 1), "delete_file")
+	}
+	return s.repo.Delete(id)
 }
 
 // Update implements gateways.BookibusUserService.

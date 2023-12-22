@@ -3,6 +3,7 @@ package statistics
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
@@ -23,6 +24,7 @@ import (
 	"github.com/SeyramWood/bookibus/ent/terminal"
 	"github.com/SeyramWood/bookibus/ent/transaction"
 	"github.com/SeyramWood/bookibus/ent/trip"
+	"github.com/SeyramWood/bookibus/ent/user"
 	"github.com/SeyramWood/bookibus/ent/vehicle"
 )
 
@@ -125,6 +127,26 @@ func (r *repository) ReadAdminRevenueOverview(filter string) ([]presenters.Admin
 	return r.formatOverview(overview), nil
 }
 
+// ReadAdminUserOverview implements gateways.StatisticsRepo.
+func (r *repository) ReadAdminUserOverview(filter string) ([]presenters.AdminUserOverview, error) {
+	var overview []presenters.AdminUserOverview
+	err := r.db.User.Query().Where(r.filterUserPredicate(filter)).
+		Modify(func(s *sql.Selector) {
+			s.Select(
+				sql.As("DATE_FORMAT(created_at, '%b')", "month"),
+				sql.As(sql.Count("*"), "user"),
+			).
+				GroupBy("MONTH(created_at)", "YEAR(created_at)").
+				OrderBy(sql.Asc("MONTH(created_at)"))
+		}).
+		Scan(r.ctx, &overview)
+	if err != nil {
+		return nil, err
+	}
+	log.Println(overview)
+	return r.formatUserOverview(overview), nil
+}
+
 // ReadAdminCompanyOverview implements gateways.StatisticsRepo.
 func (r *repository) ReadAdminCompanyOverview(companyId int, filter string) (*presenters.AdminCompanyOverview, error) {
 	return &presenters.AdminCompanyOverview{
@@ -214,14 +236,14 @@ func (r *repository) ReadCompanyIncidentOverview(companyId int, filter string) (
 		Accident: r.db.Incident.Query().Where(
 			incident.And(
 				incident.HasCompanyWith(company.ID(companyId)),
-				incident.StatusIn(incident.StatusAccident),
+				incident.TypeIn("accident", "accidents", "Accident", "Accidents"),
 				r.filterIncidentPredicate(filter),
 			),
 		).CountX(r.ctx),
 		Mechanical: r.db.Incident.Query().Where(
 			incident.And(
 				incident.HasCompanyWith(company.ID(companyId)),
-				incident.StatusIn(incident.StatusMechanical),
+				incident.TypeIn("mechanical", "Mechanical"),
 				r.filterIncidentPredicate(filter),
 			),
 		).CountX(r.ctx),
@@ -357,11 +379,38 @@ func (r *repository) formatOverview(overview []adminOverview) []presenters.Admin
 				o.Amount = mc.Amount
 			} else {
 				o.Month = m
-				o.Amount = 0
 			}
 		}
 		dataset = append(dataset, o)
 	}
+	return dataset
+}
+
+func (r *repository) formatUserOverview(overview []presenters.AdminUserOverview) []presenters.AdminUserOverview {
+	dataset := make([]presenters.AdminUserOverview, 0, 12)
+	if len(overview) == 0 {
+		for _, m := range months {
+			var o presenters.AdminUserOverview
+			o.Month = m
+			o.User = 0
+			dataset = append(dataset, o)
+		}
+		return dataset
+	}
+	for _, m := range months {
+		var o presenters.AdminUserOverview
+		for _, mc := range overview {
+
+			if m == mc.Month {
+				o.Month = mc.Month
+				o.User = mc.User
+			} else {
+				o.Month = m
+			}
+		}
+		dataset = append(dataset, o)
+	}
+
 	return dataset
 }
 
@@ -802,6 +851,53 @@ func (r *repository) filterParcelPredicate(filter string) predicate.Parcel {
 		)
 	default:
 		return parcel.And(
+			func(s *sql.Selector) {
+				s.Where(sql.ExprP("YEAR(created_at) = YEAR(CURDATE())"))
+			},
+		)
+	}
+}
+
+func (r *repository) filterUserPredicate(filter string) predicate.User {
+	switch strings.ToLower(filter) {
+	case "today":
+		return user.And(
+			func(s *sql.Selector) {
+				s.Where(sql.ExprP("created_at >= CURDATE() AND created_at < CURDATE() + INTERVAL 1 DAY"))
+			},
+		)
+	case "this-week":
+		return user.And(
+			func(s *sql.Selector) {
+				s.Where(sql.ExprP("WEEKOFYEAR(created_at) = WEEKOFYEAR(CURDATE())"))
+			},
+		)
+	case "last-week":
+		return user.And(
+			func(s *sql.Selector) {
+				s.Where(sql.ExprP("WEEKOFYEAR(created_at) = WEEKOFYEAR(CURDATE()) - 1"))
+			},
+		)
+	case "this-month":
+		return user.And(
+			func(s *sql.Selector) {
+				s.Where(sql.ExprP("created_at BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 MONTH)  AND CURDATE()"))
+			},
+		)
+	case "last-month":
+		return user.And(
+			func(s *sql.Selector) {
+				s.Where(sql.ExprP("MONTH(created_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))"))
+			},
+		)
+	case "last-year":
+		return user.And(
+			func(s *sql.Selector) {
+				s.Where(sql.ExprP("YEAR(created_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 YEAR))"))
+			},
+		)
+	default:
+		return user.And(
 			func(s *sql.Selector) {
 				s.Where(sql.ExprP("YEAR(created_at) = YEAR(CURDATE())"))
 			},

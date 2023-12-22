@@ -41,6 +41,13 @@ func (h *statisticsHandler) FetchAdminCompanyOverview() fiber.Handler {
 	}
 }
 
+func (h *statisticsHandler) FetchAdminUserOverview() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		result, _ := h.service.FetchAdminUserOverview(c.Query("filter"))
+		return c.Status(fiber.StatusOK).JSON(presenters.SuccessResponse(result))
+	}
+}
+
 func (h *statisticsHandler) FetchAdminBestSelling() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		result, _ := h.service.FetchAdminBestSelling(c.QueryInt("limit", 3), c.QueryInt("offset"), c.Query("minDate"), c.Query("maxDate"))

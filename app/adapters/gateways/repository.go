@@ -16,6 +16,7 @@ type (
 	StatisticsRepo interface {
 		ReadAdminRevenue() *presenters.AdminRevenue
 		ReadAdminRevenueOverview(filter string) ([]presenters.AdminOverview, error)
+		ReadAdminUserOverview(filter string) ([]presenters.AdminUserOverview, error)
 		ReadAdminCompanyOverview(companyId int, filter string) (*presenters.AdminCompanyOverview, error)
 		ReadAdminBestSelling(limit, offset int, minDate, maxDate string) (*presenters.PaginationResponse, error)
 		ReadCompanyTripOverview(companyId int, filter string) (*presenters.CompanyTripOverview, error)

@@ -610,6 +610,8 @@ func (r *repository) Update(id int, request *requeststructs.TripUpdateRequest) (
 			SetDiscount(request.Discount).
 			SetVehicleID(request.VehicleID).
 			SetRouteID(request.RouteID).
+			SetFromTerminalID(request.FromTerminalID).
+			SetToTerminalID(request.ToTerminalID).
 			ClearStops().
 			AddStopIDs(request.Stops...).
 			SetDriverID(request.DriverID).
@@ -628,6 +630,8 @@ func (r *repository) Update(id int, request *requeststructs.TripUpdateRequest) (
 		SetType(trip.Type(request.TripType)).
 		SetVehicleID(request.VehicleID).
 		SetRouteID(request.RouteID).
+		SetFromTerminalID(request.FromTerminalID).
+		SetToTerminalID(request.ToTerminalID).
 		ClearStops().
 		AddStopIDs(request.Stops...).
 		SetDriverID(request.DriverID).

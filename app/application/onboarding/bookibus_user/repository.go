@@ -63,12 +63,12 @@ func (r *repository) Insert(request *requeststructs.BookibusUserRequest, passwor
 	if err = tx.Commit(); err != nil {
 		return nil, fmt.Errorf("failed committing bookibus creation transaction: %w", err)
 	}
-	return result, nil
+	return r.Read(result.ID)
 }
 
 // Read implements gateways.BookibusUserRepo.
 func (r *repository) Read(id int) (*ent.BookibusUser, error) {
-	result, err := r.db.BookibusUser.Query().Where(bookibususer.ID(id)).Only(r.ctx)
+	result, err := r.db.BookibusUser.Query().WithProfile().Where(bookibususer.ID(id)).Only(r.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (r *repository) Read(id int) (*ent.BookibusUser, error) {
 
 // ReadAll implements gateways.BookibusUserRepo.
 func (r *repository) ReadAll(limit int, offset int) (*presenters.PaginationResponse, error) {
-	query := r.db.BookibusUser.Query()
+	query := r.db.BookibusUser.Query().WithProfile()
 	count := query.CountX(r.ctx)
 	results, err := query.
 		Limit(limit).

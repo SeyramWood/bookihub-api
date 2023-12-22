@@ -197,7 +197,7 @@ var (
 		{Name: "description", Type: field.TypeString, Size: 2147483647},
 		{Name: "type", Type: field.TypeString},
 		{Name: "audio", Type: field.TypeString, Nullable: true},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "resolved", "in-progress", "accident", "mechanical"}, Default: "pending"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "in-progress", "resolved"}, Default: "pending"},
 		{Name: "company_incidents", Type: field.TypeInt, Nullable: true},
 		{Name: "company_user_incidents", Type: field.TypeInt, Nullable: true},
 		{Name: "trip_incidents", Type: field.TypeInt, Nullable: true},
