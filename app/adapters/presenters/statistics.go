@@ -10,6 +10,10 @@ type (
 		Month  string  `json:"x"`
 		Amount float64 `json:"y"`
 	}
+	AdminUserOverview struct {
+		Month string `json:"month"`
+		User  int    `json:"user"`
+	}
 	AdminBestSelling struct {
 		ID      int     `json:"id"`
 		Company string  `json:"company"`

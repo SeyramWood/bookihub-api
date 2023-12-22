@@ -12,6 +12,7 @@ func StatisticRoutes(r fiber.Router, router *apiRouter) {
 	statGroup := r.Group("/statistics")
 	statGroup.Get("/admin/revenue", handler.FetchAdminRevenue())
 	statGroup.Get("/admin/revenue-overview", handler.FetchAdminRevenueOverview())
+	statGroup.Get("/admin/user-overview", handler.FetchAdminUserOverview())
 	statGroup.Get("/admin/company-overview/:id", handler.FetchAdminCompanyOverview())
 	statGroup.Get("/admin/best-selling", handler.FetchAdminBestSelling())
 	statGroup.Get("/company/:id/revenue-overview", handler.FetchCompanyRevenueOverview())

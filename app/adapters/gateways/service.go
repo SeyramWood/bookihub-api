@@ -39,6 +39,7 @@ type (
 	StatisticsService interface {
 		FetchAdminRevenue() *presenters.AdminRevenue
 		FetchAdminRevenueOverview(filter string) ([]presenters.AdminOverview, error)
+		FetchAdminUserOverview(filter string) ([]presenters.AdminUserOverview, error)
 		FetchAdminCompanyOverview(companyId int, filter string) (*presenters.AdminCompanyOverview, error)
 		FetchAdminBestSelling(limit, offset int, minDate, maxDate string) (*presenters.PaginationResponse, error)
 		FetchCompanyTripOverview(companyId int, filter string) (*presenters.CompanyTripOverview, error)

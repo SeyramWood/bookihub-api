@@ -30,6 +30,11 @@ func (s *service) FetchAdminRevenueOverview(filter string) ([]presenters.AdminOv
 	return s.repo.ReadAdminRevenueOverview(filter)
 }
 
+// FetchAdminUserOverview implements gateways.StatisticsService.
+func (s *service) FetchAdminUserOverview(filter string) ([]presenters.AdminUserOverview, error) {
+	return s.repo.ReadAdminUserOverview(filter)
+}
+
 // FetchAdminCompanyOverview implements gateways.StatisticsService.
 func (s *service) FetchAdminCompanyOverview(companyId int, filter string) (*presenters.AdminCompanyOverview, error) {
 	return s.repo.ReadAdminCompanyOverview(companyId, filter)

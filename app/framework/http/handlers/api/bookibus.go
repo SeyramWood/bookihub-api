@@ -16,9 +16,9 @@ type bookibushHandler struct {
 	service gateways.BookibusUserService
 }
 
-func NewBookibusHandler(db *database.Adapter, producer gateways.EventProducer) *bookibushHandler {
+func NewBookibusHandler(db *database.Adapter, producer gateways.EventProducer, storage gateways.StorageService) *bookibushHandler {
 	return &bookibushHandler{
-		service: bookibus_user.NewService(bookibus_user.NewRepository(db), producer),
+		service: bookibus_user.NewService(bookibus_user.NewRepository(db), producer, storage),
 	}
 }
 
