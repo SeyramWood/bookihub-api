@@ -66,7 +66,7 @@ func (r *repository) Insert(request *requeststructs.CustomerRequest) (*ent.Custo
 
 // Read implements gateways.CustomerRepo.
 func (r *repository) Read(id int) (*ent.Customer, error) {
-	result, err := r.db.Customer.Query().Where(customer.ID(id)).Only(r.ctx)
+	result, err := r.db.Customer.Query().Where(customer.ID(id)).WithProfile().Only(r.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (r *repository) Read(id int) (*ent.Customer, error) {
 
 // ReadBySession implements gateways.CustomerRepo.
 func (r *repository) ReadBySession(id int) (*ent.Customer, error) {
-	result, err := r.db.Customer.Query().Where(customer.HasProfileWith(user.ID(id))).Only(r.ctx)
+	result, err := r.db.Customer.Query().Where(customer.HasProfileWith(user.ID(id))).WithProfile().Only(r.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -90,6 +90,7 @@ func (r *repository) ReadAll(limit int, offset int) (*presenters.PaginationRespo
 		Limit(limit).
 		Offset(offset).
 		Order(ent.Desc(customer.FieldCreatedAt)).
+		WithProfile().
 		All(r.ctx)
 	if err != nil {
 		return nil, err
@@ -107,5 +108,5 @@ func (r *repository) Update(id int, request *requeststructs.CustomerUpdateReques
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return r.Read(result.ID)
 }

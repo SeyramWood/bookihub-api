@@ -13,6 +13,7 @@ type (
 		OtherName  string `json:"otherName"`
 		Phone      string `json:"phone"`
 		OtherPhone string `json:"otherPhone"`
+		Email      string `json:"email"`
 		CreatedAt  any    `json:"createdAt"`
 		UpdatedAt  any    `json:"updatedAt"`
 	}
@@ -25,6 +26,7 @@ func CustomerResponse(data *ent.Customer) *fiber.Map {
 		OtherName:  data.OtherName,
 		Phone:      data.Phone,
 		OtherPhone: data.OtherPhone,
+		Email:      data.Edges.Profile.Username,
 		CreatedAt:  data.CreatedAt,
 		UpdatedAt:  data.UpdatedAt,
 	})
@@ -38,6 +40,7 @@ func CustomersResponse(data *PaginationResponse) *fiber.Map {
 			OtherName:  u.OtherName,
 			Phone:      u.Phone,
 			OtherPhone: u.OtherPhone,
+			Email:      u.Edges.Profile.Username,
 			CreatedAt:  u.CreatedAt,
 			UpdatedAt:  u.UpdatedAt,
 		})
