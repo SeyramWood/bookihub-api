@@ -73,6 +73,15 @@ func (r *repository) Read(id int) (*ent.Customer, error) {
 	return result, nil
 }
 
+// ReadBySession implements gateways.CustomerRepo.
+func (r *repository) ReadBySession(id int) (*ent.Customer, error) {
+	result, err := r.db.Customer.Query().Where(customer.HasProfileWith(user.ID(id))).Only(r.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 // ReadAll implements gateways.CustomerRepo.
 func (r *repository) ReadAll(limit int, offset int) (*presenters.PaginationResponse, error) {
 	query := r.db.Customer.Query()

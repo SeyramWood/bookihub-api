@@ -45,6 +45,16 @@ func (h *customerHandler) Fetch() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(presenters.CustomerResponse(result))
 	}
 }
+func (h *customerHandler) FetchBySession() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		id, _ := c.ParamsInt("id")
+		result, err := h.service.FetchBySession(id)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.CustomerResponse(result))
+	}
+}
 func (h *customerHandler) FetchAll() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		results, err := h.service.FetchAll(c.QueryInt("limit"), c.QueryInt("offset"))

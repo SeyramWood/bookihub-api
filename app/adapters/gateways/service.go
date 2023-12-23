@@ -81,6 +81,7 @@ type (
 	CustomerService interface {
 		FetchAll(limit, offset int) (*presenters.PaginationResponse, error)
 		Fetch(id int) (*ent.Customer, error)
+		FetchBySession(id int) (*ent.Customer, error)
 		Create(request *requeststructs.CustomerRequest) (*ent.Customer, error)
 		Update(id int, request *requeststructs.CustomerUpdateRequest) (*ent.Customer, error)
 		Remove(id int) error

@@ -49,6 +49,7 @@ type (
 	CustomerRepo interface {
 		ReadAll(limit, offset int) (*presenters.PaginationResponse, error)
 		Read(id int) (*ent.Customer, error)
+		ReadBySession(id int) (*ent.Customer, error)
 		Insert(request *requeststructs.CustomerRequest) (*ent.Customer, error)
 		Update(id int, request *requeststructs.CustomerUpdateRequest) (*ent.Customer, error)
 		Delete(id int) error

@@ -27,6 +27,11 @@ func (s *service) Fetch(id int) (*ent.Customer, error) {
 	return s.repo.Read(id)
 }
 
+// FetchBySession implements gateways.CustomerService.
+func (s *service) FetchBySession(id int) (*ent.Customer, error) {
+	return s.repo.ReadBySession(id)
+}
+
 // FetchAll implements gateways.CustomerService.
 func (s *service) FetchAll(limit int, offset int) (*presenters.PaginationResponse, error) {
 	return s.repo.ReadAll(limit, offset)

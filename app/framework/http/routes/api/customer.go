@@ -14,6 +14,7 @@ func CustomerRoutes(r fiber.Router, router *apiRouter) {
 	customerGroup := r.Group("/customers")
 	customerGroup.Get("", handler.FetchAll())
 	customerGroup.Get("/:id", handler.Fetch())
+	customerGroup.Get("/session/:id", handler.FetchBySession())
 	customerGroup.Put("/:id", adaptor.HTTPMiddleware(requests.ValidateCustomerUpdate), handler.Update())
 	customerGroup.Delete("/:id", handler.Remove())
 
