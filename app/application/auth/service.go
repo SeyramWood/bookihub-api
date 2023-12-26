@@ -112,6 +112,7 @@ func (s *service) RefreshToken(refreshToken string) (*presenters.AuthTokenData, 
 			RefreshToken: refreshToken,
 		}, nil
 	}
+
 	return &presenters.AuthTokenData{
 		AccessToken:        accessToken,
 		RefreshToken:       refreshToken,
