@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	ACCESS_TOKEN_EXPIRY  = time.Second * 60 * 15            // 15 minutes
+	ACCESS_TOKEN_EXPIRY  = time.Second * 60 * 20            // 15 minutes
 	REFRESH_TOKEN_EXPIRY = time.Second * 60 * 60 * 24 * 366 // 1year
 )
 
@@ -53,21 +53,30 @@ func (s *service) Login(request *requeststructs.UserLoginRequest) (*presenters.A
 	if err != nil {
 		return nil, err
 	}
-	if !s.hashCheck(result.Password, request.Password) && result.Type != user.Type(request.UserType) {
+	if !s.hashCheck(result.Password, request.Password) || !(result.Type == user.Type(request.UserType)) {
 		return nil, ErrBadRequest
 	}
 	session := presenters.FormatSession(result)
-	accessToken, err := s.jwt.GenerateToken(ACCESS_TOKEN_EXPIRY, session)
+	accessTokenExpiry, accessToken, err := s.jwt.GenerateToken(ACCESS_TOKEN_EXPIRY, session)
 	if err != nil {
 		return nil, err
 	}
-	refreshToken, err := s.jwt.GenerateToken(REFRESH_TOKEN_EXPIRY, strconv.Itoa(session.ID))
+	refreshTokenExpiry, refreshToken, err := s.jwt.GenerateToken(REFRESH_TOKEN_EXPIRY, strconv.Itoa(session.ID))
 	if err != nil {
 		return nil, err
+	}
+	if result.Type == user.TypeCompany && result.Edges.CompanyUser.Role == "driver" {
+		return &presenters.AuthTokenData{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		}, nil
 	}
 	return &presenters.AuthTokenData{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken:        accessToken,
+		RefreshToken:       refreshToken,
+		AccessTokenExpiry:  accessTokenExpiry,
+		RefreshTokenExpiry: refreshTokenExpiry,
+		User:               session,
 	}, nil
 }
 
@@ -83,22 +92,32 @@ func (s *service) RefreshToken(refreshToken string) (*presenters.AuthTokenData, 
 		return nil, err
 	}
 	sessionId, _ := strconv.Atoi(claims["session"].(string))
-	user, err := s.repo.ReadByID(sessionId)
+	result, err := s.repo.ReadByID(sessionId)
 	if err != nil {
 		return nil, err
 	}
-	session := presenters.FormatSession(user)
-	accessToken, err := s.jwt.GenerateToken(ACCESS_TOKEN_EXPIRY, session)
+	session := presenters.FormatSession(result)
+	accessTokenExpiry, accessToken, err := s.jwt.GenerateToken(ACCESS_TOKEN_EXPIRY, session)
 	if err != nil {
 		return nil, err
 	}
-	refreshToken, err = s.jwt.GenerateToken(REFRESH_TOKEN_EXPIRY, strconv.Itoa(session.ID))
+	refreshTokenExpiry, refreshToken, err := s.jwt.GenerateToken(REFRESH_TOKEN_EXPIRY, strconv.Itoa(session.ID))
 	if err != nil {
 		return nil, err
+	}
+
+	if result.Type == user.TypeCompany && result.Edges.CompanyUser.Role == "driver" {
+		return &presenters.AuthTokenData{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		}, nil
 	}
 	return &presenters.AuthTokenData{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken:        accessToken,
+		RefreshToken:       refreshToken,
+		AccessTokenExpiry:  accessTokenExpiry,
+		RefreshTokenExpiry: refreshTokenExpiry,
+		User:               session,
 	}, nil
 }
 

@@ -21,14 +21,15 @@ func NewJWT() *JWT {
 	}
 }
 
-func (j *JWT) GenerateToken(ttl time.Duration, session any) (string, error) {
+func (j *JWT) GenerateToken(ttl time.Duration, session any) (int64, string, error) {
 	now := time.Now().UTC()
+	expire := now.Add(ttl).UTC().Unix()
 	// Create the Claims
 	claims := jwt.MapClaims{
 		"session": session,
-		"exp":     now.Add(ttl).Unix(),
-		"iat":     now.Unix(),
-		"nbf":     now.Unix(),
+		"exp":     expire,
+		"iat":     now.UTC().Unix(),
+		"nbf":     now.UTC().Unix(),
 	}
 	// Create token
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
@@ -36,14 +37,13 @@ func (j *JWT) GenerateToken(ttl time.Duration, session any) (string, error) {
 	// Generate encoded token and send it as response.
 	sec, err := j.privateKey()
 	if err != nil {
-		return "", fmt.Errorf("privateKey: %v", err)
+		return 0, "", fmt.Errorf("privateKey: %v", err)
 	}
 	tokenString, err := token.SignedString(sec)
 	if err != nil {
-		return "", fmt.Errorf("token.SignedString: %v", err)
+		return 0, "", fmt.Errorf("token.SignedString: %v", err)
 	}
-
-	return tokenString, nil
+	return expire, tokenString, nil
 }
 func (j *JWT) ValidateToken(token string) (jwt.MapClaims, error) {
 	tok, err := jwt.Parse(

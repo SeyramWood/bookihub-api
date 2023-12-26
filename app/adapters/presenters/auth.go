@@ -19,8 +19,11 @@ type (
 		Role          string `json:"role,omitempty"`
 	}
 	AuthTokenData struct {
-		AccessToken  string `json:"accessToken"`
-		RefreshToken string `json:"refreshToken,omitempty"`
+		AccessToken        string       `json:"accessToken"`
+		RefreshToken       string       `json:"refreshToken,omitempty"`
+		AccessTokenExpiry  int64        `json:"accessTokenExpiry,omitempty"`
+		RefreshTokenExpiry int64        `json:"refreshTokenExpiry,omitempty"`
+		User               *AuthSession `json:"user,omitempty"`
 	}
 )
 

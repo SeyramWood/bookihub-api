@@ -3,7 +3,6 @@ package statistics
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
@@ -143,7 +142,6 @@ func (r *repository) ReadAdminUserOverview(filter string) ([]presenters.AdminUse
 	if err != nil {
 		return nil, err
 	}
-	log.Println(overview)
 	return r.formatUserOverview(overview), nil
 }
 
