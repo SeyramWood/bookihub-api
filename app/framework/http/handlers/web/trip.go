@@ -28,6 +28,7 @@ func (h *tripHandler) Ticket() fiber.Handler {
 				"url": config.App().AppWebsiteURL,
 			})
 		}
+
 		return c.Render("ticket", fiber.Map{
 			"data":   presenters.BookingTicketResponse(result),
 			"url":    config.App().AppWebsiteURL,
