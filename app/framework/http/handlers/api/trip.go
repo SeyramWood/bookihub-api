@@ -119,6 +119,8 @@ func (h *tripHandler) FetchAllByCompany() fiber.Handler {
 				}
 				return ""
 			}(),
+			TripType:   c.Query("trip-type"),
+			ReturnDate: c.Query("return-date"),
 		})
 		if err != nil {
 			if ent.IsNotFound(err) {
@@ -140,12 +142,14 @@ func (h *tripHandler) FetchAllSearchByCompany() fiber.Handler {
 		}
 		id, _ := c.ParamsInt("id")
 		results, err := h.service.FetchAllSearchByCompany(c.Query("searchKey"), id, c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.TripFilterRequest{
-			From:      c.Query("from"),
-			To:        c.Query("to"),
-			Datetime:  c.Query("datetime"),
-			Today:     c.QueryBool("today"),
-			Scheduled: c.QueryBool("scheduled"),
-			Completed: c.QueryBool("completed"),
+			From:       c.Query("from"),
+			To:         c.Query("to"),
+			Datetime:   c.Query("datetime"),
+			Today:      c.QueryBool("today"),
+			Scheduled:  c.QueryBool("scheduled"),
+			Completed:  c.QueryBool("completed"),
+			TripType:   c.Query("trip-type"),
+			ReturnDate: c.Query("return-date"),
 		})
 		if err != nil {
 			if ent.IsNotFound(err) {

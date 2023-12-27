@@ -158,6 +158,8 @@ type (
 		Completed  bool
 		Passengers int
 		TimeRange  string
+		TripType   string
+		ReturnDate string
 	}
 	CustomerTripFilterRequest struct {
 		CompanyID     int    `json:"companyId"`
