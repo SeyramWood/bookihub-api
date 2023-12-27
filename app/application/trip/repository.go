@@ -138,13 +138,13 @@ func (r *repository) ReadAll(limit int, offset int, filter *requeststructs.TripF
 	fm := application.ConvertStructToMap(*(filter))
 	for _, com := range application.FilterCombinations(r.filterKeys()) {
 		if len(com) == len(r.filterKeys()) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) && r.compareFilter(fm[com[8]]) && r.compareFilter(fm[com[9]]) {
 				query := r.db.Trip.Query().Where(trip.And(r.filterPredicate(fm, com)...))
 				return r.filterTrip(query, limit, offset)
 			}
 		}
 		if len(com) == (len(r.filterKeys()) - 1) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) && r.compareFilter(fm[com[8]]) {
 				query := r.db.Trip.Query().Where(
 					trip.And(r.filterPredicate(fm, com)...),
 				)
@@ -152,7 +152,7 @@ func (r *repository) ReadAll(limit int, offset int, filter *requeststructs.TripF
 			}
 		}
 		if len(com) == (len(r.filterKeys()) - 2) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) {
 				query := r.db.Trip.Query().Where(
 					trip.And(r.filterPredicate(fm, com)...),
 				)
@@ -161,7 +161,7 @@ func (r *repository) ReadAll(limit int, offset int, filter *requeststructs.TripF
 
 		}
 		if len(com) == (len(r.filterKeys()) - 3) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) {
 				query := r.db.Trip.Query().Where(
 					trip.And(r.filterPredicate(fm, com)...),
 				)
@@ -169,14 +169,14 @@ func (r *repository) ReadAll(limit int, offset int, filter *requeststructs.TripF
 			}
 		}
 		if len(com) == (len(r.filterKeys()) - 4) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
 				query := r.db.Trip.Query().Where(
 					trip.And(r.filterPredicate(fm, com)...),
 				)
 				return r.filterTrip(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys())-5) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+		if len(com) == (len(r.filterKeys())-5) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
 			if r.compareFilter(fm[com[0]]) {
 				query := r.db.Trip.Query().Where(
 					trip.And(r.filterPredicate(fm, com)...),
@@ -184,7 +184,7 @@ func (r *repository) ReadAll(limit int, offset int, filter *requeststructs.TripF
 				return r.filterTrip(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys())-6) && r.compareFilter(fm[com[1]]) {
+		if len(com) == (len(r.filterKeys())-6) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
 			if r.compareFilter(fm[com[0]]) {
 				query := r.db.Trip.Query().Where(
 					trip.And(r.filterPredicate(fm, com)...),
@@ -192,7 +192,23 @@ func (r *repository) ReadAll(limit int, offset int, filter *requeststructs.TripF
 				return r.filterTrip(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys()) - 7) {
+		if len(com) == (len(r.filterKeys())-7) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+			if r.compareFilter(fm[com[0]]) {
+				query := r.db.Trip.Query().Where(
+					trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys())-8) && r.compareFilter(fm[com[1]]) {
+			if r.compareFilter(fm[com[0]]) {
+				query := r.db.Trip.Query().Where(
+					trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 9) {
 			if r.compareFilter(fm[com[0]]) {
 				query := r.db.Trip.Query().Where(
 					trip.And(r.filterPredicate(fm, com)...),
@@ -226,13 +242,13 @@ func (r *repository) ReadAllSearch(searchKey string, limit int, offset int, filt
 	fm := application.ConvertStructToMap(*(filter))
 	for _, com := range application.FilterCombinations(r.filterKeys()) {
 		if len(com) == len(r.filterKeys()) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) && r.compareFilter(fm[com[8]]) && r.compareFilter(fm[com[9]]) {
 				query := r.db.Trip.Query().Where(searchPredicate, trip.And(r.filterPredicate(fm, com)...))
 				return r.filterTrip(query, limit, offset)
 			}
 		}
 		if len(com) == (len(r.filterKeys()) - 1) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) && r.compareFilter(fm[com[8]]) {
 				query := r.db.Trip.Query().Where(
 					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
 				)
@@ -240,7 +256,7 @@ func (r *repository) ReadAllSearch(searchKey string, limit int, offset int, filt
 			}
 		}
 		if len(com) == (len(r.filterKeys()) - 2) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) {
 				query := r.db.Trip.Query().Where(
 					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
 				)
@@ -249,7 +265,7 @@ func (r *repository) ReadAllSearch(searchKey string, limit int, offset int, filt
 
 		}
 		if len(com) == (len(r.filterKeys()) - 3) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[4]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) {
 				query := r.db.Trip.Query().Where(
 					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
 				)
@@ -257,14 +273,14 @@ func (r *repository) ReadAllSearch(searchKey string, limit int, offset int, filt
 			}
 		}
 		if len(com) == (len(r.filterKeys()) - 4) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
 				query := r.db.Trip.Query().Where(
 					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
 				)
 				return r.filterTrip(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys())-5) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+		if len(com) == (len(r.filterKeys())-5) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
 			if r.compareFilter(fm[com[0]]) {
 				query := r.db.Trip.Query().Where(
 					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
@@ -272,7 +288,7 @@ func (r *repository) ReadAllSearch(searchKey string, limit int, offset int, filt
 				return r.filterTrip(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys())-6) && r.compareFilter(fm[com[1]]) {
+		if len(com) == (len(r.filterKeys())-6) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
 			if r.compareFilter(fm[com[0]]) {
 				query := r.db.Trip.Query().Where(
 					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
@@ -280,7 +296,23 @@ func (r *repository) ReadAllSearch(searchKey string, limit int, offset int, filt
 				return r.filterTrip(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys()) - 7) {
+		if len(com) == (len(r.filterKeys())-7) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+			if r.compareFilter(fm[com[0]]) {
+				query := r.db.Trip.Query().Where(
+					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys())-8) && r.compareFilter(fm[com[1]]) {
+			if r.compareFilter(fm[com[0]]) {
+				query := r.db.Trip.Query().Where(
+					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
+				)
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 9) {
 			if r.compareFilter(fm[com[0]]) {
 				query := r.db.Trip.Query().Where(
 					searchPredicate, trip.And(r.filterPredicate(fm, com)...),
@@ -492,7 +524,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 	driverID := r.db.User.GetX(r.ctx, driverId).QueryCompanyUser().OnlyIDX(r.ctx)
 	for _, com := range application.FilterCombinations(r.filterKeys()) {
 		if len(com) == len(r.filterKeys()) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) && r.compareFilter(fm[com[8]]) && r.compareFilter(fm[com[9]]) {
 				predicates := r.filterPredicate(fm, com)
 				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
@@ -500,7 +532,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 			}
 		}
 		if len(com) == (len(r.filterKeys()) - 1) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) && r.compareFilter(fm[com[8]]) {
 				predicates := r.filterPredicate(fm, com)
 				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
@@ -508,7 +540,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 			}
 		}
 		if len(com) == (len(r.filterKeys()) - 2) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) && r.compareFilter(fm[com[7]]) {
 				predicates := r.filterPredicate(fm, com)
 				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
@@ -517,7 +549,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 
 		}
 		if len(com) == (len(r.filterKeys()) - 3) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) {
 				predicates := r.filterPredicate(fm, com)
 				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
@@ -525,14 +557,14 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 			}
 		}
 		if len(com) == (len(r.filterKeys()) - 4) {
-			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
+			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
 				predicates := r.filterPredicate(fm, com)
 				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
 				query := r.db.Trip.Query().Where(trip.And(predicates...))
 				return r.filterTrip(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys())-5) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+		if len(com) == (len(r.filterKeys())-5) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
 			if r.compareFilter(fm[com[0]]) {
 				predicates := r.filterPredicate(fm, com)
 				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
@@ -540,7 +572,7 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 				return r.filterTrip(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys())-6) && r.compareFilter(fm[com[1]]) {
+		if len(com) == (len(r.filterKeys())-6) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
 			if r.compareFilter(fm[com[0]]) {
 				predicates := r.filterPredicate(fm, com)
 				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
@@ -548,7 +580,23 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 				return r.filterTrip(query, limit, offset)
 			}
 		}
-		if len(com) == (len(r.filterKeys()) - 7) {
+		if len(com) == (len(r.filterKeys())-7) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
+			if r.compareFilter(fm[com[0]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys())-8) && r.compareFilter(fm[com[1]]) {
+			if r.compareFilter(fm[com[0]]) {
+				predicates := r.filterPredicate(fm, com)
+				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
+				query := r.db.Trip.Query().Where(trip.And(predicates...))
+				return r.filterTrip(query, limit, offset)
+			}
+		}
+		if len(com) == (len(r.filterKeys()) - 9) {
 			if r.compareFilter(fm[com[0]]) {
 				predicates := r.filterPredicate(fm, com)
 				predicates = append(predicates, trip.HasDriverWith(companyuser.ID(driverID)))
