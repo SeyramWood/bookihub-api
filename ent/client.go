@@ -751,7 +751,7 @@ func (c *BookingClient) QueryCustomer(b *Booking) *CustomerQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(booking.Table, booking.FieldID, id),
 			sqlgraph.To(customer.Table, customer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, booking.CustomerTable, booking.CustomerColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, booking.CustomerTable, booking.CustomerColumn),
 		)
 		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
 		return fromV, nil
@@ -1587,7 +1587,7 @@ func (c *CustomerClient) QueryBookings(cu *Customer) *BookingQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(customer.Table, customer.FieldID, id),
 			sqlgraph.To(booking.Table, booking.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, customer.BookingsTable, customer.BookingsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, customer.BookingsTable, customer.BookingsColumn),
 		)
 		fromV = sqlgraph.Neighbors(cu.driver.Dialect(), step)
 		return fromV, nil

@@ -34,7 +34,7 @@ var (
 		{Name: "sms_notification", Type: field.TypeBool, Default: false},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"successful", "canceled"}, Default: "successful"},
 		{Name: "company_bookings", Type: field.TypeInt, Nullable: true},
-		{Name: "customer_bookings", Type: field.TypeInt, Unique: true, Nullable: true},
+		{Name: "customer_bookings", Type: field.TypeInt, Nullable: true},
 		{Name: "trip_bookings", Type: field.TypeInt, Nullable: true},
 	}
 	// BookingsTable holds the schema information for the "bookings" table.

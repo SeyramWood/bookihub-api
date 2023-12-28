@@ -14,5 +14,4 @@ func AuthRoutes(r fiber.Router, router *apiRouter) {
 	authGroup.Get("/session", handler.GetSession())
 	authGroup.Put("/update-avatar/:id", adaptor.HTTPMiddleware(requests.ValidateAvatarUpdate), handler.UpdateAvatar())
 	authGroup.Put("/update-password", handler.UpdatePassword())
-
 }

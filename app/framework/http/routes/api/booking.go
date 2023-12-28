@@ -14,7 +14,6 @@ func BookingRoutes(r fiber.Router, router *apiRouter) {
 	bookingGroup := r.Group("/bookings")
 	bookingGroup.Get("", handler.FetchAll())
 	bookingGroup.Get("/company/:id", handler.FetchAllByCompany())
-	bookingGroup.Get("/:id", handler.Fetch())
 	bookingGroup.Put("/:id", adaptor.HTTPMiddleware(requests.ValidateBookingUpdate), handler.Update())
 	bookingGroup.Delete("/:id", handler.Remove())
 

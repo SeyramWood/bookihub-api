@@ -61,7 +61,7 @@ func (r *repository) Insert(request *requeststructs.CustomerRequest) (*ent.Custo
 	if err = tx.Commit(); err != nil {
 		return nil, fmt.Errorf("failed committing customer creation transaction: %w", err)
 	}
-	return result, nil
+	return r.Read(result.ID)
 }
 
 // Read implements gateways.CustomerRepo.

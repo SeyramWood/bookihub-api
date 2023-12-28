@@ -567,7 +567,7 @@ func (bu *BookingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if bu.mutation.CustomerCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   booking.CustomerTable,
 			Columns: []string{booking.CustomerColumn},
@@ -580,7 +580,7 @@ func (bu *BookingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := bu.mutation.CustomerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   booking.CustomerTable,
 			Columns: []string{booking.CustomerColumn},
@@ -1177,7 +1177,7 @@ func (buo *BookingUpdateOne) sqlSave(ctx context.Context) (_node *Booking, err e
 	}
 	if buo.mutation.CustomerCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   booking.CustomerTable,
 			Columns: []string{booking.CustomerColumn},
@@ -1190,7 +1190,7 @@ func (buo *BookingUpdateOne) sqlSave(ctx context.Context) (_node *Booking, err e
 	}
 	if nodes := buo.mutation.CustomerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   booking.CustomerTable,
 			Columns: []string{booking.CustomerColumn},

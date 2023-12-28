@@ -1,6 +1,8 @@
 package presenters
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/SeyramWood/bookibus/ent"
@@ -192,6 +194,7 @@ func BookingTicketResponse(data *ent.Booking) *BookingTicketResponseData {
 }
 
 func BookingResponse(data *ent.Booking) *fiber.Map {
+	log.Println(data)
 	return SuccessResponse(&BookingResponseData{
 		ID:              data.ID,
 		TripID:          data.BookingNumber,
@@ -222,6 +225,9 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 				return &BookingContactResponseData{ID: c.ID, FullName: c.FullName, Email: c.Email, Phone: c.Phone}
 			}
 			if c, err := data.Edges.CustomerOrErr(); err == nil {
+				log.Println("jbjsdbjkbgkj")
+				log.Println(c.Edges.Profile)
+				log.Println(c.Edges.Profile.Username)
 				return &BookingContactResponseData{ID: c.ID, FullName: c.OtherName + " " + c.LastName, Email: c.Edges.Profile.Username, Phone: c.Phone}
 			}
 			return nil

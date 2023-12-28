@@ -393,7 +393,7 @@ func HasCustomer() predicate.Booking {
 	return predicate.Booking(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, CustomerTable, CustomerColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, CustomerTable, CustomerColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

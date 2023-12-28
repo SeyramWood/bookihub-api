@@ -95,23 +95,19 @@ func (cu *CustomerUpdate) SetProfile(u *User) *CustomerUpdate {
 	return cu.SetProfileID(u.ID)
 }
 
-// SetBookingsID sets the "bookings" edge to the Booking entity by ID.
-func (cu *CustomerUpdate) SetBookingsID(id int) *CustomerUpdate {
-	cu.mutation.SetBookingsID(id)
+// AddBookingIDs adds the "bookings" edge to the Booking entity by IDs.
+func (cu *CustomerUpdate) AddBookingIDs(ids ...int) *CustomerUpdate {
+	cu.mutation.AddBookingIDs(ids...)
 	return cu
 }
 
-// SetNillableBookingsID sets the "bookings" edge to the Booking entity by ID if the given value is not nil.
-func (cu *CustomerUpdate) SetNillableBookingsID(id *int) *CustomerUpdate {
-	if id != nil {
-		cu = cu.SetBookingsID(*id)
+// AddBookings adds the "bookings" edges to the Booking entity.
+func (cu *CustomerUpdate) AddBookings(b ...*Booking) *CustomerUpdate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
 	}
-	return cu
-}
-
-// SetBookings sets the "bookings" edge to the Booking entity.
-func (cu *CustomerUpdate) SetBookings(b *Booking) *CustomerUpdate {
-	return cu.SetBookingsID(b.ID)
+	return cu.AddBookingIDs(ids...)
 }
 
 // AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
@@ -140,10 +136,25 @@ func (cu *CustomerUpdate) ClearProfile() *CustomerUpdate {
 	return cu
 }
 
-// ClearBookings clears the "bookings" edge to the Booking entity.
+// ClearBookings clears all "bookings" edges to the Booking entity.
 func (cu *CustomerUpdate) ClearBookings() *CustomerUpdate {
 	cu.mutation.ClearBookings()
 	return cu
+}
+
+// RemoveBookingIDs removes the "bookings" edge to Booking entities by IDs.
+func (cu *CustomerUpdate) RemoveBookingIDs(ids ...int) *CustomerUpdate {
+	cu.mutation.RemoveBookingIDs(ids...)
+	return cu
+}
+
+// RemoveBookings removes "bookings" edges to Booking entities.
+func (cu *CustomerUpdate) RemoveBookings(b ...*Booking) *CustomerUpdate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return cu.RemoveBookingIDs(ids...)
 }
 
 // ClearNotifications clears all "notifications" edges to the Notification entity.
@@ -290,7 +301,7 @@ func (cu *CustomerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if cu.mutation.BookingsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   customer.BookingsTable,
 			Columns: []string{customer.BookingsColumn},
@@ -301,9 +312,25 @@ func (cu *CustomerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := cu.mutation.RemovedBookingsIDs(); len(nodes) > 0 && !cu.mutation.BookingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   customer.BookingsTable,
+			Columns: []string{customer.BookingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(booking.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := cu.mutation.BookingsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   customer.BookingsTable,
 			Columns: []string{customer.BookingsColumn},
@@ -447,23 +474,19 @@ func (cuo *CustomerUpdateOne) SetProfile(u *User) *CustomerUpdateOne {
 	return cuo.SetProfileID(u.ID)
 }
 
-// SetBookingsID sets the "bookings" edge to the Booking entity by ID.
-func (cuo *CustomerUpdateOne) SetBookingsID(id int) *CustomerUpdateOne {
-	cuo.mutation.SetBookingsID(id)
+// AddBookingIDs adds the "bookings" edge to the Booking entity by IDs.
+func (cuo *CustomerUpdateOne) AddBookingIDs(ids ...int) *CustomerUpdateOne {
+	cuo.mutation.AddBookingIDs(ids...)
 	return cuo
 }
 
-// SetNillableBookingsID sets the "bookings" edge to the Booking entity by ID if the given value is not nil.
-func (cuo *CustomerUpdateOne) SetNillableBookingsID(id *int) *CustomerUpdateOne {
-	if id != nil {
-		cuo = cuo.SetBookingsID(*id)
+// AddBookings adds the "bookings" edges to the Booking entity.
+func (cuo *CustomerUpdateOne) AddBookings(b ...*Booking) *CustomerUpdateOne {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
 	}
-	return cuo
-}
-
-// SetBookings sets the "bookings" edge to the Booking entity.
-func (cuo *CustomerUpdateOne) SetBookings(b *Booking) *CustomerUpdateOne {
-	return cuo.SetBookingsID(b.ID)
+	return cuo.AddBookingIDs(ids...)
 }
 
 // AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
@@ -492,10 +515,25 @@ func (cuo *CustomerUpdateOne) ClearProfile() *CustomerUpdateOne {
 	return cuo
 }
 
-// ClearBookings clears the "bookings" edge to the Booking entity.
+// ClearBookings clears all "bookings" edges to the Booking entity.
 func (cuo *CustomerUpdateOne) ClearBookings() *CustomerUpdateOne {
 	cuo.mutation.ClearBookings()
 	return cuo
+}
+
+// RemoveBookingIDs removes the "bookings" edge to Booking entities by IDs.
+func (cuo *CustomerUpdateOne) RemoveBookingIDs(ids ...int) *CustomerUpdateOne {
+	cuo.mutation.RemoveBookingIDs(ids...)
+	return cuo
+}
+
+// RemoveBookings removes "bookings" edges to Booking entities.
+func (cuo *CustomerUpdateOne) RemoveBookings(b ...*Booking) *CustomerUpdateOne {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return cuo.RemoveBookingIDs(ids...)
 }
 
 // ClearNotifications clears all "notifications" edges to the Notification entity.
@@ -672,7 +710,7 @@ func (cuo *CustomerUpdateOne) sqlSave(ctx context.Context) (_node *Customer, err
 	}
 	if cuo.mutation.BookingsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   customer.BookingsTable,
 			Columns: []string{customer.BookingsColumn},
@@ -683,9 +721,25 @@ func (cuo *CustomerUpdateOne) sqlSave(ctx context.Context) (_node *Customer, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := cuo.mutation.RemovedBookingsIDs(); len(nodes) > 0 && !cuo.mutation.BookingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   customer.BookingsTable,
+			Columns: []string{customer.BookingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(booking.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := cuo.mutation.BookingsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   customer.BookingsTable,
 			Columns: []string{customer.BookingsColumn},

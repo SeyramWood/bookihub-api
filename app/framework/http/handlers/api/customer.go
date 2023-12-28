@@ -1,6 +1,8 @@
 package api
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/SeyramWood/bookibus/app/adapters/gateways"
@@ -32,6 +34,8 @@ func (h *customerHandler) Create() fiber.Handler {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}
+		log.Println(result)
+
 		return c.Status(fiber.StatusOK).JSON(presenters.CustomerResponse(result))
 	}
 }

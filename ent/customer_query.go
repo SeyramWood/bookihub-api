@@ -101,7 +101,7 @@ func (cq *CustomerQuery) QueryBookings() *BookingQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(customer.Table, customer.FieldID, selector),
 			sqlgraph.To(booking.Table, booking.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, customer.BookingsTable, customer.BookingsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, customer.BookingsTable, customer.BookingsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -477,8 +477,9 @@ func (cq *CustomerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cus
 		}
 	}
 	if query := cq.withBookings; query != nil {
-		if err := cq.loadBookings(ctx, query, nodes, nil,
-			func(n *Customer, e *Booking) { n.Edges.Bookings = e }); err != nil {
+		if err := cq.loadBookings(ctx, query, nodes,
+			func(n *Customer) { n.Edges.Bookings = []*Booking{} },
+			func(n *Customer, e *Booking) { n.Edges.Bookings = append(n.Edges.Bookings, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -526,6 +527,9 @@ func (cq *CustomerQuery) loadBookings(ctx context.Context, query *BookingQuery, 
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
 	}
 	query.withFKs = true
 	query.Where(predicate.Booking(func(s *sql.Selector) {

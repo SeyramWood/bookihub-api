@@ -102,23 +102,19 @@ func (cc *CustomerCreate) SetProfile(u *User) *CustomerCreate {
 	return cc.SetProfileID(u.ID)
 }
 
-// SetBookingsID sets the "bookings" edge to the Booking entity by ID.
-func (cc *CustomerCreate) SetBookingsID(id int) *CustomerCreate {
-	cc.mutation.SetBookingsID(id)
+// AddBookingIDs adds the "bookings" edge to the Booking entity by IDs.
+func (cc *CustomerCreate) AddBookingIDs(ids ...int) *CustomerCreate {
+	cc.mutation.AddBookingIDs(ids...)
 	return cc
 }
 
-// SetNillableBookingsID sets the "bookings" edge to the Booking entity by ID if the given value is not nil.
-func (cc *CustomerCreate) SetNillableBookingsID(id *int) *CustomerCreate {
-	if id != nil {
-		cc = cc.SetBookingsID(*id)
+// AddBookings adds the "bookings" edges to the Booking entity.
+func (cc *CustomerCreate) AddBookings(b ...*Booking) *CustomerCreate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
 	}
-	return cc
-}
-
-// SetBookings sets the "bookings" edge to the Booking entity.
-func (cc *CustomerCreate) SetBookings(b *Booking) *CustomerCreate {
-	return cc.SetBookingsID(b.ID)
+	return cc.AddBookingIDs(ids...)
 }
 
 // AddNotificationIDs adds the "notifications" edge to the Notification entity by IDs.
@@ -281,7 +277,7 @@ func (cc *CustomerCreate) createSpec() (*Customer, *sqlgraph.CreateSpec) {
 	}
 	if nodes := cc.mutation.BookingsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   customer.BookingsTable,
 			Columns: []string{customer.BookingsColumn},

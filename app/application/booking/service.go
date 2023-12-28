@@ -8,6 +8,7 @@ import (
 
 	"github.com/SeyramWood/bookibus/app/adapters/gateways"
 	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application"
 	"github.com/SeyramWood/bookibus/app/application/payment"
 	"github.com/SeyramWood/bookibus/app/domain"
 	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
@@ -89,26 +90,44 @@ func (s *service) Create(request *requeststructs.BookingRequest, transType strin
 	if err != nil {
 		return nil, err
 	}
+
 	if resp.Status && resp.Message == payment.VerificationSuccessful {
 		result, err := s.repo.Insert(request, resp)
 		if err != nil {
 			return nil, err
 		}
 		// TODO process new booking notification: sms or email and db
-		if result.SmsNotification {
-			s.producer.Queue("notification:sms", domain.SMSPayload{
-				Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
-				Recipients: []string{result.Edges.Contact.Phone},
-			})
-		} else {
-			if result.Edges.Contact.Email == "" {
+		if c, err := result.Edges.ContactOrErr(); err == nil && c != nil {
+			if result.SmsNotification || c.Email == "" {
 				s.producer.Queue("notification:sms", domain.SMSPayload{
 					Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
-					Recipients: []string{result.Edges.Contact.Phone},
+					Recipients: []string{c.Phone},
 				})
 			} else {
 				s.producer.Queue("notification:email", domain.MailerMessage{
-					To:      result.Edges.Contact.Email,
+					To:      c.Email,
+					Subject: "Trip Ticket - BookiRide",
+					Data: map[string]any{
+						"data":   presenters.BookingTicketResponse(result),
+						"url":    config.App().AppWebsiteURL,
+						"appUrl": config.App().AppURL,
+						"bookiContact": map[string]string{
+							"email": config.Contact().Email,
+							"phone": config.Contact().Phone,
+						},
+					},
+					Template: "newbooking",
+				})
+			}
+		} else if c, err := result.Edges.CustomerOrErr(); err == nil && c != nil {
+			if result.SmsNotification || !application.UsernameType(c.Edges.Profile.Username, "email") {
+				s.producer.Queue("notification:sms", domain.SMSPayload{
+					Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
+					Recipients: []string{c.Phone},
+				})
+			} else {
+				s.producer.Queue("notification:email", domain.MailerMessage{
+					To:      c.Edges.Profile.Username,
 					Subject: "Trip Ticket - BookiRide",
 					Data: map[string]any{
 						"data":   presenters.BookingTicketResponse(result),

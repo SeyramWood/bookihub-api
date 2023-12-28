@@ -82,6 +82,7 @@ func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse 
 	}
 	var result *ent.Booking
 	if request.CustomerID != 0 {
+
 		res, err := tx.Booking.Create().
 			SetBookingNumber(domain.ComputeUniqueCode("T")).
 			SetSmsNotification(request.SMSNotification).
@@ -159,7 +160,6 @@ func (r *repository) Insert(request *requeststructs.BookingRequest, refResponse 
 	if err = tx.Commit(); err != nil {
 		return nil, fmt.Errorf("failed committing booking creation transaction: %w", err)
 	}
-
 	return r.Read(result.ID)
 }
 

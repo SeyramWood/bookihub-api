@@ -220,7 +220,7 @@ func (bq *BookingQuery) QueryCustomer() *CustomerQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(booking.Table, booking.FieldID, selector),
 			sqlgraph.To(customer.Table, customer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, booking.CustomerTable, booking.CustomerColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, booking.CustomerTable, booking.CustomerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(bq.driver.Dialect(), step)
 		return fromU, nil

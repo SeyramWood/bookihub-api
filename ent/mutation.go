@@ -5449,7 +5449,8 @@ type CustomerMutation struct {
 	clearedFields        map[string]struct{}
 	profile              *int
 	clearedprofile       bool
-	bookings             *int
+	bookings             map[int]struct{}
+	removedbookings      map[int]struct{}
 	clearedbookings      bool
 	notifications        map[int]struct{}
 	removednotifications map[int]struct{}
@@ -5825,9 +5826,14 @@ func (m *CustomerMutation) ResetProfile() {
 	m.clearedprofile = false
 }
 
-// SetBookingsID sets the "bookings" edge to the Booking entity by id.
-func (m *CustomerMutation) SetBookingsID(id int) {
-	m.bookings = &id
+// AddBookingIDs adds the "bookings" edge to the Booking entity by ids.
+func (m *CustomerMutation) AddBookingIDs(ids ...int) {
+	if m.bookings == nil {
+		m.bookings = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.bookings[ids[i]] = struct{}{}
+	}
 }
 
 // ClearBookings clears the "bookings" edge to the Booking entity.
@@ -5840,20 +5846,29 @@ func (m *CustomerMutation) BookingsCleared() bool {
 	return m.clearedbookings
 }
 
-// BookingsID returns the "bookings" edge ID in the mutation.
-func (m *CustomerMutation) BookingsID() (id int, exists bool) {
-	if m.bookings != nil {
-		return *m.bookings, true
+// RemoveBookingIDs removes the "bookings" edge to the Booking entity by IDs.
+func (m *CustomerMutation) RemoveBookingIDs(ids ...int) {
+	if m.removedbookings == nil {
+		m.removedbookings = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.bookings, ids[i])
+		m.removedbookings[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedBookings returns the removed IDs of the "bookings" edge to the Booking entity.
+func (m *CustomerMutation) RemovedBookingsIDs() (ids []int) {
+	for id := range m.removedbookings {
+		ids = append(ids, id)
 	}
 	return
 }
 
 // BookingsIDs returns the "bookings" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// BookingsID instead. It exists only for internal usage by the builders.
 func (m *CustomerMutation) BookingsIDs() (ids []int) {
-	if id := m.bookings; id != nil {
-		ids = append(ids, *id)
+	for id := range m.bookings {
+		ids = append(ids, id)
 	}
 	return
 }
@@ -5862,6 +5877,7 @@ func (m *CustomerMutation) BookingsIDs() (ids []int) {
 func (m *CustomerMutation) ResetBookings() {
 	m.bookings = nil
 	m.clearedbookings = false
+	m.removedbookings = nil
 }
 
 // AddNotificationIDs adds the "notifications" edge to the Notification entity by ids.
@@ -6167,9 +6183,11 @@ func (m *CustomerMutation) AddedIDs(name string) []ent.Value {
 			return []ent.Value{*id}
 		}
 	case customer.EdgeBookings:
-		if id := m.bookings; id != nil {
-			return []ent.Value{*id}
+		ids := make([]ent.Value, 0, len(m.bookings))
+		for id := range m.bookings {
+			ids = append(ids, id)
 		}
+		return ids
 	case customer.EdgeNotifications:
 		ids := make([]ent.Value, 0, len(m.notifications))
 		for id := range m.notifications {
@@ -6183,6 +6201,9 @@ func (m *CustomerMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *CustomerMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 3)
+	if m.removedbookings != nil {
+		edges = append(edges, customer.EdgeBookings)
+	}
 	if m.removednotifications != nil {
 		edges = append(edges, customer.EdgeNotifications)
 	}
@@ -6193,6 +6214,12 @@ func (m *CustomerMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *CustomerMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case customer.EdgeBookings:
+		ids := make([]ent.Value, 0, len(m.removedbookings))
+		for id := range m.removedbookings {
+			ids = append(ids, id)
+		}
+		return ids
 	case customer.EdgeNotifications:
 		ids := make([]ent.Value, 0, len(m.removednotifications))
 		for id := range m.removednotifications {
@@ -6238,9 +6265,6 @@ func (m *CustomerMutation) ClearEdge(name string) error {
 	switch name {
 	case customer.EdgeProfile:
 		m.ClearProfile()
-		return nil
-	case customer.EdgeBookings:
-		m.ClearBookings()
 		return nil
 	}
 	return fmt.Errorf("unknown Customer unique edge %s", name)

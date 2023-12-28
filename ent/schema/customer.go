@@ -34,8 +34,7 @@ func (Customer) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("profile", User.Type).Unique().
 			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
-		edge.To("bookings", Booking.Type).
-			Annotations(entsql.Annotation{OnDelete: entsql.Cascade}).Unique(),
+		edge.To("bookings", Booking.Type).Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 		edge.To("notifications", Notification.Type).Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 	}
 }

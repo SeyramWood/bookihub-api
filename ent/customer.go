@@ -9,7 +9,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/SeyramWood/bookibus/ent/booking"
 	"github.com/SeyramWood/bookibus/ent/customer"
 	"github.com/SeyramWood/bookibus/ent/user"
 )
@@ -42,7 +41,7 @@ type CustomerEdges struct {
 	// Profile holds the value of the profile edge.
 	Profile *User `json:"profile,omitempty"`
 	// Bookings holds the value of the bookings edge.
-	Bookings *Booking `json:"bookings,omitempty"`
+	Bookings []*Booking `json:"bookings,omitempty"`
 	// Notifications holds the value of the notifications edge.
 	Notifications []*Notification `json:"notifications,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -64,13 +63,9 @@ func (e CustomerEdges) ProfileOrErr() (*User, error) {
 }
 
 // BookingsOrErr returns the Bookings value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e CustomerEdges) BookingsOrErr() (*Booking, error) {
+// was not loaded in eager-loading.
+func (e CustomerEdges) BookingsOrErr() ([]*Booking, error) {
 	if e.loadedTypes[1] {
-		if e.Bookings == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: booking.Label}
-		}
 		return e.Bookings, nil
 	}
 	return nil, &NotLoadedError{edge: "bookings"}

@@ -37,6 +37,7 @@ func UnauthorizedRoutes(r fiber.Router, router *apiRouter) {
 	tripGroup.Get("/:id/details", tripHandler.Fetch())
 
 	bookingGroup := r.Group("/bookings")
+	bookingGroup.Get("/:id", bookingHandler.Fetch())
 	bookingGroup.Get("/all", bookingHandler.FetchAllCustomer())
 	bookingGroup.Post("", adaptor.HTTPMiddleware(requests.ValidateBooking), bookingHandler.Create())
 	bookingGroup.Put("/:id/cancel", adaptor.HTTPMiddleware(requests.ValidateBookingCancel), bookingHandler.CancelBooking())

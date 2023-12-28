@@ -142,10 +142,17 @@ func ByProfileField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByBookingsField orders the results by bookings field.
-func ByBookingsField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByBookingsCount orders the results by bookings count.
+func ByBookingsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newBookingsStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newBookingsStep(), opts...)
+	}
+}
+
+// ByBookings orders the results by bookings terms.
+func ByBookings(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBookingsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -173,7 +180,7 @@ func newBookingsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BookingsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, BookingsTable, BookingsColumn),
+		sqlgraph.Edge(sqlgraph.O2M, false, BookingsTable, BookingsColumn),
 	)
 }
 func newNotificationsStep() *sqlgraph.Step {
