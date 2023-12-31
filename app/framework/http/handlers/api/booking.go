@@ -52,7 +52,7 @@ func (h *bookingHandler) FetchAll() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		results, err := h.service.FetchAll(c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.BookingFilterRequest{
 			BookingNumber: c.Query("trip-id"),
-			FullName:      c.Query("full-name"),
+			Phone:         c.Query("phone"),
 			Active:        c.QueryBool("active"),
 			Completed:     c.QueryBool("completed"),
 			Canceled:      c.QueryBool("canceled"),
@@ -69,7 +69,7 @@ func (h *bookingHandler) FetchAllByCompany() fiber.Handler {
 		companyId, _ := c.ParamsInt("id")
 		results, err := h.service.FetchAllByCompany(companyId, c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.BookingFilterRequest{
 			BookingNumber: c.Query("trip-id"),
-			FullName:      c.Query("full-name"),
+			Phone:         c.Query("phone"),
 			Active:        c.QueryBool("active"),
 			Completed:     c.QueryBool("completed"),
 			Canceled:      c.QueryBool("canceled"),
@@ -86,7 +86,7 @@ func (h *bookingHandler) FetchAllCustomer() fiber.Handler {
 		if customerId != 0 {
 			results, err := h.service.FetchAllCustomer(c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.BookingFilterRequest{
 				BookingNumber: c.Query("trip-id"),
-				FullName:      c.Query("full-name"),
+				Phone:         c.Query("phone"),
 				Active:        c.QueryBool("active"),
 				Completed:     c.QueryBool("completed"),
 				Canceled:      c.QueryBool("canceled"),
@@ -96,10 +96,9 @@ func (h *bookingHandler) FetchAllCustomer() fiber.Handler {
 			}
 			return c.Status(fiber.StatusOK).JSON(presenters.BookingsResponse(results))
 		}
-
 		results, err := h.service.FetchAllCustomer(c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.BookingFilterRequest{
 			BookingNumber: c.Query("trip-id"),
-			FullName:      c.Query("full-name"),
+			Phone:         c.Query("phone"),
 			Active:        c.QueryBool("active"),
 			Completed:     c.QueryBool("completed"),
 			Canceled:      c.QueryBool("canceled"),

@@ -62,7 +62,7 @@ type (
 	}
 	BookingFilterRequest struct {
 		BookingNumber string
-		FullName      string
+		Phone         string
 		Active        bool
 		Completed     bool
 		Canceled      bool

@@ -2,6 +2,7 @@ package booking
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -324,6 +325,7 @@ func (r *repository) ReadAllByCompany(companyId int, limit int, offset int, filt
 
 // ReadAllCustomer implements gateways.BookingRepo.
 func (r *repository) ReadAllCustomer(limit int, offset int, filter *requeststructs.BookingFilterRequest, customerId ...int) (*presenters.PaginationResponse, error) {
+	log.Println(filter)
 	fm := application.ConvertStructToMap(*(filter))
 	if customerId != nil && customerId[0] != 0 {
 		for _, com := range application.FilterCombinations(r.filterKeys()) {
@@ -514,7 +516,7 @@ func (r *repository) filterBooking(query *ent.BookingQuery, limit, offset int) (
 }
 
 func (r *repository) filterKeys() []string {
-	return []string{"BookingNumber", "FullName", "Active", "Completed", "Canceled"}
+	return []string{"BookingNumber", "Phone", "Active", "Completed", "Canceled"}
 }
 func (r *repository) filterPredicate(data map[string]any, combinations []string) []predicate.Booking {
 	results := make([]predicate.Booking, 0, len(combinations))
@@ -524,10 +526,11 @@ func (r *repository) filterPredicate(data map[string]any, combinations []string)
 				results = append(results, booking.BookingNumberEQ(v.(string)))
 				break
 			}
-			if combination == k && combination == "FullName" {
-				results = append(results, booking.HasContactWith(func(s *sql.Selector) {
-					s.Where(sql.ExprP(fmt.Sprintf("LOWER(%s) = ?", customercontact.FieldFullName), strings.ToLower(v.(string))))
-				}))
+			if combination == k && combination == "Phone" {
+				results = append(results, booking.Or(
+					booking.HasCustomerWith(customer.PhoneEQ(strings.Replace("+"+v.(string), " ", "", -1))),
+					booking.HasContactWith(customercontact.PhoneEQ(strings.Replace("+"+v.(string), " ", "", -1))),
+				))
 				break
 			}
 			if combination == k && combination == "Active" {
