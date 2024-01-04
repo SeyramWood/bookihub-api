@@ -65,12 +65,12 @@ func (r *repository) Insert(request *requeststructs.CompanyUserRequest, password
 	if err = tx.Commit(); err != nil {
 		return nil, fmt.Errorf("failed committing company user creation transaction: %w", err)
 	}
-	return result, nil
+	return r.Read(result.ID)
 }
 
 // Read implements gateways.CompanyUserRepo.
 func (r *repository) Read(id int) (*ent.CompanyUser, error) {
-	result, err := r.db.CompanyUser.Query().Where(companyuser.ID(id)).Only(r.ctx)
+	result, err := r.db.CompanyUser.Query().Where(companyuser.ID(id)).WithProfile(func(uq *ent.UserQuery) { uq.Select(user.FieldUsername) }).Only(r.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (r *repository) Read(id int) (*ent.CompanyUser, error) {
 
 // ReadAll implements gateways.CompanyUserRepo.
 func (r *repository) ReadAll(limit int, offset int) (*presenters.PaginationResponse, error) {
-	query := r.db.CompanyUser.Query()
+	query := r.db.CompanyUser.Query().WithProfile(func(uq *ent.UserQuery) { uq.Select(user.FieldUsername) })
 	count := query.CountX(r.ctx)
 	results, err := query.
 		Limit(limit).
@@ -94,7 +94,7 @@ func (r *repository) ReadAll(limit int, offset int) (*presenters.PaginationRespo
 
 // FetchAllByCompany implements gateways.CompanyUserRepo.
 func (r *repository) FetchAllByCompany(companyId int, limit int, offset int) (*presenters.PaginationResponse, error) {
-	query := r.db.CompanyUser.Query().Where(companyuser.HasCompanyWith(company.ID(companyId)))
+	query := r.db.CompanyUser.Query().Where(companyuser.HasCompanyWith(company.ID(companyId))).WithProfile(func(uq *ent.UserQuery) { uq.Select(user.FieldUsername) })
 	count := query.CountX(r.ctx)
 	results, err := query.
 		Limit(limit).
@@ -118,5 +118,5 @@ func (r *repository) Update(id int, request *requeststructs.CompanyUserUpdateReq
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return r.Read(result.ID)
 }

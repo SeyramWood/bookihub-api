@@ -15,6 +15,7 @@ type (
 		OtherName  string `json:"otherName"`
 		Phone      string `json:"phone"`
 		OtherPhone string `json:"otherPhone"`
+		Username   string `json:"username"`
 		Role       string `json:"role,omitempty"`
 		CreatedAt  any    `json:"createdAt,omitempty"`
 		UpdatedAt  any    `json:"updatedAt,omitempty"`
@@ -124,6 +125,7 @@ func CompanyUserResponse(data *ent.CompanyUser) *fiber.Map {
 		OtherName:  data.OtherName,
 		Phone:      data.Phone,
 		OtherPhone: data.OtherPhone,
+		Username:   data.Edges.Profile.Username,
 		Role:       string(data.Role),
 		CreatedAt:  data.CreatedAt,
 		UpdatedAt:  data.UpdatedAt,
@@ -138,6 +140,7 @@ func CompanyUsersResponse(data *PaginationResponse) *fiber.Map {
 			OtherName:  u.OtherName,
 			Phone:      u.Phone,
 			OtherPhone: u.OtherPhone,
+			Username:   u.Edges.Profile.Username,
 			Role:       string(u.Role),
 			CreatedAt:  u.CreatedAt,
 			UpdatedAt:  u.UpdatedAt,
