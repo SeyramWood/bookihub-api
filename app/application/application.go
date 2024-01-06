@@ -150,6 +150,9 @@ func ParseRFC3339MYSQLDatetime(rfc3339Datetime string, format ...string) string 
 		return time.Now().Format("2006-01-02")
 	}
 
+	if rfc3339Datetime == "now" && format != nil {
+		return time.Now().Format(format[0])
+	}
 	if format != nil {
 		rfc3339Time, err := time.Parse(time.RFC3339, rfc3339Datetime)
 		if err != nil {
