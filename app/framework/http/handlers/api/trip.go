@@ -196,7 +196,7 @@ func (h *tripHandler) FetchAllCustomer() fiber.Handler {
 }
 func (h *tripHandler) FetchAllPopular() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		results, err := h.service.FetchAllPopular(c.QueryInt("limit", 6), c.QueryInt("offset"))
+		results, err := h.service.FetchAllPopular(c.QueryInt("limit", 6), c.QueryInt("offset"), c.Query("localDatetime"))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
 		}

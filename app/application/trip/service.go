@@ -48,8 +48,8 @@ func (s *service) FetchAllCustomer(limit int, offset int, filter *requeststructs
 }
 
 // FetchAllPopular implements gateways.TripService.
-func (s *service) FetchAllPopular(limit int, offset int) (*presenters.PaginationResponse, error) {
-	return s.repo.ReadAllPopular(limit, offset)
+func (s *service) FetchAllPopular(limit int, offset int, localDatetime string) (*presenters.PaginationResponse, error) {
+	return s.repo.ReadAllPopular(limit, offset, localDatetime)
 }
 
 // FetchAllSearch implements gateways.TripService.

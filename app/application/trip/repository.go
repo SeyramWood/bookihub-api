@@ -671,10 +671,10 @@ func (r *repository) ReadAllCustomer(limit int, offset int, filter *requeststruc
 }
 
 // ReadAllPopular implements gateways.TripRepo.
-func (r *repository) ReadAllPopular(limit int, offset int) (*presenters.PaginationResponse, error) {
+func (r *repository) ReadAllPopular(limit int, offset int, localDatetime string) (*presenters.PaginationResponse, error) {
 	return r.filterTripByPopularity(r.db.Trip.Query().Where(trip.And(
 		func(s *sql.Selector) {
-			s.Where(sql.ExprP(fmt.Sprintf("%s >= ?", trip.FieldDepartureDate), application.ParseRFC3339MYSQLDatetime("now"), "2006-01-02 15:04:05"))
+			s.Where(sql.ExprP(fmt.Sprintf("%s >= ?", trip.FieldDepartureDate), application.ParseRFC3339MYSQLDatetime(localDatetime, "2006-01-02 15:04:05")))
 		},
 	)), limit, offset)
 }
