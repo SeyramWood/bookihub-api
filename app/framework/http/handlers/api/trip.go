@@ -179,7 +179,7 @@ func (h *tripHandler) FetchAllByDriver() fiber.Handler {
 }
 func (h *tripHandler) FetchAllCustomer() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		results, err := h.service.FetchAllCustomer(c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.CustomerTripFilterRequest{
+		results, err := h.service.FetchAllCustomer(c.QueryInt("limit"), c.QueryInt("offset"), c.Query("localDatetime"), &requeststructs.CustomerTripFilterRequest{
 			CompanyID:     c.QueryInt("company-id"),
 			TripType:      c.Query("trip-type"),
 			From:          c.Query("from"),

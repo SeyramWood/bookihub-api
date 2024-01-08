@@ -609,19 +609,19 @@ func (r *repository) ReadAllByDriver(driverId int, limit int, offset int, filter
 }
 
 // ReadAllCustomer implements gateways.TripRepo.
-func (r *repository) ReadAllCustomer(limit int, offset int, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error) {
+func (r *repository) ReadAllCustomer(limit int, offset int, localDatetime string, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error) {
 	fm := application.ConvertStructToMap(*(filter))
 	for _, com := range application.FilterCombinations(r.customerFilterKeys()) {
 		if len(com) == len(r.customerFilterKeys()) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) {
-				query := r.db.Trip.Query().Where(r.customerFilterPredicate(fm, com)...)
+				query := r.db.Trip.Query().Where(r.customerFilterPredicate(fm, com, localDatetime)...)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
 		}
 		if len(com) == (len(r.customerFilterKeys()) - 1) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.customerFilterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
@@ -629,7 +629,7 @@ func (r *repository) ReadAllCustomer(limit int, offset int, filter *requeststruc
 		if len(com) == (len(r.customerFilterKeys()) - 2) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.customerFilterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
@@ -637,7 +637,7 @@ func (r *repository) ReadAllCustomer(limit int, offset int, filter *requeststruc
 		if len(com) == (len(r.customerFilterKeys()) - 3) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.customerFilterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
@@ -645,7 +645,7 @@ func (r *repository) ReadAllCustomer(limit int, offset int, filter *requeststruc
 		if len(com) == (len(r.customerFilterKeys()) - 4) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.customerFilterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
@@ -653,7 +653,7 @@ func (r *repository) ReadAllCustomer(limit int, offset int, filter *requeststruc
 		if len(com) == (len(r.customerFilterKeys()) - 5) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.customerFilterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
@@ -661,13 +661,14 @@ func (r *repository) ReadAllCustomer(limit int, offset int, filter *requeststruc
 		if len(com) == (len(r.customerFilterKeys()) - 6) {
 			if r.compareFilter(fm[com[0]]) {
 				query := r.db.Trip.Query().Where(
-					trip.And(r.customerFilterPredicate(fm, com)...),
+					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
 				return r.filterTripByPopularity(query, limit, offset)
 			}
 		}
 	}
-	return r.filterTripByPopularity(r.db.Trip.Query(), limit, offset)
+	return application.Paginate(0, []*ent.Trip{})
+	// return r.filterTripByPopularity(r.db.Trip.Query(), limit, offset)
 }
 
 // ReadAllPopular implements gateways.TripRepo.
@@ -878,7 +879,7 @@ func (r *repository) customerFilterKeys() []string {
 	return []string{"CompanyID", "TripType", "From", "To", "DepartureDate", "ReturnDate", "Passengers"}
 }
 
-func (r *repository) customerFilterPredicate(data map[string]any, combinations []string) []predicate.Trip {
+func (r *repository) customerFilterPredicate(data map[string]any, combinations []string, localDatetime string) []predicate.Trip {
 	results := make([]predicate.Trip, 0, len(combinations))
 	for _, combination := range combinations {
 		for k, v := range data {
@@ -907,7 +908,7 @@ func (r *repository) customerFilterPredicate(data map[string]any, combinations [
 			if combination == k && combination == "DepartureDate" {
 				results = append(results, trip.And(
 					func(s *sql.Selector) {
-						s.Where(sql.ExprP(fmt.Sprintf("%s >= ?", trip.FieldDepartureDate), application.ParseRFC3339MYSQLDatetime(v.(string), "2006-01-02 15:04:05")))
+						s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) >= ?", trip.FieldDepartureDate), application.ParseRFC3339MYSQLDatetime(v.(string))))
 					},
 				))
 				break
@@ -926,6 +927,14 @@ func (r *repository) customerFilterPredicate(data map[string]any, combinations [
 			}
 		}
 	}
+
+	// log.Println(application.ParseRFC3339MYSQLDatetime(localDatetime, "2006-01-02 15:04:05"))
+	// results = append(results, trip.And(
+	// 	func(s *sql.Selector) {
+	// 		s.Where(sql.ExprP(fmt.Sprintf("%s >= ?", trip.FieldDepartureDate), application.ParseRFC3339MYSQLDatetime(localDatetime, "2006-01-02 15:04:05")))
+	// 	},
+	// ))
+
 	return results
 }
 

@@ -43,8 +43,8 @@ func (s *service) FetchAllByDriver(driverId int, limit int, offset int, filter *
 }
 
 // FetchAllCustomer implements gateways.TripService.
-func (s *service) FetchAllCustomer(limit int, offset int, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error) {
-	return s.repo.ReadAllCustomer(limit, offset, filter)
+func (s *service) FetchAllCustomer(limit int, offset int, localDatetime string, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error) {
+	return s.repo.ReadAllCustomer(limit, offset, localDatetime, filter)
 }
 
 // FetchAllPopular implements gateways.TripService.

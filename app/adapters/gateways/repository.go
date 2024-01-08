@@ -109,7 +109,7 @@ type (
 		ReadAll(limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
 		ReadAllByCompany(companyId, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
 		ReadAllByDriver(driverId, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
-		ReadAllCustomer(limit, offset int, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error)
+		ReadAllCustomer(limit, offset int, localDatetime string, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error)
 		ReadAllPopular(limit, offset int, localDatetime string) (*presenters.PaginationResponse, error)
 		ReadAllSearch(searchKey string, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
 		ReadAllSearchByCompany(searchKey string, companyId, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)

@@ -140,7 +140,7 @@ type (
 		FetchAll(limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
 		FetchAllByCompany(companyId, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
 		FetchAllByDriver(driverId, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
-		FetchAllCustomer(limit, offset int, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error)
+		FetchAllCustomer(limit, offset int, localDatetime string, filter *requeststructs.CustomerTripFilterRequest) (*presenters.PaginationResponse, error)
 		FetchAllPopular(limit, offset int, localDatetime string) (*presenters.PaginationResponse, error)
 		FetchAllSearch(searchKey string, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
 		FetchAllSearchByCompany(searchKey string, companyId, limit, offset int, filter *requeststructs.TripFilterRequest) (*presenters.PaginationResponse, error)
