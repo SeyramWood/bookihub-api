@@ -8,6 +8,7 @@ import (
 
 	"github.com/SeyramWood/bookibus/app/adapters/gateways"
 	"github.com/SeyramWood/bookibus/app/adapters/presenters"
+	"github.com/SeyramWood/bookibus/app/application"
 	"github.com/SeyramWood/bookibus/app/application/payment"
 	"github.com/SeyramWood/bookibus/app/domain"
 	requeststructs "github.com/SeyramWood/bookibus/app/domain/request_structs"
@@ -57,35 +58,22 @@ func (s *service) Create(request *requeststructs.BookingRequest, transType strin
 			Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
 			Recipients: []string{result.Edges.Contact.Phone},
 		})
-		// if request.SMSNotification {
-		// 	s.producer.Queue("notification:sms", domain.SMSPayload{
-		// 		Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
-		// 		Recipients: []string{result.Edges.Contact.Phone},
-		// 	})
-		// } else {
-		// 	if result.Edges.Contact.Email == "" {
-		// 		s.producer.Queue("notification:sms", domain.SMSPayload{
-		// 			Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
-		// 			Recipients: []string{result.Edges.Contact.Phone},
-		// 		})
-		// 	} else {
-		// 		s.producer.Queue("notification:email", domain.MailerMessage{
-		// 			To:      result.Edges.Contact.Email,
-		// 			Subject: "Trip Ticket - BookiRide",
-		// 			Data: map[string]any{
-		// 				"data":   presenters.BookingTicketResponse(result),
-		// 				"url":    config.App().AppWebsiteURL,
-		// 				"appUrl": config.App().AppURL,
-		// 				"bookiContact": map[string]string{
-		// 					"email": config.Contact().Email,
-		// 					"phone": config.Contact().Phone,
-		// 				},
-		// 			},
-		// 			Template: "newbooking",
-		// 		})
-		// 	}
-		// }
-
+		if result.Edges.Contact.Email != "" {
+			s.producer.Queue("notification:email", domain.MailerMessage{
+				To:      result.Edges.Contact.Email,
+				Subject: "Trip Ticket - BookiRide",
+				Data: map[string]any{
+					"data":   presenters.BookingTicketResponse(result),
+					"url":    config.App().AppWebsiteURL,
+					"appUrl": config.App().AppURL,
+					"bookiContact": map[string]string{
+						"email": config.Contact().Email,
+						"phone": config.Contact().Phone,
+					},
+				},
+				Template: "newbooking",
+			})
+		}
 		return result, nil
 	}
 
@@ -104,53 +92,43 @@ func (s *service) Create(request *requeststructs.BookingRequest, transType strin
 				Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
 				Recipients: []string{c.Phone},
 			})
-			// if result.SmsNotification || c.Email == "" {
-			// 	s.producer.Queue("notification:sms", domain.SMSPayload{
-			// 		Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
-			// 		Recipients: []string{c.Phone},
-			// 	})
-			// } else {
-			// 	s.producer.Queue("notification:email", domain.MailerMessage{
-			// 		To:      c.Email,
-			// 		Subject: "Trip Ticket - BookiRide",
-			// 		Data: map[string]any{
-			// 			"data":   presenters.BookingTicketResponse(result),
-			// 			"url":    config.App().AppWebsiteURL,
-			// 			"appUrl": config.App().AppURL,
-			// 			"bookiContact": map[string]string{
-			// 				"email": config.Contact().Email,
-			// 				"phone": config.Contact().Phone,
-			// 			},
-			// 		},
-			// 		Template: "newbooking",
-			// 	})
-			// }
+			if c.Email != "" {
+				s.producer.Queue("notification:email", domain.MailerMessage{
+					To:      c.Email,
+					Subject: "Trip Ticket - BookiRide",
+					Data: map[string]any{
+						"data":   presenters.BookingTicketResponse(result),
+						"url":    config.App().AppWebsiteURL,
+						"appUrl": config.App().AppURL,
+						"bookiContact": map[string]string{
+							"email": config.Contact().Email,
+							"phone": config.Contact().Phone,
+						},
+					},
+					Template: "newbooking",
+				})
+			}
 		} else if c, err := result.Edges.CustomerOrErr(); err == nil && c != nil {
 			s.producer.Queue("notification:sms", domain.SMSPayload{
 				Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
 				Recipients: []string{c.Phone},
 			})
-			// if result.SmsNotification || !application.UsernameType(c.Edges.Profile.Username, "email") {
-			// 	s.producer.Queue("notification:sms", domain.SMSPayload{
-			// 		Message:    fmt.Sprintf("Your booking was successful, use the link to view and download ticket: \n%s/trips/ticket/%s/download", config.App().AppURL, result.BookingNumber),
-			// 		Recipients: []string{c.Phone},
-			// 	})
-			// } else {
-			// 	s.producer.Queue("notification:email", domain.MailerMessage{
-			// 		To:      c.Edges.Profile.Username,
-			// 		Subject: "Trip Ticket - BookiRide",
-			// 		Data: map[string]any{
-			// 			"data":   presenters.BookingTicketResponse(result),
-			// 			"url":    config.App().AppWebsiteURL,
-			// 			"appUrl": config.App().AppURL,
-			// 			"bookiContact": map[string]string{
-			// 				"email": config.Contact().Email,
-			// 				"phone": config.Contact().Phone,
-			// 			},
-			// 		},
-			// 		Template: "newbooking",
-			// 	})
-			// }
+			if application.UsernameType(c.Edges.Profile.Username, "email") {
+				s.producer.Queue("notification:email", domain.MailerMessage{
+					To:      c.Edges.Profile.Username,
+					Subject: "Trip Ticket - BookiRide",
+					Data: map[string]any{
+						"data":   presenters.BookingTicketResponse(result),
+						"url":    config.App().AppWebsiteURL,
+						"appUrl": config.App().AppURL,
+						"bookiContact": map[string]string{
+							"email": config.Contact().Email,
+							"phone": config.Contact().Phone,
+						},
+					},
+					Template: "newbooking",
+				})
+			}
 		}
 		return result, nil
 	}
@@ -165,6 +143,11 @@ func (s *service) Fetch(id int) (*ent.Booking, error) {
 // FetchByBookingNumber implements gateways.BookingService.
 func (s *service) FetchByBookingNumber(id string) (*ent.Booking, error) {
 	return s.repo.ReadByBookingNumber(id)
+}
+
+// FetchByTrip implements gateways.BookingService.
+func (s *service) FetchAllByTrip(id int) ([]*ent.Booking, error) {
+	return s.repo.ReadAllByTrip(id)
 }
 
 // FetchAll implements gateways.BookingService.

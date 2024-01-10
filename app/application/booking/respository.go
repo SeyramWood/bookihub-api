@@ -44,21 +44,18 @@ func NewRepository(db *database.Adapter) gateways.BookingRepo {
 
 // CancelBooking implements gateways.BookingRepo.
 func (r *repository) CancelBooking(id int, request *requeststructs.BookingCancelRequest) (*ent.Booking, error) {
-	tx, err := r.db.Tx(r.ctx)
+	result, err := r.db.Booking.UpdateOneID(id).SetStatus(booking.StatusCanceled).Save(r.ctx)
 	if err != nil {
-		return nil, fmt.Errorf("error starting a transaction: %w", err)
+		return nil, fmt.Errorf("failed updating booking: %w", err)
 	}
-	_, err = tx.Booking.UpdateOneID(id).SetStatus(booking.StatusCanceled).Save(r.ctx)
-	if err != nil {
-		return nil, application.Rollback(tx, fmt.Errorf("failed updating booking: %w", err))
-	}
-	_, err = tx.Transaction.Update().
-		Where(transaction.HasBookingWith(booking.ID(id))).
+	_, err = r.db.Transaction.Update().
+		Where(transaction.HasBookingWith(booking.ID(result.ID))).
 		SetCancellationFee(domain.ComputeCancellationFee(r.readCharge().TripCancellationFee, request.Amount)).
 		SetCanceledAt(time.Now()).
 		Save(r.ctx)
 	if err != nil {
-		return nil, application.Rollback(tx, fmt.Errorf("failed updating transaction: %w", err))
+		_ = r.db.Booking.UpdateOneID(id).SetStatus(booking.StatusSuccessful).SaveX(r.ctx)
+		return nil, fmt.Errorf("failed updating transaction: %w", err)
 	}
 	return r.Read(id)
 }
@@ -218,6 +215,23 @@ func (r *repository) ReadByBookingNumber(id string) (*ent.Booking, error) {
 		return nil, err
 	}
 	return result, nil
+}
+
+// ReadByTrip implements gateways.BookingRepo.
+func (r *repository) ReadAllByTrip(id int) ([]*ent.Booking, error) {
+	results, err := r.db.Booking.Query().Where(booking.HasTripWith(trip.ID(id))).
+		WithPassengers().
+		WithLuggages().
+		WithContact().
+		WithCustomer(func(cq *ent.CustomerQuery) {
+			cq.WithProfile()
+		}).
+		WithTransaction().
+		All(r.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 // ReadAll implements gateways.BookingRepo.

@@ -127,6 +127,7 @@ type (
 		ReadAllCustomer(limit, offset int, filter *requeststructs.BookingFilterRequest, customerId ...int) (*presenters.PaginationResponse, error)
 		Read(id int) (*ent.Booking, error)
 		ReadByBookingNumber(id string) (*ent.Booking, error)
+		ReadAllByTrip(id int) ([]*ent.Booking, error)
 		Insert(request *requeststructs.BookingRequest, refResponse *requeststructs.PaymentReferenceResponse) (*ent.Booking, error)
 		Update(id int, request *requeststructs.BookingUpdateRequest) (*ent.Booking, error)
 		CancelBooking(id int, request *requeststructs.BookingCancelRequest) (*ent.Booking, error)

@@ -158,6 +158,7 @@ type (
 		FetchAllCustomer(limit, offset int, filter *requeststructs.BookingFilterRequest, customerId ...int) (*presenters.PaginationResponse, error)
 		Fetch(id int) (*ent.Booking, error)
 		FetchByBookingNumber(id string) (*ent.Booking, error)
+		FetchAllByTrip(id int) ([]*ent.Booking, error)
 		Create(request *requeststructs.BookingRequest, transType string) (*ent.Booking, error)
 		SaveToCache(reference string, request *requeststructs.BookingRequest) error
 		Update(id int, request *requeststructs.BookingUpdateRequest) (*ent.Booking, error)

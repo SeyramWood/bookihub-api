@@ -1,7 +1,7 @@
 package presenters
 
 import (
-	"log"
+	"sync"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -48,6 +48,16 @@ type (
 		Contact     *BookingContactResponseData `json:"contact"`
 		Transaction *TransactionResponseData    `json:"transaction"`
 		Trip        *TripResponseData           `json:"trip"`
+	}
+
+	BookingPassengerDetailResponseData struct {
+		ID            int                             `json:"id"`
+		BookingNumber string                          `json:"bookingNumber"`
+		Passengers    []*BookingPassengerResponseData `json:"passengers"`
+		Luggages      []*BookingLuggagesResponseData  `json:"luggages"`
+		Contact       *BookingContactResponseData     `json:"contact"`
+		Transaction   *TransactionResponseData        `json:"transaction"`
+		CreatedAt     any                             `json:"createdAt"`
 	}
 )
 
@@ -194,7 +204,6 @@ func BookingTicketResponse(data *ent.Booking) *BookingTicketResponseData {
 }
 
 func BookingResponse(data *ent.Booking) *fiber.Map {
-	log.Println(data)
 	return SuccessResponse(&BookingResponseData{
 		ID:              data.ID,
 		TripID:          data.BookingNumber,
@@ -225,9 +234,6 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 				return &BookingContactResponseData{ID: c.ID, FullName: c.FullName, Email: c.Email, Phone: c.Phone}
 			}
 			if c, err := data.Edges.CustomerOrErr(); err == nil {
-				log.Println("jbjsdbjkbgkj")
-				log.Println(c.Edges.Profile)
-				log.Println(c.Edges.Profile.Username)
 				return &BookingContactResponseData{ID: c.ID, FullName: c.OtherName + " " + c.LastName, Email: c.Edges.Profile.Username, Phone: c.Phone}
 			}
 			return nil
@@ -344,6 +350,69 @@ func BookingResponse(data *ent.Booking) *fiber.Map {
 		CreatedAt: data.CreatedAt,
 		UpdatedAt: data.UpdatedAt,
 	})
+}
+func BookingPassengerDetailsResponse(data []*ent.Booking) *fiber.Map {
+	wg := &sync.WaitGroup{}
+	var response []*BookingPassengerDetailResponseData
+	wg.Add(1)
+	go func(data []*ent.Booking) {
+		defer wg.Done()
+		var res []*BookingPassengerDetailResponseData
+		for _, b := range data {
+			res = append(res, &BookingPassengerDetailResponseData{
+				ID:            b.ID,
+				BookingNumber: b.BookingNumber,
+				Passengers: func() []*BookingPassengerResponseData {
+					if passengers, err := b.Edges.PassengersOrErr(); err == nil && len(passengers) > 0 {
+						response := make([]*BookingPassengerResponseData, 0, len(passengers))
+						for _, passenger := range passengers {
+							response = append(response, &BookingPassengerResponseData{ID: passenger.ID, FullName: passenger.FullName, Amount: passenger.Amount, Maturity: string(passenger.Maturity), Gender: string(passenger.Gender)})
+						}
+						return response
+					}
+					return nil
+				}(),
+				Luggages: func() []*BookingLuggagesResponseData {
+					if luggages, err := b.Edges.LuggagesOrErr(); err == nil && len(luggages) > 0 {
+						response := make([]*BookingLuggagesResponseData, 0, len(luggages))
+						for _, luggage := range luggages {
+							response = append(response, &BookingLuggagesResponseData{ID: luggage.ID, Baggage: string(luggage.Baggage), Quantity: luggage.Quantity, Amount: luggage.Amount})
+						}
+						return response
+					}
+					return nil
+				}(),
+				Contact: func() *BookingContactResponseData {
+					if c, err := b.Edges.ContactOrErr(); err == nil {
+						return &BookingContactResponseData{ID: c.ID, FullName: c.FullName, Email: c.Email, Phone: c.Phone}
+					}
+					if c, err := b.Edges.CustomerOrErr(); err == nil {
+						return &BookingContactResponseData{ID: c.ID, FullName: c.OtherName + " " + c.LastName, Email: c.Edges.Profile.Username, Phone: c.Phone}
+					}
+					return nil
+				}(),
+				Transaction: func() *TransactionResponseData {
+					if t, err := b.Edges.TransactionOrErr(); err == nil && t != nil {
+						return &TransactionResponseData{
+							Reference:       t.Reference,
+							TransactionType: string(t.Channel),
+							Amount:          t.Amount,
+							VAT:             t.Vat,
+							TransactionFee:  t.TransactionFee,
+							CancellationFee: t.CancellationFee,
+							PaidAt:          parseNullDatetime(t.PaidAt),
+							CanceledAt:      parseNullDatetime(t.CanceledAt),
+						}
+					}
+					return nil
+				}(),
+				CreatedAt: b.CreatedAt,
+			})
+		}
+		response = res
+	}(data)
+	wg.Wait()
+	return SuccessResponse(response)
 }
 func BookingsResponse(data *PaginationResponse) *fiber.Map {
 	var response []*BookingResponseData

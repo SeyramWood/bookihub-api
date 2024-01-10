@@ -48,6 +48,18 @@ func (h *bookingHandler) Fetch() fiber.Handler {
 		return c.Status(fiber.StatusOK).JSON(presenters.BookingResponse(result))
 	}
 }
+
+func (h *bookingHandler) FetchByTrip() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		id, _ := c.ParamsInt("id")
+		result, err := h.service.FetchAllByTrip(id)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(presenters.ErrorResponse(err))
+		}
+		return c.Status(fiber.StatusOK).JSON(presenters.BookingPassengerDetailsResponse(result))
+	}
+}
+
 func (h *bookingHandler) FetchAll() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		results, err := h.service.FetchAll(c.QueryInt("limit"), c.QueryInt("offset"), &requeststructs.BookingFilterRequest{
