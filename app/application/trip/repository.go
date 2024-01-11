@@ -615,7 +615,7 @@ func (r *repository) ReadAllCustomer(limit int, offset int, localDatetime string
 		if len(com) == len(r.customerFilterKeys()) {
 			if r.compareFilter(fm[com[0]]) && r.compareFilter(fm[com[1]]) && r.compareFilter(fm[com[2]]) && r.compareFilter(fm[com[3]]) && r.compareFilter(fm[com[4]]) && r.compareFilter(fm[com[5]]) && r.compareFilter(fm[com[6]]) {
 				query := r.db.Trip.Query().Where(r.customerFilterPredicate(fm, com, localDatetime)...)
-				return r.filterTripByPopularity(query, limit, offset)
+				return r.filterTrip(query, limit, offset)
 			}
 		}
 		if len(com) == (len(r.customerFilterKeys()) - 1) {
@@ -623,7 +623,7 @@ func (r *repository) ReadAllCustomer(limit int, offset int, localDatetime string
 				query := r.db.Trip.Query().Where(
 					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
-				return r.filterTripByPopularity(query, limit, offset)
+				return r.filterTrip(query, limit, offset)
 			}
 		}
 		if len(com) == (len(r.customerFilterKeys()) - 2) {
@@ -631,7 +631,7 @@ func (r *repository) ReadAllCustomer(limit int, offset int, localDatetime string
 				query := r.db.Trip.Query().Where(
 					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
-				return r.filterTripByPopularity(query, limit, offset)
+				return r.filterTrip(query, limit, offset)
 			}
 		}
 		if len(com) == (len(r.customerFilterKeys()) - 3) {
@@ -639,7 +639,7 @@ func (r *repository) ReadAllCustomer(limit int, offset int, localDatetime string
 				query := r.db.Trip.Query().Where(
 					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
-				return r.filterTripByPopularity(query, limit, offset)
+				return r.filterTrip(query, limit, offset)
 			}
 		}
 		if len(com) == (len(r.customerFilterKeys()) - 4) {
@@ -647,7 +647,7 @@ func (r *repository) ReadAllCustomer(limit int, offset int, localDatetime string
 				query := r.db.Trip.Query().Where(
 					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
-				return r.filterTripByPopularity(query, limit, offset)
+				return r.filterTrip(query, limit, offset)
 			}
 		}
 		if len(com) == (len(r.customerFilterKeys()) - 5) {
@@ -655,7 +655,7 @@ func (r *repository) ReadAllCustomer(limit int, offset int, localDatetime string
 				query := r.db.Trip.Query().Where(
 					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
-				return r.filterTripByPopularity(query, limit, offset)
+				return r.filterTrip(query, limit, offset)
 			}
 		}
 		if len(com) == (len(r.customerFilterKeys()) - 6) {
@@ -663,12 +663,11 @@ func (r *repository) ReadAllCustomer(limit int, offset int, localDatetime string
 				query := r.db.Trip.Query().Where(
 					trip.And(r.customerFilterPredicate(fm, com, localDatetime)...),
 				)
-				return r.filterTripByPopularity(query, limit, offset)
+				return r.filterTrip(query, limit, offset)
 			}
 		}
 	}
 	return application.Paginate(0, []*ent.Trip{})
-	// return r.filterTripByPopularity(r.db.Trip.Query(), limit, offset)
 }
 
 // ReadAllPopular implements gateways.TripRepo.
@@ -677,6 +676,14 @@ func (r *repository) ReadAllPopular(limit int, offset int, localDatetime string)
 		func(s *sql.Selector) {
 			s.Where(sql.ExprP(fmt.Sprintf("%s >= ?", trip.FieldDepartureDate), application.ParseRFC3339MYSQLDatetime(localDatetime, "2006-01-02 15:04:05")))
 		},
+		trip.Or(
+			func(s *sql.Selector) {
+				s.Where(sql.ExprP(fmt.Sprintf("%s IS NULL", trip.FieldStatus)))
+			},
+			func(s *sql.Selector) {
+				s.Where(sql.ExprP(fmt.Sprintf("%s != ?", trip.FieldStatus), trip.StatusEnded))
+			},
+		),
 	)), limit, offset)
 }
 
@@ -910,6 +917,9 @@ func (r *repository) customerFilterPredicate(data map[string]any, combinations [
 					func(s *sql.Selector) {
 						s.Where(sql.ExprP(fmt.Sprintf("DATE(%s) >= ?", trip.FieldDepartureDate), application.ParseRFC3339MYSQLDatetime(v.(string))))
 					},
+					func(s *sql.Selector) {
+						s.Where(sql.ExprP(fmt.Sprintf("%s >= now() - INTERVAL 1 DAY ", trip.FieldDepartureDate)))
+					},
 				))
 				break
 			}
@@ -927,7 +937,14 @@ func (r *repository) customerFilterPredicate(data map[string]any, combinations [
 			}
 		}
 	}
-
+	results = append(results, trip.Or(
+		func(s *sql.Selector) {
+			s.Where(sql.ExprP(fmt.Sprintf("%s IS NULL", trip.FieldStatus)))
+		},
+		func(s *sql.Selector) {
+			s.Where(sql.ExprP(fmt.Sprintf("%s != ?", trip.FieldStatus), trip.StatusEnded))
+		},
+	))
 	// log.Println(application.ParseRFC3339MYSQLDatetime(localDatetime, "2006-01-02 15:04:05"))
 	// results = append(results, trip.And(
 	// 	func(s *sql.Selector) {
